@@ -1,0 +1,286 @@
+package frc.robot.subsystems;
+
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.RelativeEncoder;
+
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
+import frc.robot.Constants.SwerveConstants;
+import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.ModuleConstants;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+public class SwerveModule {
+  private final String m_name;
+
+  private final SparkMax m_driveMotor;
+  private final SparkMax m_turningMotor;
+
+  private SparkMaxConfig m_driveConfig, m_turnConfig;
+
+  private AnalogInput absoluteEncoder;
+
+  private double AnalogEncoderOffset, turningFactor;
+  private boolean driveInverted, turnReversed, absReversed;
+
+  private Rotation2d lastAngle;
+
+  private final RelativeEncoder m_driveEncoder, m_turningEncoder;
+
+  private final SlewRateLimiter filter = new SlewRateLimiter(ModuleConstants.moduleDriveSlewRate);
+  
+  private PIDController turningController = new PIDController(SwerveConstants.angleKP, SwerveConstants.angleKD, SwerveConstants.angleKI);
+  
+  // // Using a TrapezoidProfile PIDController to allow for smooth turning
+  // private final ProfiledPIDController m_turningPIDController = new ProfiledPIDController(
+  //     ModuleConstants.moduleTurningController, 0, 0, 
+  //         new TrapezoidProfile.Constraints(ModuleConstants.maxModuleAngularSpeedDegreesPerSecond,
+  //                                          ModuleConstants.maxModuleAngularAccelerationDegreesPerSecondSquared));
+
+  /**
+   * Constructs a SwerveModule.
+   * 
+   * @param name                   The name of the module.
+   * @param driveMotorChannel      The channel of the drive motor.
+   * @param turningMotorChannel    The channel of the turning motor.
+   * @param turningEncoderChannel  The channels of the turning encoder.
+   * @param driveMotorReversed     Whether the drive encoder is reversed.
+   * @param turningMotorReversed   Whether the turning encoder is reversed.
+   * @param encoderOffset          The offset, in degrees, of the absolute encoder.
+   * @param absoluteEncoderReversed  Whether the absolute encoder is reversed (negative).
+   */
+  public SwerveModule(String name, int driveMotorChannel, int turningMotorChannel, 
+                      int turningEncoderChannel, boolean driveMotorReversed, boolean turningMotorReversed, 
+                      double encoderOffset, boolean absoluteEncoderReversed) {
+
+    AnalogEncoderOffset = encoderOffset;
+    absoluteEncoder = new AnalogInput(turningEncoderChannel);
+    absReversed = absoluteEncoderReversed;
+
+    m_name = name;
+
+    driveInverted = driveMotorReversed;
+    turnReversed = turningMotorReversed;
+
+    m_driveMotor = new SparkMax(driveMotorChannel, MotorType.kBrushless);
+    m_turningMotor = new SparkMax(turningMotorChannel, MotorType.kBrushless);
+
+    m_driveConfig = new SparkMaxConfig();
+    m_turnConfig = new SparkMaxConfig();
+
+    m_driveEncoder = m_driveMotor.getEncoder();
+    m_turningEncoder = m_turningMotor.getEncoder();
+
+    configAngleMotorDefault();
+    configDriveMotorDefault();
+
+    lastAngle = getState().angle;
+  }
+
+  /** @return The angle, in degrees, of the module */
+  private Rotation2d getAngle() {
+    return Rotation2d.fromDegrees(getAbsoluteEncoder());
+  }
+
+  /** @return The current state of the module. */
+  public SwerveModuleState getState() {
+    return new SwerveModuleState(m_driveEncoder.getVelocity(), getAngle());
+  }
+
+  /** @return The current position of the module. */
+  public SwerveModulePosition getPosition() {
+    return new SwerveModulePosition(m_driveEncoder.getPosition(), new Rotation2d(Units.degreesToRadians(getAbsoluteEncoder())));
+  }
+
+  /** @deprecated Use getAbsoluteEncoder() instead
+   * @return The position of the relatoce encoder of the turning motor
+   */
+  public double getEncoderPos() {
+    return m_turningEncoder.getPosition();
+  }
+
+  /**
+   * Sets the desired state for the module.
+   *
+   * @param desiredState Desired state with speed and angle.
+   */
+  public void setDesiredState(SwerveModuleState desiredState, boolean isNeutral) {
+    SmartDashboard.putString(m_name + "'s desired state:", desiredState.toString());
+
+    SwerveModuleState state = desiredState;
+    state.optimize(lastAngle);
+
+    final double driveOutput = state.speedMetersPerSecond / DriveConstants.maxSpeedMetersPerSecond;
+
+    m_driveMotor.set(filter.calculate(driveOutput));
+    setAngle(state, isNeutral);
+  }
+
+  /**
+   * Sets the angle of the module's turn motor.
+   * 
+   * @param desiredState The desired state of the module.
+   */
+  public void setAngle(SwerveModuleState desiredState, boolean isNeutral) {
+    // Prevent rotating module if speed is less then 1%. Prevents jittering.
+    Rotation2d angle = 
+        (Math.abs(desiredState.speedMetersPerSecond) <= (SwerveConstants.maxSpeed * .01)) ? lastAngle : desiredState.angle;
+
+    //SmartDashboard.putNumber(m_name + "desired angle", angle.getDegrees());
+    
+    turningFactor = turningController.calculate(getAbsoluteEncoder(), angle.getDegrees());
+    turningFactor = MathUtil.clamp(turningFactor, -SwerveConstants.kMaxOutput, SwerveConstants.kMaxOutput);
+    
+    SmartDashboard.putBoolean("isNeutral", isNeutral);
+
+    m_turningMotor.set(isNeutral || turningController.atSetpoint() ? 0 : -turningFactor);
+    lastAngle = angle;
+  }
+
+  /** Resets all of the SwerveModule's encoders. */
+  public void resetEncoders() {
+    m_driveEncoder.setPosition(0);
+    m_turningEncoder.setPosition(getAbsoluteEncoder());
+  }
+
+  /** @return The drive motor of the module. */
+  public SparkMax getDriveMotor() {
+    return m_driveMotor;
+  }
+
+  /** @return The turn motor of the module. */
+  public SparkMax getTurnMotor() {
+    return m_turningMotor;
+  }
+
+  /** Stops the module's drive motor from moving. */
+  public void stop() {
+    m_driveMotor.set(0);
+  }
+
+  /** @return The angle, in degrees, of the module. */
+  public double getAbsoluteEncoder() {
+    double angle = absoluteEncoder.getAverageVoltage() / RobotController.getVoltage5V();
+    angle *= 360;
+    angle -= AnalogEncoderOffset;
+    angle = MathUtil.inputModulus(angle, -180, 180);
+    return (absReversed ? -1 : 1) * angle;
+  }
+
+  /** Posts module values to SmartDashboard. */
+  public void update() {
+    SmartDashboard.putNumber(m_name + "wheel angle", getAbsoluteEncoder());
+    SmartDashboard.putString(m_name +"'s state:", getState().toString());
+    SmartDashboard.putNumber(m_name + "'s error", turningController.getError());
+    SmartDashboard.putNumber(m_name + "'s turningFactor", turningFactor);
+    // SmartDashboard.putNumber(m_name + "'s desired angle", angle.getDegrees());
+    // SmartDashboard.putNumber(m_name + "'s setPoint", turningController.getSetpoint());
+    // SmartDashboard.putBoolean(m_name + "at setPoint", turningController.atSetpoint());
+  }
+
+  /** @return The distance the drive motor has moved. */
+  public double getDistance() {
+    return m_driveEncoder.getPosition();
+  }
+
+  /** Sets the module's drive motor's idle mode to brake. */
+  public void brake() {
+    m_driveConfig.idleMode(IdleMode.kBrake);
+    configDriveMotor();
+  }
+
+  /** Sets the module's drive motor's idle mode to coast. */
+  public void coast() {
+    m_driveConfig.idleMode(IdleMode.kCoast);
+    configDriveMotor();
+  }
+
+  /** Sets the SparkMaxConfig of the turning motor to m_turnConfig */
+  public void configAngleMotor() {
+    m_turningMotor.configure(m_turnConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+  }
+
+  /** Sets the SparkMaxConfig of the drive motor to m_driveConfig */
+  public void configDriveMotor() {
+    m_driveMotor.configure(m_driveConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+  }
+
+  /** Sets the default configuration of the angle motor. */
+  private void configAngleMotorDefault() {
+    m_turnConfig.idleMode(SwerveConstants.angleNeutralMode);
+    m_turnConfig.inverted(turnReversed);
+    m_turnConfig.smartCurrentLimit(SwerveConstants.angleContinuousCurrentLimit);
+    m_turnConfig.voltageCompensation(SwerveConstants.voltageComp);
+
+    turningController.setTolerance(SwerveConstants.kTolerance);
+    turningController.enableContinuousInput(-180, 180);
+
+    configAngleMotor();
+    Timer.delay(1);
+    resetEncoders();
+  }
+
+  /** Sets the default configuration of the drive motor. */
+  private void configDriveMotorDefault() {
+    // Set the distance per pulse for the drive encoder. We can simply use the
+    // distance traveled for one rotation of the wheel divided by the encoder resolution.
+    m_driveConfig.encoder.velocityConversionFactor(ModuleConstants.driveEncoderDistancePerPulse/60);
+    m_driveConfig.encoder.positionConversionFactor(ModuleConstants.driveEncoderDistancePerPulse);
+
+    m_driveConfig.idleMode(IdleMode.kBrake);
+    m_driveConfig.inverted(driveInverted);
+
+    Timer.delay(1);
+    configDriveMotor();
+  }
+
+  /** 
+   * Sets the state of the module, ONLY USE FOR LOCKED MODE.
+   * 
+   * @param lockedState The state with which to lock the module 
+   */
+  public void setLockedState(SwerveModuleState lockedState) {
+    lockedState.optimize(lastAngle);
+
+    m_driveMotor.set(0);
+    turningFactor = turningController.calculate(getAbsoluteEncoder(), lockedState.angle.getDegrees());
+
+    turningFactor = MathUtil.clamp(turningFactor, -SwerveConstants.kMaxOutput, SwerveConstants.kMaxOutput);
+
+    m_turningMotor.set(turningController.atSetpoint() ? 0 : -turningFactor);
+    lastAngle = lockedState.angle;
+  }
+
+  /** Stops the module's angle motor from moving. */
+  public void stopTurn() {
+    m_turningMotor.set(0);
+  }
+
+  /** @return The current IdleMode of the Module. */
+  public IdleMode getIdleMode() {
+    return m_driveMotor.configAccessor.getIdleMode();
+  }
+
+  /** 
+   * Sets the module's drive motor's IdleMode.
+   * 
+   * @param mode The IdleMode to set the module's drive motor to.
+   */
+  public void setIdleMode(IdleMode mode) {
+    m_driveConfig.idleMode(mode);
+    configDriveMotor();
+  }
+}
