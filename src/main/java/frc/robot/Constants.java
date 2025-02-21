@@ -1,6 +1,6 @@
 package frc.robot;
 
-import java.util.HashMap
+import java.util.HashMap;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
