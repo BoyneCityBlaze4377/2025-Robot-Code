@@ -17,6 +17,6 @@ public class ZeroCoralWrist extends InstantCommand {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_affector.zeroWristEncoder();
+    m_affector.zeroWristEncoder()
   }
 }
