@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.AffectorConstants;
+import frc.robot.Constants.IOConstants;
 import frc.robot.Constants.SensorConstants;
 
 public class AlgaeAffector extends SubsystemBase {
@@ -34,7 +35,7 @@ public class AlgaeAffector extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    SmartDashboard.putBoolean("HasAlgae", hasAlgae());
+    //IOConstants.MatchTab.add("HasAlgae", hasAlgae());
   }
 
   private void configMotorControllerDefaults() {

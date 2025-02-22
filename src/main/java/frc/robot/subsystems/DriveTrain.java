@@ -54,7 +54,7 @@ public class DriveTrain extends SubsystemBase {
   private boolean slow = false;
   private boolean isBrake = true;
   private double speedScaler, heading, x, y, omega, translationElevatorHeightSpeedScaler, 
-                 rotationElevatorHeightSpeedScaler;
+                 rotationElevatorHeightSpeedScaler, elevatorHeight;
 
   // Odometry class for tracking robot pose
   SwerveDriveOdometry m_odometry;
@@ -62,7 +62,7 @@ public class DriveTrain extends SubsystemBase {
 
   Field2d estimateField;
 
-  private final GenericEntry elevatorHeight;
+  private final Elevator m_elevator;
 
   //Choreo stuff
   private final PIDController xController = new PIDController(10.0, 0.0, 0.0);
@@ -70,7 +70,7 @@ public class DriveTrain extends SubsystemBase {
   private final PIDController headingController = new PIDController(7.5, 0.0, 0.0);
     
   /** Creates a new DriveTrain. */
-  public DriveTrain() {
+  public DriveTrain(Elevator elevator) {
     m_frontLeft = new SwerveModule("frontLeft", DriveConstants.frontLeftDriveMotorPort, 
                                                      DriveConstants.frontLeftTurningMotorPort,
                                                      DriveConstants.frontLeftTurningEncoderPort, 
@@ -121,7 +121,8 @@ public class DriveTrain extends SubsystemBase {
 
     translationElevatorHeightSpeedScaler = 1;
     rotationElevatorHeightSpeedScaler = 1;
-    elevatorHeight = IOConstants.DiagnosticTab.add("ElevatorEncoder", 115).getEntry();    
+    m_elevator = elevator;
+    elevatorHeight = m_elevator.getEncoderVal();
 
     estimateField = new Field2d();
 
@@ -167,6 +168,7 @@ public class DriveTrain extends SubsystemBase {
 
     updatePoseEstimator();
     estimateField.setRobotPose(getPoseEstimate());
+    elevatorHeight = m_elevator.getEncoderVal();
 
     /** Dashboard Posting */
     SmartDashboard.putNumber("gyro heading", m_gyro.getAngle());
@@ -182,7 +184,6 @@ public class DriveTrain extends SubsystemBase {
     SmartDashboard.putBoolean("SlowMode", slow);
     SmartDashboard.putNumber("GyroDisplacment", m_gyro.getDisplacementX());
     SmartDashboard.putBoolean("brake mode", isBrake);
-    SmartDashboard.putData(estimateField);
 
     SmartDashboard.putNumber("X Speed", x);
     SmartDashboard.putNumber("y speed", y);
@@ -192,9 +193,10 @@ public class DriveTrain extends SubsystemBase {
     m_odometry.update(m_gyro.getRotation2d(), getSwerveModulePositions());
 
     heading = m_gyro.getYaw() - m_gyro.getAngleAdjustment();
-    translationElevatorHeightSpeedScaler = DriveConstants.speedScaler - DriveConstants.elevatorHeightFactorTranslation 
-                                                                        * elevatorHeight.getDouble(115);
-    rotationElevatorHeightSpeedScaler = 1 - DriveConstants.elevatorHeightFactorRotation * elevatorHeight.getDouble(115);
+    translationElevatorHeightSpeedScaler = 1;
+    // DriveConstants.speedScaler - DriveConstants.elevatorHeightFactorTranslation * elevatorHeight;
+    rotationElevatorHeightSpeedScaler = 1;
+    //1 - DriveConstants.elevatorHeightFactorRotation * elevatorHeight;
 
     //drive
     instanceDrive(x * translationElevatorHeightSpeedScaler, y * translationElevatorHeightSpeedScaler, 
@@ -346,6 +348,7 @@ public class DriveTrain extends SubsystemBase {
    */
   public synchronized Pose2d getPose() {
     return m_odometry.getPoseMeters();
+    //m_poseEstimator.getEstimatedPosition();
   }
 
   /**
@@ -372,7 +375,7 @@ public class DriveTrain extends SubsystemBase {
   }
 
    /** Switches the idle modes of all modlues' drive motors */
-   public void switchBrake(){
+   public void switchBrake() {
     if (isBrake) {
       coastAll();
     } else {

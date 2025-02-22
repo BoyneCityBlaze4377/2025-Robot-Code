@@ -5,8 +5,9 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import frc.robot.Constants.IOConstants;
-
+import frc.robot.Constants.AutoAimConstants.Position;
 import frc.robot.subsystems.*;
+import frc.robot.commands.AllToSetPosition;
 import frc.robot.commands.ClimberCommands.*;
 import frc.robot.commands.DriveCommands.*;
 import frc.robot.commands.ElevatorCommands.*;
@@ -26,12 +27,12 @@ public class RobotContainer {
   private final Joystick m_driverStick = new Joystick(0);
   private final Joystick m_operatorStick = new Joystick(1);
   
-  private final DriveTrain m_driveTrain = new DriveTrain();
   private final CoralAffector m_coralAffector = new CoralAffector();
   private final AlgaeAffector m_algaeAffector = new AlgaeAffector();
   private final Climber m_climber = new Climber();
   private final Elevator m_elevator = new Elevator();
   private final VisionSubsystem m_visionSubsystem = new VisionSubsystem(Constants.SensorConstants.limeLightName);
+  private final DriveTrain m_driveTrain = new DriveTrain(m_elevator);
 
   private SendableChooser<Command> autonChooser = new SendableChooser<>();
 
@@ -67,6 +68,15 @@ public class RobotContainer {
   private final Command TestElevatorPos = new ElevatorToPosition(m_elevator, 100);
   private final Command TestCoralWristPos = new CoralWristToPos(m_coralAffector, 45);
   private final Command CoralWristOverride = new CoralWristOverride(m_coralAffector, m_driverStick);
+
+  private final Command AllToFloor = new AllToSetPosition(m_elevator, m_coralAffector, Position.floor);
+  private final Command AllToL1 = new AllToSetPosition(m_elevator, m_coralAffector, Position.L1);
+  private final Command AllToL12Algae = new AllToSetPosition(m_elevator, m_coralAffector, Position.L12algae);
+  private final Command AllToL2 = new AllToSetPosition(m_elevator, m_coralAffector, Position.L2);
+  private final Command AllToL23Algae = new AllToSetPosition(m_elevator, m_coralAffector, Position.L23algae);
+  private final Command AllToL3 = new AllToSetPosition(m_elevator, m_coralAffector, Position.L3);
+  private final Command AllToL4 = new AllToSetPosition(m_elevator, m_coralAffector, Position.L4);
+  private final Command AllToHP = new AllToSetPosition(m_elevator, m_coralAffector, Position.HP);
 
   // private final Command choreoCommand = choreoTEST();
 

@@ -10,6 +10,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.IOConstants;
 
 public class Elevator extends SubsystemBase {
   private final SparkMax elevatorMotor;
@@ -35,7 +36,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public void set(double speed) {
-    elevatorMotor.set(speed);
+    if (!atLowerLimit() && !atUpperLimit()) elevatorMotor.set(speed);
   }
 
   public void zeroEncoder() {
@@ -43,11 +44,11 @@ public class Elevator extends SubsystemBase {
   }
 
   public void up() {
-    elevatorMotor.set(ElevatorConstants.upSpeed);
+    if (!atLowerLimit() && !atUpperLimit()) elevatorMotor.set(ElevatorConstants.upSpeed);
   }
 
   public void down() {
-    elevatorMotor.set(ElevatorConstants.downSpeed);
+    if (!atLowerLimit() && !atUpperLimit()) elevatorMotor.set(ElevatorConstants.downSpeed);
   }
 
   public void stop() {

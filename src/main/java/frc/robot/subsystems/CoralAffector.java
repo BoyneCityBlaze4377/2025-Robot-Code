@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.AffectorConstants;
+import frc.robot.Constants.IOConstants;
 import frc.robot.Constants.SensorConstants;
 
 public class CoralAffector extends SubsystemBase {
@@ -33,15 +34,13 @@ public class CoralAffector extends SubsystemBase {
     configMotorControllerDefaults();
 
     coralDetector = new DigitalInput(SensorConstants.coralBreakID);
-
-    zeroWristEncoder();
   }
   
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    SmartDashboard.putNumber("WristEncoder", getWristDegrees());
-    SmartDashboard.putBoolean("HasCoral", hasCoral());
+    SmartDashboard.putNumber("WristEncoderDeg", getWristDegrees());
+    //IOConstants.MatchTab.addPersistent("HasCoral", hasCoral());
   }
 
   private void configMotorControllerDefaults() {
@@ -60,7 +59,7 @@ public class CoralAffector extends SubsystemBase {
   }
 
   public void moveWrist(double speed) {
-    coralWrist.set(-speed);
+    coralWrist.set(speed);
   }
 
   public void collect() {
@@ -92,19 +91,7 @@ public class CoralAffector extends SubsystemBase {
   }
 
   public void lockWrist() {
-    // double lockSpeed = 0;
-
-    // if (getWristDegrees() >= 14 && getWristDegrees() <= 111) {
-    //   lockSpeed = .05;
-    // } else if (getWristDegrees() < 14 || (getWristDegrees() > 111 && getWristDegrees() <= 132)) {
-    //   lockSpeed = .025;
-    // } else if (getWristDegrees() > 132) {
-    //   lockSpeed = .0125;
-    // }
-
-    // coralWrist.set(lockSpeed);
-
-    coralWrist.set(Math.pow(.05 - .000006 * (getWristDegrees()-90), 2));
+    coralWrist.set(.06 - .000006 * Math.pow(getWristDegrees() - 90, 2));
   }
 
   public boolean getDetector() {

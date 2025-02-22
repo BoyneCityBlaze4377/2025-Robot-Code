@@ -1,7 +1,9 @@
 package frc.robot.commands.PieceAffectorsCommands;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.AffectorConstants;
 import frc.robot.subsystems.CoralAffector;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -16,7 +18,7 @@ public class CoralWristOverride extends Command {
     m_stick = stick;
     // Use addRequirements() here to declare subsystem dependencies.
 
-    addRequirements(m_coralAffector);
+    addRequirements();
   }
 
   // Called when the command is initially scheduled.
@@ -28,7 +30,8 @@ public class CoralWristOverride extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    input = Math.abs(m_stick.getRawAxis(1)) < .1 ? 0 : -m_stick.getRawAxis(1);
+    input = Math.abs(m_stick.getRawAxis(1)) < .1 ? 0 : m_stick.getRawAxis(1);
+    input = MathUtil.clamp(input, AffectorConstants.maxCoralWristDownSpeed, AffectorConstants.maxCoralWristUpSpeed);
 
     if (input == 0) {
       m_coralAffector.lockWrist();

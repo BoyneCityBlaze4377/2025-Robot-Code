@@ -10,7 +10,8 @@ public class CoralCollect extends Command {
   public CoralCollect(CoralAffector coralAffector) {
     m_affector = coralAffector;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(m_affector);
+    addRequirements(//m_affector
+    );
   }
 
   // Called when the command is initially scheduled.
@@ -20,7 +21,8 @@ public class CoralCollect extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (!m_affector.hasCoral()) m_affector.collect();
+    m_affector.collect();
+    //if (!m_affector.hasCoral()) m_affector.collect();
   }
 
   // Called once the command ends or is interrupted.

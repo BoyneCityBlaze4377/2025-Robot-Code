@@ -60,7 +60,7 @@ public class AllToSetPosition extends Command {
 
     coralWristOutput = MathUtil.clamp(wristController.calculate(m_coralAffector.getWristDegrees(), coralWristTarget), 
                                    AffectorConstants.maxCoralWristDownSpeed, AffectorConstants.maxCoralWristDownSpeed);
-    m_coralAffector.moveWrist(-coralWristOutput);
+    m_coralAffector.moveWrist(coralWristOutput);
 
     IOConstants.DiagnosticTab.addPersistent("Position:", "Going to " + position.toString());
 

@@ -74,29 +74,29 @@ public final class Constants {
 
     public static final double conversionFactor = 1;
 
-    public static final double lowerLimit = 0;
-    public static final double upperLimit = 230;
+    public static final double lowerLimit = 5;
+    public static final double upperLimit = 210;
 
-    public static final double kP = .1;
-    public static final double kI = 0;
+    public static final double kP = .4;
+    public static final double kI = .2;
     public static final double kD = 0;
-    public static final double kTolerance = 2;
+    public static final double kTolerance = 1;
 
-    public static final double upSpeed = .9;
-    public static final double downSpeed = -.9;
+    public static final double upSpeed = .4;
+    public static final double downSpeed = -.4;
 
-    public static final double maxUpSpeed = .9;
+    public static final double maxUpSpeed = .99;
     public static final double maxDownSpeed = -.7;
     public static final double correctionSpeed = .1;
 
     public static final double defaultPos = lowerLimit;
     public static final double floorPos = lowerLimit;
-    public static final double L1Pos = 0;
-    public static final double L12AlgaePos = 0;
-    public static final double L2Pos = 0;
-    public static final double L23AlgaePos = 0;
-    public static final double L3Pos = 0;
-    public static final double L4Pos = 0;
+    public static final double L1Pos = 24;
+    public static final double L12AlgaePos = 107;
+    public static final double L2Pos = 85;
+    public static final double L23AlgaePos = 170;
+    public static final double L3Pos = 208;
+    public static final double L4Pos = 208;
     public static final double HPPos = 0;
   }
 
@@ -109,20 +109,20 @@ public final class Constants {
     public static final double wristScoringThreshold = 90;
 
     public static final double coralWristDefaultPos = 0;
-    public static final double coralWristL1 = 15;
-    public static final double coralWristL23 = 35;
-    public static final double coralWristL4 = 110;
+    public static final double coralWristL1 = 22;
+    public static final double coralWristL23 = 21;
+    public static final double coralWristL4 = 104;
     public static final double coralWristHP = 30;
 
-    public static final double coralWristKP = .25; //.25
+    public static final double coralWristKP = .05; //.25
     public static final double coralWristKI = 0; //0
     public static final double coralWristKD = 0; //0
     public static final double coralWristKTolerance = 1;
 
     public static final double coralAffectorSpeed = .5;
 
-    public static final double maxCoralWristUpSpeed = .5;
-    public static final double maxCoralWristDownSpeed = -.5;
+    public static final double maxCoralWristUpSpeed = .25;
+    public static final double maxCoralWristDownSpeed = -.05;
 
     /** ALGAE */
     public static final int algaeCollectorOneID = 13;
@@ -132,7 +132,6 @@ public final class Constants {
   }
 
   public static final class SwerveConstants {
-
     public static final double angleGearRatio = (150/7);
     public static final double voltageComp = 12.0;
 
@@ -252,7 +251,7 @@ public final class Constants {
   }
 
   public class AutoAimConstants{
-    public static enum Position {floor, L1, L12algae, L2, L23algae, L3, L4};
+    public static enum Position {floor, L1, L12algae, L2, L23algae, L3, L4, HP};
     public static enum ReefStation {front, frontRight, backRight, back, backLeft, frontLeft}
     public static enum Alignment {left, center, right};
 
@@ -264,6 +263,7 @@ public final class Constants {
       put(Position.L23algae, new double[] {ElevatorConstants.L23AlgaePos, AffectorConstants.coralWristDefaultPos});
       put(Position.L3, new double[] {ElevatorConstants.L3Pos, AffectorConstants.coralWristL23});
       put(Position.L4, new double[] {ElevatorConstants.L4Pos, AffectorConstants.coralWristL4});
+      put(Position.HP, new double[] {ElevatorConstants.HPPos, AffectorConstants.coralWristHP});
     }};
             
     public static final double centerOfReefToRobotDistance = Units.inchesToMeters(32.75) + Units.inchesToMeters(27) / 2 + 0.01; // 118.475
