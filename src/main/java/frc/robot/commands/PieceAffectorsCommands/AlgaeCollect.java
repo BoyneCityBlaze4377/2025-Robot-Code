@@ -27,7 +27,7 @@ public class AlgaeCollect extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    if (!m_affector.hasAlgae()) m_affector.collect();
+    m_affector.stopAffector();
   }
 
   // Returns true when the command should end.
