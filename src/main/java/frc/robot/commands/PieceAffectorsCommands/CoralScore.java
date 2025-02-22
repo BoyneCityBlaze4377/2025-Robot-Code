@@ -10,7 +10,7 @@ public class CoralScore extends Command {
   public CoralScore(CoralAffector coralAffector) {
     m_affector = coralAffector;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements();
+    addRequirements(m_affector);
   }
 
   // Called when the command is initially scheduled.
