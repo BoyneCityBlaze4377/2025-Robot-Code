@@ -193,14 +193,16 @@ public class DriveTrain extends SubsystemBase {
     m_odometry.update(m_gyro.getRotation2d(), getSwerveModulePositions());
 
     heading = m_gyro.getYaw() - m_gyro.getAngleAdjustment();
-    translationElevatorHeightSpeedScaler = 1;
-    // DriveConstants.speedScaler - DriveConstants.elevatorHeightFactorTranslation * elevatorHeight;
-    rotationElevatorHeightSpeedScaler = 1;
-    //1 - DriveConstants.elevatorHeightFactorRotation * elevatorHeight;
+    translationElevatorHeightSpeedScaler = DriveConstants.speedScaler 
+                                           - DriveConstants.elevatorHeightFactorTranslation 
+                                           * elevatorHeight;
+    rotationElevatorHeightSpeedScaler = 1 - DriveConstants.elevatorHeightFactorRotation * elevatorHeight;
 
     //drive
     instanceDrive(x * translationElevatorHeightSpeedScaler, y * translationElevatorHeightSpeedScaler, 
                   omega * rotationElevatorHeightSpeedScaler, fieldOrientation);
+
+    periodicTimer ++;
   }
 
   private void instanceDrive(double xSpeed, double ySpeed, double omega, boolean fieldRelative) {

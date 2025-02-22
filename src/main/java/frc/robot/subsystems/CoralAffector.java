@@ -40,7 +40,7 @@ public class CoralAffector extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     SmartDashboard.putNumber("WristEncoderDeg", getWristDegrees());
-    //IOConstants.MatchTab.addPersistent("HasCoral", hasCoral());
+    SmartDashboard.putBoolean("HasCoral", hasCoral());
   }
 
   private void configMotorControllerDefaults() {

@@ -4,6 +4,8 @@ import choreo.auto.AutoFactory;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import frc.robot.Constants.AffectorConstants;
+import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.Constants.AutoAimConstants.Position;
 import frc.robot.subsystems.*;
@@ -36,9 +38,6 @@ public class RobotContainer {
 
   private SendableChooser<Command> autonChooser = new SendableChooser<>();
 
-  // private final AutoFactory autoFactory = new AutoFactory(m_driveTrain::getPose, m_driveTrain::resetOdometry, 
-  //                                                         m_driveTrain::choreoDrive, true, m_driveTrain);
-
   private final Command TeleopDrive = new TeleopDrive(m_driverStick, m_driveTrain);
   private final Command LockPose = new LockPose(m_driveTrain); 
   private final Command SwitchBrake = new SwitchBrake(m_driveTrain);
@@ -46,28 +45,8 @@ public class RobotContainer {
   private final Command QuickBrake = new QuickBrake(m_driveTrain);
   private final Command SlowMode = new SlowMode(m_driveTrain);
 
-  // private final Command LLDrive = new LimeLightDrive(m_driveTrain, 1, 0, 0);
-
-  private final Command AlgaeCollect = new AlgaeCollect(m_algaeAffector);
-  private final Command AlgaeScore = new AlgaeScore(m_algaeAffector);
-
-  private final Command CoralCollect = new CoralCollect(m_coralAffector);
-  private final Command CoralScore = new CoralScore(m_coralAffector);
-  private final Command CoralWrist = new CoralWristOverride(m_coralAffector, m_operatorStick);
-
-  private final Command ElevatorUp = new ElevatorUp(m_elevator);
-  private final Command ElevatorDown = new ElevatorDown(m_elevator);
-
-  private final Command Climb = new Climb(m_climber, m_algaeAffector);
-  private final Command UnClimb = new UnClimb(m_climber);
-
-  private final Command ElevatorCommand = new frc.robot.commands.ElevatorCommands.ElevatorCommand(m_elevator, m_operatorStick);
-
-  private final Command LockWrist = new LockCoralWrist(m_coralAffector);
-  private final Command ZeroWrist = new ZeroCoralWrist(m_coralAffector);
-  private final Command TestElevatorPos = new ElevatorToPosition(m_elevator, 100);
-  private final Command TestCoralWristPos = new CoralWristToPos(m_coralAffector, 45);
-  private final Command CoralWristOverride = new CoralWristOverride(m_coralAffector, m_driverStick);
+  // private final Command ElevatorOverride = new ElevatorOverride(m_elevator, m_operatorStick);
+  // private final Command CoralWristOverride = new CoralWristOverride(m_coralAffector, m_driverStick);
 
   private final Command AllToFloor = new AllToSetPosition(m_elevator, m_coralAffector, Position.floor);
   private final Command AllToL1 = new AllToSetPosition(m_elevator, m_coralAffector, Position.L1);
@@ -78,16 +57,19 @@ public class RobotContainer {
   private final Command AllToL4 = new AllToSetPosition(m_elevator, m_coralAffector, Position.L4);
   private final Command AllToHP = new AllToSetPosition(m_elevator, m_coralAffector, Position.HP);
 
-  // private final Command choreoCommand = choreoTEST();
+  private final Command CoralCollect = new CoralCollect(m_coralAffector);
+  private final Command CoralScore = new CoralScore(m_coralAffector);
+  private final Command AlgaeCollect = new AlgaeCollect(m_algaeAffector);
+  private final Command AlgaeScore = new AlgaeScore(m_algaeAffector);
 
-  //private final SwerveSample trajectory;
+  private final Command Climb = new Climb(m_climber, m_algaeAffector);
+  private final Command UnClimb = new UnClimb(m_climber);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() { 
     m_driveTrain.setDefaultCommand(TeleopDrive);
     configureButtonBindings();
     m_driveTrain.setGyroOffset(0);
-    m_elevator.setDefaultCommand(ElevatorCommand);
 
     autonChooser.addOption("Test", null);
     IOConstants.ConfigTab.add(autonChooser);
@@ -104,35 +86,38 @@ public class RobotContainer {
    * {@link JoystickButton}.
    */
   private void configureButtonBindings() {
+    /* DRIVER */
     new JoystickButton(m_driverStick, IOConstants.quickBrakeButtonID).whileTrue(QuickBrake);
     new JoystickButton(m_driverStick, IOConstants.slowModeButtonID).whileTrue(SlowMode);
     new JoystickButton(m_driverStick, IOConstants.lockPoseButtonID).whileTrue(LockPose);
     new JoystickButton(m_driverStick, IOConstants.switchOrientationButtonID).onTrue(SwitchOrientation);
     new JoystickButton(m_driverStick, IOConstants.switchBrakeButtonID).onTrue(SwitchBrake);
+    // new JoystickButton(m_driverStick, IOConstants.autoAlignButtonID).whileTrue(null);
 
-    new JoystickButton(m_driverStick, 11).onTrue(ZeroWrist);
-    new JoystickButton(m_driverStick, 12).whileTrue(TestElevatorPos);
-    new JoystickButton(m_driverStick, 9).whileTrue(TestCoralWristPos);
+    /* Operator */
+    //Set positions
+    // new JoystickButton(m_operatorStick, IOConstants.floorPosButtonID).whileTrue(AllToFloor);
+    new JoystickButton(m_operatorStick, IOConstants.L1PosButtonID).whileTrue(AllToL1);
+    // new JoystickButton(m_operatorStick, IOConstants.L12AlgaePosButtonID).whileTrue(AllToL12Algae);
+    // new JoystickButton(m_operatorStick, IOConstants.L2PosButtonID).whileTrue(AllToL2);
+    // new JoystickButton(m_operatorStick, IOConstants.L23AlgaePOsButtonID).whileTrue(AllToL23Algae);
+    // new JoystickButton(m_operatorStick, IOConstants.L3PosButtonID).whileTrue(AllToL3);
+    // new JoystickButton(m_operatorStick, IOConstants.L4PosButtonID).whileTrue(AllToL4);
+    // new JoystickButton(m_operatorStick, IOConstants.HPPosButtonID).whileTrue(AllToHP);
 
-    // new JoystickButton(m_driverStick, 12).whileTrue(LLDrive);
+    new JoystickButton(m_operatorStick, 5).whileTrue(new ElevatorToPosition(m_elevator, ElevatorConstants.L1Pos));
+    new JoystickButton(m_operatorStick, 9).whileTrue(new CoralWristToPos(m_coralAffector, AffectorConstants.coralWristL1));
 
-    // new JoystickButton(m_operatorStick, 6).whileTrue(ElevatorUp);
-    // new JoystickButton(m_operatorStick, 5).whileTrue(ElevatorDown);
+    //Affectors
+    new JoystickButton(m_operatorStick, IOConstants.coralCollectButtonID).whileTrue(CoralCollect);
+    new JoystickButton(m_operatorStick, IOConstants.coralScoreButtonID).whileTrue(CoralScore);
+    new JoystickButton(m_operatorStick, IOConstants.algaeCollectButtonID).whileTrue(AlgaeCollect);
+    new JoystickButton(m_operatorStick, IOConstants.algaeScoreButtonID).whileTrue(AlgaeScore);
 
-    new JoystickButton(m_operatorStick, 4).whileTrue(CoralScore);
-    new JoystickButton(m_operatorStick, 3).whileTrue(CoralCollect);
-    // new JoystickButton(m_operatorStick, 2).whileTrue(AlgaeScore);
-    new JoystickButton(m_operatorStick, 2).whileTrue(AlgaeCollect);
-
-    new JoystickButton(m_operatorStick, 7).whileTrue(UnClimb);
-    new JoystickButton(m_operatorStick, 8).whileTrue(Climb);
-
-    new JoystickButton(m_operatorStick, 1).whileTrue(CoralWrist);
+    //Climber
+    new JoystickButton(m_operatorStick, IOConstants.unClimbButtonID).whileTrue(UnClimb);
+    new JoystickButton(m_operatorStick, IOConstants.climbButtonID).whileTrue(Climb);
   }
-  
-  // public Command choreoTEST() {
-  //   return Commands.sequence(autoFactory.trajectoryCmd("test 2 node"));
-  // }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.

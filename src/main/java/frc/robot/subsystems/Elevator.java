@@ -10,12 +10,12 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ElevatorConstants;
-import frc.robot.Constants.IOConstants;
 
 public class Elevator extends SubsystemBase {
   private final SparkMax elevatorMotor;
   private final SparkMaxConfig elevatorMotorConfig;
   private final RelativeEncoder elevatorEncoder;
+  private double elevatorSpeed;
 
   /** Creates a new Elevator. */
   public Elevator() {
@@ -24,19 +24,24 @@ public class Elevator extends SubsystemBase {
     elevatorMotorConfig = new SparkMaxConfig();
 
     elevatorEncoder = elevatorMotor.getEncoder();
+    elevatorSpeed = 0;
 
     configMotorControllerDefaults();
   }
 
   @Override
   public void periodic() {
-    if (atLowerLimit()) elevatorMotor.set(ElevatorConstants.correctionSpeed);
-    if (atUpperLimit()) elevatorMotor.set(-ElevatorConstants.correctionSpeed);
-    SmartDashboard.putNumber("ElevatorEncoder", getEncoderVal());
+    if (atUpperLimit()) {
+      elevatorMotor.set(-ElevatorConstants.correctionSpeed);
+    } else if (atLowerLimit()) {
+      elevatorMotor.set(ElevatorConstants.correctionSpeed);
+    } else {
+      elevatorMotor.set(elevatorSpeed);
+    }
   }
 
   public void set(double speed) {
-    if (!atLowerLimit() && !atUpperLimit()) elevatorMotor.set(speed);
+    if (!atLowerLimit() && !atUpperLimit()) elevatorSpeed = speed;
   }
 
   public void zeroEncoder() {
@@ -44,15 +49,15 @@ public class Elevator extends SubsystemBase {
   }
 
   public void up() {
-    if (!atLowerLimit() && !atUpperLimit()) elevatorMotor.set(ElevatorConstants.upSpeed);
+    if (!atLowerLimit() && !atUpperLimit()) elevatorSpeed = ElevatorConstants.upSpeed;
   }
 
   public void down() {
-    if (!atLowerLimit() && !atUpperLimit()) elevatorMotor.set(ElevatorConstants.downSpeed);
+    if (!atLowerLimit() && !atUpperLimit()) elevatorSpeed = ElevatorConstants.downSpeed;
   }
 
   public void stop() {
-    elevatorMotor.set(0);
+    elevatorSpeed = 0;
   }
 
   private void configMotorControllerDefaults() {
@@ -72,7 +77,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public void lockElevator() {
-    elevatorMotor.set(.025);
+    elevatorSpeed = ElevatorConstants.lockSpeed;
   }
 
   public boolean atUpperLimit() {

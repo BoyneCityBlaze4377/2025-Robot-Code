@@ -46,9 +46,13 @@ public class AllToSetPosition extends Command {
   public void initialize() {
     elevatorOutput = 0;
     coralWristOutput = 0;
-    IOConstants.DiagnosticTab.addPersistent("AllAtTarget", false);
-    IOConstants.DiagnosticTab.addPersistent("ElevatorAtTarget", false);
-    IOConstants.DiagnosticTab.addPersistent("WristAtTarget", false);
+    // IOConstants.DiagnosticTab.addPersistent("AllAtTarget", false);
+    // IOConstants.DiagnosticTab.addPersistent("ElevatorAtTarget", false);
+    // IOConstants.DiagnosticTab.addPersistent("WristAtTarget", false);
+    SmartDashboard.putBoolean("TRYING TO RUN", true);
+
+    SmartDashboard.putNumber("ElevatotTarget", elevatorTarget);
+    SmartDashboard.putNumber("WristTarget", coralWristTarget);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -59,13 +63,13 @@ public class AllToSetPosition extends Command {
     m_elevator.set(elevatorOutput);
 
     coralWristOutput = MathUtil.clamp(wristController.calculate(m_coralAffector.getWristDegrees(), coralWristTarget), 
-                                   AffectorConstants.maxCoralWristDownSpeed, AffectorConstants.maxCoralWristDownSpeed);
+                                   AffectorConstants.maxCoralWristDownSpeed, AffectorConstants.maxCoralWristUpSpeed);
     m_coralAffector.moveWrist(coralWristOutput);
 
-    IOConstants.DiagnosticTab.addPersistent("Position:", "Going to " + position.toString());
+    //IOConstants.DiagnosticTab.addPersistent("Position:", "Going to " + position.toString());
 
-    if (elevatorController.atSetpoint()) IOConstants.DiagnosticTab.addPersistent("ElevatorAtTarget", true);
-    if (wristController.atSetpoint()) IOConstants.DiagnosticTab.addPersistent("WristAtTarget", true);
+    // if (elevatorController.atSetpoint()) IOConstants.DiagnosticTab.addPersistent("ElevatorAtTarget", true);
+    // if (wristController.atSetpoint()) IOConstants.DiagnosticTab.addPersistent("WristAtTarget", true);
 
   }
 
@@ -78,8 +82,10 @@ public class AllToSetPosition extends Command {
     elevatorOutput = 0;
     coralWristOutput = 0;
 
-    IOConstants.DiagnosticTab.addPersistent("AllAtTarget", true);
-    IOConstants.DiagnosticTab.addPersistent("Position:", "At " + position.toString());
+    // IOConstants.DiagnosticTab.addPersistent("AllAtTarget", true);
+    // IOConstants.DiagnosticTab.addPersistent("Position:", "At " + position.toString());
+    SmartDashboard.putBoolean("TRYING TO RUN", false);
+
   }
 
   // Returns true when the command should end.

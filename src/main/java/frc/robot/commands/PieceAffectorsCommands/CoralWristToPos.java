@@ -30,7 +30,7 @@ public class CoralWristToPos extends Command {
   @Override
   public void initialize() {
     output = 0;
-    SmartDashboard.putNumber("Output", output);
+    SmartDashboard.putBoolean("TRYING TO RUN", true);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -40,9 +40,6 @@ public class CoralWristToPos extends Command {
                                    AffectorConstants.maxCoralWristDownSpeed, AffectorConstants.maxCoralWristUpSpeed);
 
     m_affector.moveWrist(output);
-
-    SmartDashboard.putNumber("RawOutput", wristController.calculate(m_affector.getWristDegrees(), desiredPos));
-    SmartDashboard.putNumber("Output", output);
   }
 
   // Called once the command ends or is interrupted.
@@ -50,7 +47,7 @@ public class CoralWristToPos extends Command {
   public void end(boolean interrupted) {
     m_affector.lockWrist();
     output = 0;
-    SmartDashboard.putNumber("Output", output);
+    SmartDashboard.putBoolean("TRYING TO RUN", false);  
   }
 
   // Returns true when the command should end.

@@ -2,6 +2,7 @@ package frc.robot.commands.ElevatorCommands;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.subsystems.Elevator;
@@ -24,7 +25,9 @@ public class ElevatorToPosition extends Command {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    SmartDashboard.putBoolean("TRYING TO RUN", true);
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
@@ -32,12 +35,15 @@ public class ElevatorToPosition extends Command {
     double output = MathUtil.clamp(elevatorController.calculate(m_elevator.getEncoderVal(), desiredPos), 
                                    ElevatorConstants.maxDownSpeed, ElevatorConstants.maxUpSpeed);
     m_elevator.set(output);
+    SmartDashboard.putNumber("Output", output);
+    SmartDashboard.putNumber("RawOutput", elevatorController.calculate(m_elevator.getEncoderVal(), desiredPos));
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     m_elevator.lockElevator();
+    SmartDashboard.putBoolean("TRYING TO RUN", false);
   }
 
   // Returns true when the command should end.

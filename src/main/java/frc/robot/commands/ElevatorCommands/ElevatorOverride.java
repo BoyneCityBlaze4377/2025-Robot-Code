@@ -4,12 +4,12 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Elevator;
 
-public class ElevatorCommand extends Command {
+public class ElevatorOverride extends Command {
   private final Elevator m_elevator;
   private final Joystick m_stick;
 
   /** Creates a new ElevatorCommand. */
-  public ElevatorCommand(Elevator elevator, Joystick stick) {
+  public ElevatorOverride(Elevator elevator, Joystick stick) {
     m_elevator = elevator;
     m_stick = stick;
     // Use addRequirements() here to declare subsystem dependencies.

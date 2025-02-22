@@ -32,24 +32,17 @@ public final class Constants {
 
     /* BUTTON IDS */
     /* Driver */
-    // Functions
     public static final int quickBrakeButtonID = 1;
     public static final int slowModeButtonID = 2;
     public static final int switchBrakeButtonID = 5;
     public static final int switchOrientationButtonID = 4;
     public static final int lockPoseButtonID = 3;
-
-    // AutoAim
-    public static final int nearestReefStationButtonID = 0;
-    public static final int leftAlignmentButtonID = 0;
-    public static final int rightAlignmentButtonID = 0;
-    public static final int HPAlignmentButtonID = 0;
-    public static final int processorAlignmentButtonID = 0;
+    public static final int autoAlignButtonID = 0;
 
     /* Operator */
     // Positions
     public static final int floorPosButtonID = 1;
-    public static final int L1PosButtonID = 2;
+    public static final int L1PosButtonID = 6;
     public static final int L12AlgaePosButtonID = 3;
     public static final int L2PosButtonID = 4;
     public static final int L23AlgaePOsButtonID = 5;
@@ -58,14 +51,14 @@ public final class Constants {
     public static final int HPPosButtonID = 8;
 
     // Affectors
-    public static final int coralCollectButtonID = 9;
-    public static final int coralScorebuttonID = 10;
-    public static final int algaeCollectButtonID = 11;
-    public static final int algaeScoreButtonID = 12;
+    public static final int coralCollectButtonID = 1;
+    public static final int coralScoreButtonID = 2;
+    public static final int algaeCollectButtonID = 3;
+    public static final int algaeScoreButtonID = 4;
 
     //Climber
-    public static final int unClimbButtonID = 13;
-    public static final int climbButtonID = 14;
+    public static final int unClimbButtonID = 7;
+    public static final int climbButtonID = 8;
   }
 
   public class ElevatorConstants {
@@ -77,13 +70,14 @@ public final class Constants {
     public static final double lowerLimit = 5;
     public static final double upperLimit = 210;
 
-    public static final double kP = .4;
-    public static final double kI = .2;
+    public static final double kP = .25;
+    public static final double kI = 0;
     public static final double kD = 0;
     public static final double kTolerance = 1;
 
     public static final double upSpeed = .4;
     public static final double downSpeed = -.4;
+    public static final double lockSpeed = .025;
 
     public static final double maxUpSpeed = .99;
     public static final double maxDownSpeed = -.7;
@@ -186,10 +180,10 @@ public final class Constants {
     public static final boolean backLeftAbsReversed = false;
     public static final boolean backRightAbsReversed = false;
 
-    public static final double frontLeftAnalogEncoderOffset = 4.61;  
-    public static final double frontRightAnalogEncoderOffset = 76.36;
-    public static final double backLeftAnalogEncoderOffset = 162.99;
-    public static final double backRightAnalogEncoderOffset = 63.92;
+    public static final double frontLeftAnalogEncoderOffset = 6.46;  
+    public static final double frontRightAnalogEncoderOffset = 75.30;
+    public static final double backLeftAnalogEncoderOffset = 162.59;
+    public static final double backRightAnalogEncoderOffset = 63.6;
 
     // Distance between centers of right and left wheels on robot in meters
     public static final double trackWidth = 0.31623;
@@ -207,17 +201,21 @@ public final class Constants {
     public static final boolean gyroReversed = true;
 
     public static final double speedScaler = .25;
-    public static final double elevatorHeightFactorTranslation = (speedScaler - .1) / (ElevatorConstants.upperLimit 
-                                                                                      - ElevatorConstants.lowerLimit);
-    public static final double elevatorHeightFactorRotation = .7 / (ElevatorConstants.upperLimit - ElevatorConstants.lowerLimit);
+    public static final double maxDriveSpeed = .9;
+    public static final double minDriveSpeed = .1;
+    public static final double maxRotspeed = 1;
+    public static final double minRotSpeed = .3;
+
+    public static final double elevatorHeightFactorTranslation = (maxDriveSpeed - minDriveSpeed) / 
+                                                                 (ElevatorConstants.upperLimit - ElevatorConstants.lowerLimit);
+    public static final double elevatorHeightFactorRotation = (maxRotspeed - minRotSpeed) / 
+                                                              (ElevatorConstants.upperLimit - ElevatorConstants.lowerLimit);
 
     public static final double maxSpeedMetersPerSecond = 4;
     public static final double maxAccelerationMetersPerSecondSquared = 1;
 
     public static final double xyDeadband = .1;
     public static final double zDeadband = .3;
-
-    public static final double LLAreaToDistanceConversionFactor = 3;
 
     public static final double ksVolts = 5;
     public static final double kvVoltSecondsPerMeter = 4;
