@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Unit;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.Lib.AdvancedPose2D;
@@ -28,7 +29,8 @@ public final class Constants {
 
     /* CONTROLLER IDS */
     public static final int driverControllerID = 0;
-    public static final int operatorControllerID = 1;
+    public static final int operatorController1ID = 1;
+    public static final int operatorController2ID = 2;
 
     /* BUTTON IDS */
     /* Driver */
@@ -42,13 +44,15 @@ public final class Constants {
     /* Operator */
     // Positions
     public static final int floorPosButtonID = 1;
-    public static final int L1PosButtonID = 6;
+    public static final int L1PosButtonID = 2;
     public static final int L12AlgaePosButtonID = 3;
     public static final int L2PosButtonID = 4;
     public static final int L23AlgaePOsButtonID = 5;
     public static final int L3PosButtonID = 6;
     public static final int L4PosButtonID = 7;
     public static final int HPPosButtonID = 8;
+
+    public static final int elevatroOverrideButtonID = 12;
 
     // Affectors
     public static final int coralCollectButtonID = 1;
@@ -59,6 +63,8 @@ public final class Constants {
     //Climber
     public static final int unClimbButtonID = 7;
     public static final int climbButtonID = 8;
+
+    public static final int wristOverrideButtonID = 12;
   }
 
   public class ElevatorConstants {
@@ -77,11 +83,12 @@ public final class Constants {
 
     public static final double upSpeed = .4;
     public static final double downSpeed = -.4;
+    public static final double overrideSpeed = .5;
     public static final double lockSpeed = .025;
 
     public static final double maxUpSpeed = .99;
     public static final double maxDownSpeed = -.7;
-    public static final double correctionSpeed = .1;
+    public static final double correctionSpeed = .2;
 
     public static final double defaultPos = lowerLimit;
     public static final double floorPos = lowerLimit;
@@ -107,6 +114,8 @@ public final class Constants {
     public static final double coralWristL23 = 21;
     public static final double coralWristL4 = 104;
     public static final double coralWristHP = 30;
+
+    public static final double wristOverrideSpeed = .15;
 
     public static final double coralWristKP = .05; //.25
     public static final double coralWristKI = 0; //0
@@ -264,11 +273,12 @@ public final class Constants {
       put(Position.HP, new double[] {ElevatorConstants.HPPos, AffectorConstants.coralWristHP});
     }};
             
-    public static final double centerOfReefToRobotDistance = Units.inchesToMeters(32.75) + Units.inchesToMeters(27) / 2 + 0.01; // 118.475
-    public static final double coralStationToRobotDistance = Units.inchesToMeters(27) / 2;
-
-    public static final double leftCoralReefOffset = 0;
-    public static final double rightCoralReefOffset = 0;
+    public static final double centerOfReefToRobotDistance = Units.inchesToMeters(32.75) + DriveConstants.trackWidth / 2 + 0.01; // 118.475
+    public static final double coralStationToRobotDistance = DriveConstants.trackWidth / 2;
+    public static final double coralAffectorOffsetFromRobotCenter = Units.inchesToMeters(2.5);
+    public static final double leftCoralReefOffset = Units.inchesToMeters(6.47) + coralAffectorOffsetFromRobotCenter;
+    public static final double rightCoralReefOffset = Units.inchesToMeters(6.47) - coralAffectorOffsetFromRobotCenter;
+    public static final double LLDefaultOffsetDegrees = 10.81;
 
     public static final HashMap<Alignment, Double> offsetFromAlignment = new HashMap<Alignment, Double> () {{
       put(Alignment.left, leftCoralReefOffset);
@@ -365,7 +375,7 @@ public final class Constants {
 
   public class ClimberConstants {
     public static final int climberControllerID = 15;
-    public static final double climberspeed = .2;
+    public static final double climberspeed = .4;
   }
 
   public class AutonConstants {

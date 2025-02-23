@@ -171,32 +171,37 @@ public class DriveTrain extends SubsystemBase {
     elevatorHeight = m_elevator.getEncoderVal();
 
     /** Dashboard Posting */
-    SmartDashboard.putNumber("gyro heading", m_gyro.getAngle());
-    SmartDashboard.putNumber("FilteredRobotHeading", heading);
-    SmartDashboard.putNumber("pitch", m_gyro.getPitch());
-    SmartDashboard.putNumber("roll", m_gyro.getRoll());
-    SmartDashboard.putNumber("distance", getAverageDistance());
-    SmartDashboard.putString("pose", getPose().toString());
-    SmartDashboard.putBoolean("Connected", m_gyro.isConnected());
-    SmartDashboard.putBoolean("Calibrating", m_gyro.isCalibrating());
-    SmartDashboard.putBoolean("Field Oriented", fieldOrientation);
-    SmartDashboard.putBoolean("isLocked", isLocked);
-    SmartDashboard.putBoolean("SlowMode", slow);
-    SmartDashboard.putNumber("GyroDisplacment", m_gyro.getDisplacementX());
-    SmartDashboard.putBoolean("brake mode", isBrake);
+    // SmartDashboard.putNumber("gyro heading", m_gyro.getAngle());
+    // SmartDashboard.putNumber("FilteredRobotHeading", heading);
+    // SmartDashboard.putNumber("pitch", m_gyro.getPitch());
+    // SmartDashboard.putNumber("roll", m_gyro.getRoll());
+    // SmartDashboard.putNumber("distance", getAverageDistance());
+    // SmartDashboard.putString("pose", getPose().toString());
+    // SmartDashboard.putBoolean("Connected", m_gyro.isConnected());
+    // SmartDashboard.putBoolean("Calibrating", m_gyro.isCalibrating());
+    // SmartDashboard.putBoolean("Field Oriented", fieldOrientation);
+    // SmartDashboard.putBoolean("isLocked", isLocked);
+    // SmartDashboard.putBoolean("SlowMode", slow);
+    // SmartDashboard.putNumber("GyroDisplacment", m_gyro.getDisplacementX());
+    // SmartDashboard.putBoolean("brake mode", isBrake);
 
-    SmartDashboard.putNumber("X Speed", x);
-    SmartDashboard.putNumber("y speed", y);
-    SmartDashboard.putNumber("omega", omega);
+    // SmartDashboard.putNumber("X Speed", x);
+    // SmartDashboard.putNumber("y speed", y);
+    // SmartDashboard.putNumber("omega", omega);
+
+    SmartDashboard.putNumber("HEADING", heading);
 
     // Update the odometry in the periodic block
     m_odometry.update(m_gyro.getRotation2d(), getSwerveModulePositions());
 
     heading = m_gyro.getYaw() - m_gyro.getAngleAdjustment();
-    translationElevatorHeightSpeedScaler = DriveConstants.speedScaler 
+
+    translationElevatorHeightSpeedScaler = DriveConstants.maxDriveSpeed 
                                            - DriveConstants.elevatorHeightFactorTranslation 
                                            * elevatorHeight;
-    rotationElevatorHeightSpeedScaler = 1 - DriveConstants.elevatorHeightFactorRotation * elevatorHeight;
+    rotationElevatorHeightSpeedScaler = DriveConstants.maxRotspeed 
+                                        - DriveConstants.elevatorHeightFactorRotation 
+                                        * elevatorHeight;
 
     //drive
     instanceDrive(x * translationElevatorHeightSpeedScaler, y * translationElevatorHeightSpeedScaler, 
@@ -221,7 +226,7 @@ public class DriveTrain extends SubsystemBase {
    * @param rot Angular rate of the robot.
    */
   public void teleopDrive(double xSpeed, double ySpeed, double rot) {
-    rot = Math.pow(rot, 3);
+    // rot = Math.pow(rot, 3);
 
     x = xSpeed * DriveConstants.maxSpeedMetersPerSecond * speedScaler;
     y = ySpeed * DriveConstants.maxSpeedMetersPerSecond * speedScaler;
@@ -239,7 +244,7 @@ public class DriveTrain extends SubsystemBase {
     brakeAll();
     x = xSpeed;
     y = ySpeed;
-    omega = rot * Math.PI;
+    omega = rot;
     fieldOrientation = true;
   }
 

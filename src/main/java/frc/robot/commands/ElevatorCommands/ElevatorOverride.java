@@ -1,7 +1,10 @@
 package frc.robot.commands.ElevatorCommands;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.ElevatorConstants;
 import frc.robot.subsystems.Elevator;
 
 public class ElevatorOverride extends Command {
@@ -23,23 +26,13 @@ public class ElevatorOverride extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (m_stick.getRawAxis(2) > .95 && m_stick.getRawAxis(3) > .95) {
-      m_elevator.set(-m_stick.getRawAxis(1) * .8);
-    } else if (m_stick.getRawButton(6)) {
-        m_elevator.up();
-    } else if (m_stick.getRawButton(5)) {
-        m_elevator.down();
-    } else {
-      m_elevator.lockElevator();
-    }
-
-    if (m_stick.getRawButton(10)) m_elevator.zeroEncoder();
+    m_elevator.set(MathUtil.applyDeadband(-m_stick.getRawAxis(1) * ElevatorConstants.overrideSpeed, .1));
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_elevator.stop();
+    m_elevator.lockElevator();
   }
 
   // Returns true when the command should end.

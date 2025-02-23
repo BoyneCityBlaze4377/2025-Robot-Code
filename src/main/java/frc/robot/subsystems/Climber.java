@@ -24,7 +24,7 @@ public class Climber extends SubsystemBase {
     climberEncoder = climberMotor.getEncoder();
 
     configure();
-    zeroEncoder();
+    // zeroEncoder();
   }
 
   @Override

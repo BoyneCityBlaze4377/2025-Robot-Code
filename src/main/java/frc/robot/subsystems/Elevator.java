@@ -7,6 +7,7 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ElevatorConstants;
@@ -32,12 +33,16 @@ public class Elevator extends SubsystemBase {
   @Override
   public void periodic() {
     if (atUpperLimit()) {
-      elevatorMotor.set(-ElevatorConstants.correctionSpeed);
+      elevatorSpeed = -ElevatorConstants.correctionSpeed;
     } else if (atLowerLimit()) {
-      elevatorMotor.set(ElevatorConstants.correctionSpeed);
-    } else {
-      elevatorMotor.set(elevatorSpeed);
+      elevatorSpeed = ElevatorConstants.correctionSpeed;
     }
+    //elevatorMotor.set(elevatorSpeed);
+    
+    SmartDashboard.putNumber("ElevatorEncoder", getEncoderVal());
+    SmartDashboard.putBoolean("LowerLimit", atLowerLimit());
+    SmartDashboard.putBoolean("UpperLimit", atUpperLimit());
+
   }
 
   public void set(double speed) {
@@ -65,10 +70,6 @@ public class Elevator extends SubsystemBase {
     elevatorMotorConfig.idleMode(IdleMode.kBrake);
     elevatorMotorConfig.encoder.positionConversionFactor(ElevatorConstants.conversionFactor);
 
-    configMotorcontroller();
-  }
-
-  private void configMotorcontroller() {
     elevatorMotor.configure(elevatorMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 

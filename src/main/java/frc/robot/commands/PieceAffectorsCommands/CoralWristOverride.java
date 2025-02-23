@@ -18,7 +18,7 @@ public class CoralWristOverride extends Command {
     m_stick = stick;
     // Use addRequirements() here to declare subsystem dependencies.
 
-    addRequirements();
+    addRequirements(m_coralAffector);
   }
 
   // Called when the command is initially scheduled.
@@ -30,9 +30,7 @@ public class CoralWristOverride extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    input = Math.abs(m_stick.getRawAxis(1)) < .1 ? 0 : m_stick.getRawAxis(1);
-    input = MathUtil.clamp(input, AffectorConstants.maxCoralWristDownSpeed, AffectorConstants.maxCoralWristUpSpeed);
-
+    input = MathUtil.applyDeadband(m_stick.getRawAxis(0) * AffectorConstants.wristOverrideSpeed, .1);
     if (input == 0) {
       m_coralAffector.lockWrist();
     } else {
@@ -44,7 +42,7 @@ public class CoralWristOverride extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_coralAffector.stopWrist();
+    m_coralAffector.lockWrist();
   }
 
   // Returns true when the command should end.

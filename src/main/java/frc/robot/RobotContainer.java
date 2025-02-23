@@ -7,9 +7,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import frc.robot.Constants.AffectorConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IOConstants;
+import frc.robot.Constants.AutoAimConstants.Alignment;
 import frc.robot.Constants.AutoAimConstants.Position;
 import frc.robot.subsystems.*;
 import frc.robot.commands.AllToSetPosition;
+import frc.robot.commands.Auton.AutonAutoAlign;
 import frc.robot.commands.ClimberCommands.*;
 import frc.robot.commands.DriveCommands.*;
 import frc.robot.commands.ElevatorCommands.*;
@@ -26,8 +28,9 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
  * (including subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  private final Joystick m_driverStick = new Joystick(0);
-  private final Joystick m_operatorStick = new Joystick(1);
+  private final Joystick m_driverStick = new Joystick(IOConstants.driverControllerID); //Driving
+  private final Joystick m_operatorStick1 = new Joystick(IOConstants.operatorController1ID); //Set positions and elevatorOverride
+  private final Joystick m_operatorStick2 = new Joystick(IOConstants.operatorController2ID); //Affectors, climber, and wristOverride
   
   private final CoralAffector m_coralAffector = new CoralAffector();
   private final AlgaeAffector m_algaeAffector = new AlgaeAffector();
@@ -65,6 +68,9 @@ public class RobotContainer {
   private final Command Climb = new Climb(m_climber, m_algaeAffector);
   private final Command UnClimb = new UnClimb(m_climber);
 
+  private final Command ElevatorOverride = new ElevatorOverride(m_elevator, m_operatorStick1);
+  private final Command WristOverride = new CoralWristOverride(m_coralAffector, m_operatorStick2);
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() { 
     m_driveTrain.setDefaultCommand(TeleopDrive);
@@ -87,36 +93,39 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     /* DRIVER */
-    new JoystickButton(m_driverStick, IOConstants.quickBrakeButtonID).whileTrue(QuickBrake);
+    // new JoystickButton(m_driverStick, IOConstants.quickBrakeButtonID).whileTrue(QuickBrake);
     new JoystickButton(m_driverStick, IOConstants.slowModeButtonID).whileTrue(SlowMode);
     new JoystickButton(m_driverStick, IOConstants.lockPoseButtonID).whileTrue(LockPose);
     new JoystickButton(m_driverStick, IOConstants.switchOrientationButtonID).onTrue(SwitchOrientation);
     new JoystickButton(m_driverStick, IOConstants.switchBrakeButtonID).onTrue(SwitchBrake);
     // new JoystickButton(m_driverStick, IOConstants.autoAlignButtonID).whileTrue(null);
+    new JoystickButton(m_driverStick, 1).whileTrue(new AutonAutoAlign(m_driveTrain, m_visionSubsystem, 
+                                                                              m_driverStick, .25, Alignment.center));
 
     /* Operator */
     //Set positions
-    // new JoystickButton(m_operatorStick, IOConstants.floorPosButtonID).whileTrue(AllToFloor);
-    new JoystickButton(m_operatorStick, IOConstants.L1PosButtonID).whileTrue(AllToL1);
-    // new JoystickButton(m_operatorStick, IOConstants.L12AlgaePosButtonID).whileTrue(AllToL12Algae);
-    // new JoystickButton(m_operatorStick, IOConstants.L2PosButtonID).whileTrue(AllToL2);
-    // new JoystickButton(m_operatorStick, IOConstants.L23AlgaePOsButtonID).whileTrue(AllToL23Algae);
-    // new JoystickButton(m_operatorStick, IOConstants.L3PosButtonID).whileTrue(AllToL3);
-    // new JoystickButton(m_operatorStick, IOConstants.L4PosButtonID).whileTrue(AllToL4);
-    // new JoystickButton(m_operatorStick, IOConstants.HPPosButtonID).whileTrue(AllToHP);
-
-    new JoystickButton(m_operatorStick, 5).whileTrue(new ElevatorToPosition(m_elevator, ElevatorConstants.L1Pos));
-    new JoystickButton(m_operatorStick, 9).whileTrue(new CoralWristToPos(m_coralAffector, AffectorConstants.coralWristL1));
+    // new JoystickButton(m_operatorStick1, IOConstants.floorPosButtonID).whileTrue(AllToFloor);
+    // new JoystickButton(m_operatorStick1, IOConstants.L1PosButtonID).whileTrue(AllToL1);
+    // new JoystickButton(m_operatorStick1, IOConstants.L12AlgaePosButtonID).whileTrue(AllToL12Algae);
+    // new JoystickButton(m_operatorStick1, IOConstants.L2PosButtonID).whileTrue(AllToL2);
+    // new JoystickButton(m_operatorStick1, IOConstants.L23AlgaePOsButtonID).whileTrue(AllToL23Algae);
+    // new JoystickButton(m_operatorStick1, IOConstants.L3PosButtonID).whileTrue(AllToL3);
+    // new JoystickButton(m_operatorStick1, IOConstants.L4PosButtonID).whileTrue(AllToL4);
+    // new JoystickButton(m_operatorStick1, IOConstants.HPPosButtonID).whileTrue(AllToHP);
 
     //Affectors
-    new JoystickButton(m_operatorStick, IOConstants.coralCollectButtonID).whileTrue(CoralCollect);
-    new JoystickButton(m_operatorStick, IOConstants.coralScoreButtonID).whileTrue(CoralScore);
-    new JoystickButton(m_operatorStick, IOConstants.algaeCollectButtonID).whileTrue(AlgaeCollect);
-    new JoystickButton(m_operatorStick, IOConstants.algaeScoreButtonID).whileTrue(AlgaeScore);
+    new JoystickButton(m_operatorStick2, IOConstants.coralCollectButtonID).whileTrue(CoralCollect);
+    new JoystickButton(m_operatorStick2, IOConstants.coralScoreButtonID).whileTrue(CoralScore);
+    new JoystickButton(m_operatorStick2, IOConstants.algaeCollectButtonID).whileTrue(AlgaeCollect);
+    new JoystickButton(m_operatorStick2, IOConstants.algaeScoreButtonID).whileTrue(AlgaeScore);
 
     //Climber
-    new JoystickButton(m_operatorStick, IOConstants.unClimbButtonID).whileTrue(UnClimb);
-    new JoystickButton(m_operatorStick, IOConstants.climbButtonID).whileTrue(Climb);
+    new JoystickButton(m_operatorStick2, IOConstants.unClimbButtonID).whileTrue(UnClimb);
+    new JoystickButton(m_operatorStick2, IOConstants.climbButtonID).whileTrue(Climb);
+
+    //Overrides
+    new JoystickButton(m_operatorStick1, IOConstants.elevatroOverrideButtonID).whileTrue(ElevatorOverride);
+    new JoystickButton(m_operatorStick2, IOConstants.wristOverrideButtonID).whileTrue(WristOverride);
   }
 
   /**

@@ -4,31 +4,28 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.SwerveConstants;
 import frc.robot.subsystems.DriveTrain;
 
 public class AutonDrive extends Command {
-  private double xSpeed, ySpeed, rot, targetDegrees, turnError, relativeAngle, initialTurnValue, time;
+  private double xSpeed, ySpeed, rot, targetHeading, turnError, relativeAngle, initialTurnValue, time;
   private boolean finished, driven, turned;
   private final DriveTrain m_driveTrain;
   private final Timer m_timer;
   /** Creates a new AutonDrive. */
-  public AutonDrive(DriveTrain driveTrain, double x, double y, double omega, double targetDistance, double TargetDegrees) {
-    xSpeed = x;
-    ySpeed = y;
-    rot = omega;
-    targetDegrees = TargetDegrees;
+  public AutonDrive(DriveTrain driveTrain, double desiredDriveAngle, double vMetersPerSecond, 
+                    double omegaRadiansPerSecond, double targetDistance, double TargetHeading) {
+    ySpeed = vMetersPerSecond * Math.cos(desiredDriveAngle);
+    xSpeed = vMetersPerSecond * Math.sin(desiredDriveAngle);
+    rot = omegaRadiansPerSecond;
+    targetHeading = TargetHeading;
     m_driveTrain = driveTrain;
     m_timer = new Timer();
-    time = targetDistance / Math.hypot(x * SwerveConstants.maxSpeed * m_driveTrain.getSpeedScaler(), 
-                                       y * SwerveConstants.maxSpeed * m_driveTrain.getSpeedScaler());
+    time = targetDistance / Math.hypot(xSpeed, ySpeed);
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_driveTrain);
-    m_driveTrain.brakeAll();
     finished = false;
     driven = false;
     turned = false;
-    m_driveTrain.setOrientation(true);
   }
 
   // Called when the command is initially scheduled.
@@ -42,9 +39,7 @@ public class AutonDrive extends Command {
     driven = false;
     turned = false;
 
-    Math.copySign(targetDegrees, rot);
-    rot *= 2;
-    targetDegrees *= -1;
+    Math.copySign(targetHeading, rot);
 
     m_timer.reset();
     m_timer.start();
@@ -54,7 +49,7 @@ public class AutonDrive extends Command {
   @Override
   public void execute() {
     relativeAngle = m_driveTrain.getHeading() - initialTurnValue;
-    turnError = targetDegrees + Math.copySign(relativeAngle, rot);
+    turnError = targetHeading + Math.copySign(relativeAngle, rot);
 
     MathUtil.inputModulus(relativeAngle, -360, 360);
     MathUtil.inputModulus(turnError, -360, 360);
@@ -81,7 +76,7 @@ public class AutonDrive extends Command {
     }
 
     if (Math.abs(turnError) <= 5) {
-      targetDegrees = 0;
+      targetHeading = m_driveTrain.getHeading();
       rot = 0;
       turnError = 0;
     }
@@ -94,7 +89,7 @@ public class AutonDrive extends Command {
     SmartDashboard.putNumber("turnError", turnError);
     SmartDashboard.putNumber("relativeAngle", relativeAngle);
     SmartDashboard.putNumber("Timer", m_timer.get());
-    SmartDashboard.putNumber("TargetDegrees", targetDegrees);
+    SmartDashboard.putNumber("TargetHeading", targetHeading);
   }
 
   // Called once the command ends or is interrupted.
@@ -103,7 +98,7 @@ public class AutonDrive extends Command {
     m_driveTrain.stop();
     m_driveTrain.lockPose();
 
-    targetDegrees = 0;
+    targetHeading = m_driveTrain.getHeading();
     rot = 0;
     xSpeed = 0;
     ySpeed = 0;
@@ -114,6 +109,6 @@ public class AutonDrive extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_timer.get() >= time && Math.abs(turnError) <= 5;
+    return m_timer.get() >= time && Math.abs(turnError) <= 2;
   }
 }

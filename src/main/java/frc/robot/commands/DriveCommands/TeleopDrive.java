@@ -1,6 +1,7 @@
 package frc.robot.commands.DriveCommands;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.Constants.DriveConstants;
@@ -39,6 +40,8 @@ public class TeleopDrive extends Command {
     y = (Math.abs(m_Joystick.getX()) < DriveConstants.xyDeadband ? 0 : m_Joystick.getX());
     z = (Math.abs(m_Joystick.getZ()) < DriveConstants.zDeadband ? 0 : m_Joystick.getZ());    
     m_driveTrain.teleopDrive(x, -y, -z);
+
+    SmartDashboard.putNumber("POV", m_Joystick.getPOV());
   }
   // Called once the command ends or is interrupted.
   @Override
