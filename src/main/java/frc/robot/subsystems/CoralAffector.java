@@ -8,8 +8,8 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.AffectorConstants;
 import frc.robot.Constants.IOConstants;
@@ -20,6 +20,8 @@ public class CoralAffector extends SubsystemBase {
   private final SparkMaxConfig coralAffectorConfig, coralWristConfig;
   private final RelativeEncoder wristEncoder;
   private final DigitalInput coralDetector;
+  private final GenericEntry wristValSender, hasCoralSender, lockedSender;
+  private boolean locked;
 
   /** Creates a new PieceAffector. */
   public CoralAffector() {
@@ -34,13 +36,17 @@ public class CoralAffector extends SubsystemBase {
     configMotorControllerDefaults();
 
     coralDetector = new DigitalInput(SensorConstants.coralBreakID);
+
+    wristValSender = IOConstants.DiagnosticTab.add("Wrist Encoder Degrees", getWristDegrees()).getEntry();
+    hasCoralSender = IOConstants.MatchTab.add("HasCoral", hasCoral()).getEntry();
+    lockedSender = IOConstants.DiagnosticTab.add("CoralWrist Locked", false).getEntry();
   }
   
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
-    SmartDashboard.putNumber("WristEncoderDeg", getWristDegrees());
-    SmartDashboard.putBoolean("HasCoral", hasCoral());
+    wristValSender.setDouble(getWristDegrees());
+    hasCoralSender.setBoolean(hasCoral());
+    lockedSender.setBoolean(locked);
   }
 
   private void configMotorControllerDefaults() {
@@ -60,6 +66,7 @@ public class CoralAffector extends SubsystemBase {
 
   public void moveWrist(double speed) {
     coralWrist.set(speed);
+    locked = false;
   }
 
   public void collect() {
@@ -84,6 +91,7 @@ public class CoralAffector extends SubsystemBase {
 
   public void stopWrist() {
     coralWrist.set(0);
+    locked = false;
   }
 
   public double getWristDegrees() {
@@ -92,6 +100,7 @@ public class CoralAffector extends SubsystemBase {
 
   public void lockWrist() {
     coralWrist.set(.06 - .000006 * Math.pow(getWristDegrees() - 90, 2));
+    locked = true;
   }
 
   public boolean getDetector() {

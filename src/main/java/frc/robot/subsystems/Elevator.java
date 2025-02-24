@@ -8,15 +8,20 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.IOConstants;
 
 public class Elevator extends SubsystemBase {
   private final SparkMax elevatorMotor;
   private final SparkMaxConfig elevatorMotorConfig;
   private final RelativeEncoder elevatorEncoder;
+  private boolean locked;
   private double elevatorSpeed;
+  private String positionStatusString;
+
+  private final GenericEntry elevatorHeight, elevatorSpeedSender, upperLimit, lowerLimit, positionStatusSender, lockedSender;
 
   /** Creates a new Elevator. */
   public Elevator() {
@@ -28,6 +33,12 @@ public class Elevator extends SubsystemBase {
     elevatorSpeed = 0;
 
     configMotorControllerDefaults();
+    elevatorHeight = IOConstants.MatchTab.add("Elevator Height", 0).getEntry();
+    elevatorSpeedSender = IOConstants.DiagnosticTab.add("Elevator Speed", 0).getEntry();
+    upperLimit = IOConstants.DiagnosticTab.add("At Upper Limit?", false).getEntry();
+    lowerLimit = IOConstants.DiagnosticTab.add("At Lower Limit?", true).getEntry();
+    positionStatusSender = IOConstants.MatchTab.add("Position", "At Position.floor").getEntry();
+    lockedSender = IOConstants.DiagnosticTab.add("Elevator locked", false).getEntry();
   }
 
   @Override
@@ -39,14 +50,17 @@ public class Elevator extends SubsystemBase {
     }
     //elevatorMotor.set(elevatorSpeed);
     
-    SmartDashboard.putNumber("ElevatorEncoder", getEncoderVal());
-    SmartDashboard.putBoolean("LowerLimit", atLowerLimit());
-    SmartDashboard.putBoolean("UpperLimit", atUpperLimit());
-
+    elevatorHeight.setDouble(getEncoderVal());
+    elevatorSpeedSender.setDouble(elevatorSpeed);
+    upperLimit.setBoolean(atUpperLimit());
+    lowerLimit.setBoolean(atLowerLimit());
+    positionStatusSender.setString(positionStatusString);
+    lockedSender.setBoolean(locked);
   }
 
   public void set(double speed) {
     if (!atLowerLimit() && !atUpperLimit()) elevatorSpeed = speed;
+    locked = false;
   }
 
   public void zeroEncoder() {
@@ -55,14 +69,17 @@ public class Elevator extends SubsystemBase {
 
   public void up() {
     if (!atLowerLimit() && !atUpperLimit()) elevatorSpeed = ElevatorConstants.upSpeed;
+    locked = false;
   }
 
   public void down() {
     if (!atLowerLimit() && !atUpperLimit()) elevatorSpeed = ElevatorConstants.downSpeed;
+    locked = false;
   }
 
   public void stop() {
     elevatorSpeed = 0;
+    locked = false;
   }
 
   private void configMotorControllerDefaults() {
@@ -79,6 +96,7 @@ public class Elevator extends SubsystemBase {
 
   public void lockElevator() {
     elevatorSpeed = ElevatorConstants.lockSpeed;
+    locked = true;
   }
 
   public boolean atUpperLimit() {
@@ -87,5 +105,9 @@ public class Elevator extends SubsystemBase {
 
   public boolean atLowerLimit() {
     return getEncoderVal() <= ElevatorConstants.lowerLimit;
+  }
+
+  public void setPositionString(String positionString) {
+    positionStatusString = positionString;
   }
 }

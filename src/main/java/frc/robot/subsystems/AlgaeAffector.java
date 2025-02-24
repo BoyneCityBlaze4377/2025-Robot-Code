@@ -7,8 +7,8 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.AffectorConstants;
 import frc.robot.Constants.IOConstants;
@@ -18,6 +18,7 @@ public class AlgaeAffector extends SubsystemBase {
   private final SparkMax algaeCollectorOne, algaeCollectorTwo;
   private final SparkMaxConfig algaeCollectorOneConfig, algaeCollectorTwoConfig;
   private final DigitalInput algaeDetector;
+  private final GenericEntry hasAlgaeSender;
 
   /** Creates a new PieceAffector. */
   public AlgaeAffector() {
@@ -30,12 +31,12 @@ public class AlgaeAffector extends SubsystemBase {
     configMotorControllerDefaults();
 
     algaeDetector = new DigitalInput(SensorConstants.algaeBreakID);
+    hasAlgaeSender = IOConstants.MatchTab.add("HasAlgae", hasAlgae()).getEntry();
   }
   
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
-    //IOConstants.MatchTab.add("HasAlgae", hasAlgae());
+    hasAlgaeSender.setBoolean(hasAlgae());
   }
 
   private void configMotorControllerDefaults() {

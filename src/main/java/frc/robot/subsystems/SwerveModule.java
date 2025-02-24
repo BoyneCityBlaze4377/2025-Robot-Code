@@ -15,13 +15,14 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.IOConstants;
 import frc.robot.Constants.ModuleConstants;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveModule {
   private final String m_name;
@@ -43,6 +44,8 @@ public class SwerveModule {
   private final SlewRateLimiter filter = new SlewRateLimiter(ModuleConstants.moduleDriveSlewRate);
   
   private final PIDController turningController;
+
+  private final GenericEntry desiredStateSender, wheelAngle;
   
   // // Using a TrapezoidProfile PIDController to allow for smooth turning
   // private final ProfiledPIDController m_turningPIDController = new ProfiledPIDController(
@@ -93,6 +96,9 @@ public class SwerveModule {
     configAngleMotorDefault();
     configDriveMotorDefault();
 
+    wheelAngle = IOConstants.DiagnosticTab.add(m_name + "'s angle", getAbsoluteEncoder()).getEntry();
+    desiredStateSender = IOConstants.DiagnosticTab.add(m_name + "'s desired state", getState().toString()).getEntry();
+
     lastAngle = getState().angle;
   }
 
@@ -124,8 +130,6 @@ public class SwerveModule {
    * @param desiredState Desired state with speed and angle.
    */
   public void setDesiredState(SwerveModuleState desiredState, boolean isNeutral) {
-    SmartDashboard.putString(m_name + "'s desired state:", desiredState.toString());
-
     SwerveModuleState state = desiredState;
     state.optimize(lastAngle);
 
@@ -133,6 +137,8 @@ public class SwerveModule {
 
     m_driveMotor.set(filter.calculate(driveOutput));
     setAngle(state, isNeutral);
+
+    desiredStateSender.setString(desiredState.toString());
   }
 
   /**
@@ -144,14 +150,10 @@ public class SwerveModule {
     // Prevent rotating module if speed is less then 1%. Prevents jittering.
     Rotation2d angle = 
         (Math.abs(desiredState.speedMetersPerSecond) <= (SwerveConstants.maxSpeed * .01)) ? lastAngle : desiredState.angle;
-
-    //SmartDashboard.putNumber(m_name + "desired angle", angle.getDegrees());
     
     turningFactor = turningController.calculate(getAbsoluteEncoder(), angle.getDegrees());
     turningFactor = MathUtil.clamp(turningFactor, -SwerveConstants.kMaxOutput, SwerveConstants.kMaxOutput);
     
-    SmartDashboard.putBoolean("isNeutral", isNeutral);
-
     m_turningMotor.set(isNeutral || turningController.atSetpoint() ? 0 : -turningFactor);
     lastAngle = angle;
   }
@@ -186,12 +188,9 @@ public class SwerveModule {
     return (absReversed ? -1 : 1) * angle;
   }
 
-  /** Posts module values to SmartDashboard. */
+  /** Posts module values to ShuffleBoard. */
   public void update() {
-    SmartDashboard.putNumber(m_name + "wheel angle", getAbsoluteEncoder());
-    SmartDashboard.putString(m_name +"'s state:", getState().toString());
-    // SmartDashboard.putNumber(m_name + "'s desired angle", angle.getDegrees());
-
+    wheelAngle.setDouble(getAbsoluteEncoder());
   }
 
   /** @return The distance the drive motor has moved. */

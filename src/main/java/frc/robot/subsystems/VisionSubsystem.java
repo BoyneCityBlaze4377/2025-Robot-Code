@@ -6,10 +6,11 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.IOConstants;
 import frc.robot.Constants.SensorConstants;
 import frc.robot.LimelightHelpers;
 import frc.robot.LimelightHelpers.LimelightTarget_Fiducial;
@@ -23,11 +24,21 @@ public class VisionSubsystem extends SubsystemBase {
   private final String name;
   private final LaserCan laserCan;
   private LaserCanInterface.Measurement lcMeasurement;
+  private final GenericEntry txSender, targetIDSender, LCMeasurementSender, LCHasMeasurement;
 
   /** Creates a new Vision. */
   public VisionSubsystem(String cameraName) {
     name = cameraName;
     laserCan = new LaserCan(17);
+    lcMeasurement = laserCan.getMeasurement();
+
+    txSender = IOConstants.DiagnosticTab.add("tx", tx).getEntry();
+    targetIDSender = IOConstants.DiagnosticTab.add("target ID", tID).getEntry();
+    LCMeasurementSender = IOConstants.DiagnosticTab.add("LaserCAN measured distance", 
+                                                        lcMeasurement.distance_mm).getEntry();
+    LCHasMeasurement = IOConstants.DiagnosticTab.add("LCHasMeasurement", 
+                                                            lcMeasurement.status == 
+                                                            LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT).getEntry();
   }
 
   @Override
@@ -42,20 +53,12 @@ public class VisionSubsystem extends SubsystemBase {
                                                          .targetingResults.targets_Fiducials;
     tID = (targets.length > 0 ? targets[0].fiducialID : 0);
 
-    SmartDashboard.putNumber("AprilTagID", tID);
-    SmartDashboard.putNumber("TX", tx);
-    SmartDashboard.putNumber("TY", ty);
-
-    /* LASERCAN */
-    lcMeasurement = laserCan.getMeasurement();
-    if (lcMeasurement != null && lcMeasurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
-      SmartDashboard.putNumber("LCMeasurement", laserCan.getMeasurement().distance_mm);
-    } else {
-      SmartDashboard.putNumber("LCMeasurement", -1);
-    }
-
-    SmartDashboard.putBoolean("LCHasMeasurement", lcMeasurement != null && lcMeasurement.status == 
-                                                                               LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT);
+    /* Value Posting */
+    txSender.setDouble(getTX());
+    targetIDSender.setDouble(getTargetID());
+    LCMeasurementSender.setDouble(getDistanceMeasurementmm());
+    LCHasMeasurement.setBoolean(lcMeasurement != null && lcMeasurement.status == 
+                                                         LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT);
   }
 
   // public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
@@ -73,7 +76,9 @@ public class VisionSubsystem extends SubsystemBase {
   }
 
   public double getDistanceMeasurementmm() {
-    return lcMeasurement.distance_mm;
+    return lcMeasurement != null && lcMeasurement.status == 
+                                    LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT 
+                                    ? lcMeasurement.distance_mm : -1;
   }
 
   public double getTX() {

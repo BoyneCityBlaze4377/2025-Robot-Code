@@ -2,13 +2,11 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.AffectorConstants;
 import frc.robot.Constants.AutoAimConstants;
 import frc.robot.Constants.AutoAimConstants.Position;
 import frc.robot.Constants.ElevatorConstants;
-// import frc.robot.Constants.IOConstants;
 import frc.robot.subsystems.CoralAffector;
 import frc.robot.subsystems.Elevator;
 
@@ -46,13 +44,8 @@ public class AllToSetPosition extends Command {
   public void initialize() {
     elevatorOutput = 0;
     coralWristOutput = 0;
-    // IOConstants.DiagnosticTab.addPersistent("AllAtTarget", false);
-    // IOConstants.DiagnosticTab.addPersistent("ElevatorAtTarget", false);
-    // IOConstants.DiagnosticTab.addPersistent("WristAtTarget", false);
-    SmartDashboard.putBoolean("TRYING TO RUN", true);
 
-    SmartDashboard.putNumber("ElevatotTarget", elevatorTarget);
-    SmartDashboard.putNumber("WristTarget", coralWristTarget);
+    m_elevator.setPositionString("Going to " + position.toString());
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -65,12 +58,6 @@ public class AllToSetPosition extends Command {
     coralWristOutput = MathUtil.clamp(wristController.calculate(m_coralAffector.getWristDegrees(), coralWristTarget), 
                                    AffectorConstants.maxCoralWristDownSpeed, AffectorConstants.maxCoralWristUpSpeed);
     m_coralAffector.moveWrist(coralWristOutput);
-
-    //IOConstants.DiagnosticTab.addPersistent("Position:", "Going to " + position.toString());
-
-    // if (elevatorController.atSetpoint()) IOConstants.DiagnosticTab.addPersistent("ElevatorAtTarget", true);
-    // if (wristController.atSetpoint()) IOConstants.DiagnosticTab.addPersistent("WristAtTarget", true);
-
   }
 
   // Called once the command ends or is interrupted.
@@ -82,10 +69,7 @@ public class AllToSetPosition extends Command {
     elevatorOutput = 0;
     coralWristOutput = 0;
 
-    // IOConstants.DiagnosticTab.addPersistent("AllAtTarget", true);
-    // IOConstants.DiagnosticTab.addPersistent("Position:", "At " + position.toString());
-    SmartDashboard.putBoolean("TRYING TO RUN", false);
-
+    m_elevator.setPositionString("At " + position.toString());
   }
 
   // Returns true when the command should end.

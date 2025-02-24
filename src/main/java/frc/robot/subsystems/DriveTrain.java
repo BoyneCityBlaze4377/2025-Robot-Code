@@ -4,7 +4,7 @@ import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import edu.wpi.first.math.controller.PIDController;
+// import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -18,7 +18,6 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.Constants.AutoAimConstants.ReefStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.networktables.GenericEntry;
 
@@ -45,12 +44,13 @@ public class DriveTrain extends SubsystemBase {
 
   private final Elevator m_elevator;
 
-  private GenericEntry entry;
+  private final GenericEntry robotHeading, poseEstimate, xSpeedSender, ySpeedSender, omegaSender;
+
 
   //Choreo stuff
-  private final PIDController xController = new PIDController(10.0, 0.0, 0.0);
-  private final PIDController yController = new PIDController(10.0, 0.0, 0.0);
-  private final PIDController headingController = new PIDController(7.5, 0.0, 0.0);
+  // private final PIDController xController = new PIDController(10.0, 0.0, 0.0);
+  // private final PIDController yController = new PIDController(10.0, 0.0, 0.0);
+  // private final PIDController headingController = new PIDController(7.5, 0.0, 0.0);
     
   /** Creates a new DriveTrain. */
   public DriveTrain(Elevator elevator) {
@@ -95,6 +95,13 @@ public class DriveTrain extends SubsystemBase {
                                                   m_backLeft.getPosition(), m_backRight.getPosition()}, 
                                                   getPose());
 
+    robotHeading = IOConstants.MatchTab.add("Robot Heading", heading).getEntry();
+    poseEstimate = IOConstants.DiagnosticTab.add("Estimated Robot Pose", 
+                                                 m_poseEstimator.getEstimatedPosition().toString()).getEntry();
+    xSpeedSender = IOConstants.MatchTab.add("xSpeed", 0).getEntry();
+    ySpeedSender = IOConstants.MatchTab.add("ySpeed", 0).getEntry();
+    omegaSender = IOConstants.MatchTab.add("rot", 0).getEntry();
+
     zeroHeading();
     brakeAll();
     fieldOrientation = true;
@@ -110,7 +117,7 @@ public class DriveTrain extends SubsystemBase {
 
     estimateField = new Field2d();
 
-    headingController.enableContinuousInput(-Math.PI, Math.PI);
+    //headingController.enableContinuousInput(-Math.PI, Math.PI);
 
     x = 0;
     y = 0;
@@ -135,25 +142,11 @@ public class DriveTrain extends SubsystemBase {
     elevatorHeight = m_elevator.getEncoderVal();
 
     /** Dashboard Posting */
-    // SmartDashboard.putNumber("gyro heading", m_gyro.getAngle());
-    // SmartDashboard.putNumber("FilteredRobotHeading", heading);
-    // SmartDashboard.putNumber("pitch", m_gyro.getPitch());
-    // SmartDashboard.putNumber("roll", m_gyro.getRoll());
-    // SmartDashboard.putNumber("distance", getAverageDistance());
-    // SmartDashboard.putString("pose", getPose().toString());
-    // SmartDashboard.putBoolean("Connected", m_gyro.isConnected());
-    // SmartDashboard.putBoolean("Calibrating", m_gyro.isCalibrating());
-    // SmartDashboard.putBoolean("Field Oriented", fieldOrientation);
-    // SmartDashboard.putBoolean("isLocked", isLocked);
-    // SmartDashboard.putBoolean("SlowMode", slow);
-    // SmartDashboard.putNumber("GyroDisplacment", m_gyro.getDisplacementX());
-    // SmartDashboard.putBoolean("brake mode", isBrake);
-
-    // SmartDashboard.putNumber("X Speed", x);
-    // SmartDashboard.putNumber("y speed", y);
-    // SmartDashboard.putNumber("omega", omega);
-
-    SmartDashboard.putNumber("HEADING", heading);
+    robotHeading.setDouble(heading);
+    poseEstimate.setString(getPoseEstimate().toString());
+    xSpeedSender.setDouble(x);
+    ySpeedSender.setDouble(y);
+    omegaSender.setDouble(omega);
 
     // Update the odometry in the periodic block
     m_odometry.update(m_gyro.getRotation2d(), getSwerveModulePositions());
@@ -218,21 +211,6 @@ public class DriveTrain extends SubsystemBase {
     y = speeds.vyMetersPerSecond;
     omega = speeds.omegaRadiansPerSecond;
   }
-
-//   public void choreoDrive(SwerveSample sample) {
-//     // Get the current pose of the robot
-//     Pose2d pose = getPose();
-
-//     // Generate the next speeds for the robot
-//     ChassisSpeeds speeds = new ChassisSpeeds(
-//         sample.vx + xController.calculate(pose.getX(), sample.x),
-//         sample.vy + yController.calculate(pose.getY(), sample.y),
-//         sample.omega + headingController.calculate(pose.getRotation().getRadians(), sample.heading)
-//     );
-
-//     // Apply the generated speeds
-//     chassisSpeedDrive(speeds);
-//   }
 
   /**
    * Sets the swerve ModuleStates.
