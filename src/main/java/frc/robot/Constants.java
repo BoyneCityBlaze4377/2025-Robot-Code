@@ -45,14 +45,14 @@ public final class Constants {
     // Positions
     public static final int floorPosButtonID = 1;
     public static final int L1PosButtonID = 2;
-    public static final int L12AlgaePosButtonID = 3;
+    public static final int L2AlgaePosButtonID = 3;
     public static final int L2PosButtonID = 4;
-    public static final int L23AlgaePOsButtonID = 5;
+    public static final int L3AlgaePOsButtonID = 5;
     public static final int L3PosButtonID = 6;
     public static final int L4PosButtonID = 7;
     public static final int HPPosButtonID = 8;
 
-    public static final int elevatroOverrideButtonID = 12;
+    public static final int elevatorOverrideButtonID = 12;
 
     // Affectors
     public static final int coralCollectButtonID = 1;
@@ -93,9 +93,9 @@ public final class Constants {
     public static final double defaultPos = lowerLimit;
     public static final double floorPos = lowerLimit;
     public static final double L1Pos = 24;
-    public static final double L12AlgaePos = 107;
+    public static final double L2AlgaePos = 107;
     public static final double L2Pos = 85;
-    public static final double L23AlgaePos = 170;
+    public static final double L3AlgaePos = 170;
     public static final double L3Pos = 208;
     public static final double L4Pos = 208;
     public static final double HPPos = 0;
@@ -111,7 +111,7 @@ public final class Constants {
 
     public static final double coralWristDefaultPos = 0;
     public static final double coralWristL1 = 22;
-    public static final double coralWristL23 = 21;
+    public static final double coralWristL3 = 21;
     public static final double coralWristL4 = 104;
     public static final double coralWristHP = 30;
 
@@ -235,18 +235,18 @@ public final class Constants {
     public static final double maxModuleAngularSpeedDegreesPerSecond = 360;
     public static final double maxModuleAngularAccelerationDegreesPerSecondSquared = 360;
 
-    public static final double encoderCPR = .01;
+    public static final double encoderCPR = 1;
     public static final double wheelDiameterMeters = Units.inchesToMeters(4);
     public static final double driveGearRatio = 1 / 6.75;
     public static final double driveEncoderDistancePerPulse = 
       // Assumes the encoders are directly mounted on the wheel shafts
-        (wheelDiameterMeters * Math.PI) / (double) encoderCPR * driveGearRatio * 1.2;
+      (wheelDiameterMeters * Math.PI) / (double) encoderCPR * driveGearRatio;
 
     public static final double moduleTurningController = .5;
 
     public static final double moduleDriveController = .75;
 
-    public static double moduleDriveSlewRate = 2;
+    public static final double moduleDriveSlewRate = 2;
   }
 
   public class FieldConstants {
@@ -258,17 +258,17 @@ public final class Constants {
   }
 
   public class AutoAimConstants{
-    public static enum Position {floor, L1, L12algae, L2, L23algae, L3, L4, HP};
+    public static enum Position {floor, L1, L2algae, L2, L3algae, L3, L4, HP};
     public static enum ReefStation {front, frontRight, backRight, back, backLeft, frontLeft}
     public static enum Alignment {left, center, right};
 
     public static final HashMap<Position, double[]> positionValues = new HashMap<Position, double[]> () {{
       put(Position.floor, new double[] {ElevatorConstants.floorPos, AffectorConstants.coralWristDefaultPos});
       put(Position.L1, new double[] {ElevatorConstants.L1Pos, AffectorConstants.coralWristL1});
-      put(Position.L12algae, new double[] {ElevatorConstants.L12AlgaePos, AffectorConstants.coralWristDefaultPos});
-      put(Position.L2, new double[] {ElevatorConstants.L2Pos, AffectorConstants.coralWristL23});
-      put(Position.L23algae, new double[] {ElevatorConstants.L23AlgaePos, AffectorConstants.coralWristDefaultPos});
-      put(Position.L3, new double[] {ElevatorConstants.L3Pos, AffectorConstants.coralWristL23});
+      put(Position.L2algae, new double[] {ElevatorConstants.L2AlgaePos, AffectorConstants.coralWristDefaultPos});
+      put(Position.L2, new double[] {ElevatorConstants.L2Pos, AffectorConstants.coralWristL3});
+      put(Position.L3algae, new double[] {ElevatorConstants.L3AlgaePos, AffectorConstants.coralWristDefaultPos});
+      put(Position.L3, new double[] {ElevatorConstants.L3Pos, AffectorConstants.coralWristL3});
       put(Position.L4, new double[] {ElevatorConstants.L4Pos, AffectorConstants.coralWristL4});
       put(Position.HP, new double[] {ElevatorConstants.HPPos, AffectorConstants.coralWristHP});
     }};
@@ -279,6 +279,7 @@ public final class Constants {
     public static final double leftCoralReefOffset = Units.inchesToMeters(6.47) + coralAffectorOffsetFromRobotCenter;
     public static final double rightCoralReefOffset = Units.inchesToMeters(6.47) - coralAffectorOffsetFromRobotCenter;
     public static final double LLDefaultOffsetDegrees = 10.81;
+    public static final double LCToBumperEdgeOffsetMeters = Units.inchesToMeters(6);
 
     public static final HashMap<Alignment, Double> offsetFromAlignment = new HashMap<Alignment, Double> () {{
       put(Alignment.left, leftCoralReefOffset);
@@ -355,6 +356,8 @@ public final class Constants {
       put(10., ReefStation.back);
       put(11., ReefStation.backLeft);
       put(6., ReefStation.frontLeft);
+
+      put(0., ReefStation.front);
     }};
 
     public static final AdvancedPose2D blueLeftCoralStationPos = new AdvancedPose2D(new Translation2d(0.836168, 0.6334625), null).withVector(Rotation2d.fromDegrees(54), new Translation2d(coralStationToRobotDistance, 0), Rotation2d.fromDegrees(-126));
@@ -362,12 +365,17 @@ public final class Constants {
     public static final AdvancedPose2D redLeftCoralStationPos = blueLeftCoralStationPos.horizontallyFlip();
     public static final AdvancedPose2D redRightCoralStationPos = blueRightCoralStationPos.horizontallyFlip();
 
-    public static final double transkP = .001;
-    public static final double transkI = 0;
-    public static final double transkD = 0;
-    public static final double transkTolerance = .05;
+    public static final double horizkP = .1;
+    public static final double horizkI = 0;
+    public static final double horizkD = 0;
+    public static final double horizkTolerance = 1;
 
-    public static final double turnkP = .001;
+    public static final double diskP = .01;
+    public static final double diskI = 0;
+    public static final double diskD = 0;
+    public static final double diskTolerance = 20;
+
+    public static final double turnkP = .5;
     public static final double turnkI = 0;
     public static final double turnkD = 0;
     public static final double turnkTolerance = 1;

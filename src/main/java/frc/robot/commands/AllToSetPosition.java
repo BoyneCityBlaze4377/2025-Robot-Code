@@ -8,7 +8,7 @@ import frc.robot.Constants.AffectorConstants;
 import frc.robot.Constants.AutoAimConstants;
 import frc.robot.Constants.AutoAimConstants.Position;
 import frc.robot.Constants.ElevatorConstants;
-import frc.robot.Constants.IOConstants;
+// import frc.robot.Constants.IOConstants;
 import frc.robot.subsystems.CoralAffector;
 import frc.robot.subsystems.Elevator;
 

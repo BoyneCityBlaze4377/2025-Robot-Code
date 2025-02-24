@@ -3,43 +3,24 @@ package frc.robot.subsystems;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
-import au.grapplerobotics.LaserCan;
-import au.grapplerobotics.interfaces.LaserCanInterface;
-import choreo.trajectory.SwerveSample;
-
-import com.fasterxml.jackson.databind.node.BooleanNode;
-// import com.pathplanner.lib.auto.AutoBuilder;
-// import com.pathplanner.lib.config.PIDConstants;
-// import com.pathplanner.lib.config.RobotConfig;
-// import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import frc.robot.Constants;
-import frc.robot.LimelightHelpers;
 import frc.robot.Constants.AutoAimConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IOConstants;
-import frc.robot.Constants.SensorConstants;
 import frc.robot.Constants.AutoAimConstants.ReefStation;
-import frc.robot.LimelightHelpers.LimelightTarget_Fiducial;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.networktables.GenericEntry;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class DriveTrain extends SubsystemBase {
   private int periodicTimer = 1;
@@ -63,6 +44,8 @@ public class DriveTrain extends SubsystemBase {
   Field2d estimateField;
 
   private final Elevator m_elevator;
+
+  private GenericEntry entry;
 
   //Choreo stuff
   private final PIDController xController = new PIDController(10.0, 0.0, 0.0);
@@ -108,8 +91,9 @@ public class DriveTrain extends SubsystemBase {
                                                                            m_backLeft.getPosition(), m_backRight.getPosition()});
 
     m_poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.driveKinematics, m_gyro.getRotation2d(),
-    new SwerveModulePosition[] {m_frontLeft.getPosition(), m_frontRight.getPosition(),
-                                m_backLeft.getPosition(), m_backRight.getPosition()}, getPose());
+                      new SwerveModulePosition[] {m_frontLeft.getPosition(), m_frontRight.getPosition(),
+                                                  m_backLeft.getPosition(), m_backRight.getPosition()}, 
+                                                  getPose());
 
     zeroHeading();
     brakeAll();
@@ -131,26 +115,6 @@ public class DriveTrain extends SubsystemBase {
     x = 0;
     y = 0;
     omega = 0;
-    
-  //   // remy code
-  //   RobotConfig config = null;
-
-  //   AutoBuilder.configure(
-  //   this::getPose,
-  //   this::resetOdometry,
-  //   this::getChassisSpeeds,//ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-  //   (speeds, feedForwards) ->  autonDrive(speedScaler, speedScaler, heading),
-  //   new PPHolonomicDriveController(new PIDConstants(5.0, 0.0, 0.0), new PIDConstants(5.0, 0.0, 0.0)),
-  //   config,
-  //   () -> {
-  //     var alliance = DriverStation.getAlliance();
-  //     if (alliance.isPresent()) {
-  //       return alliance.get() == DriverStation.Alliance.Red;
-  //     }
-  //     return false;
-  //   },
-  //   this 
-  // );
   }
 
   @Override
@@ -425,10 +389,9 @@ public class DriveTrain extends SubsystemBase {
 
   /** Stops drive motors for all modules */
   public void stop(){
-    m_frontLeft.stop();
-    m_frontRight.stop();
-    m_backLeft.stop();
-    m_backRight.stop();
+    x = 0;
+    y = 0;
+    omega = 0;
   }
 
   /** Reset encoders of all modules */

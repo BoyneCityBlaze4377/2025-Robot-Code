@@ -42,7 +42,7 @@ public class SwerveModule {
 
   private final SlewRateLimiter filter = new SlewRateLimiter(ModuleConstants.moduleDriveSlewRate);
   
-  private PIDController turningController = new PIDController(SwerveConstants.angleKP, SwerveConstants.angleKD, SwerveConstants.angleKI);
+  private final PIDController turningController;
   
   // // Using a TrapezoidProfile PIDController to allow for smooth turning
   // private final ProfiledPIDController m_turningPIDController = new ProfiledPIDController(
@@ -83,6 +83,12 @@ public class SwerveModule {
 
     m_driveEncoder = m_driveMotor.getEncoder();
     m_turningEncoder = m_turningMotor.getEncoder();
+
+    turningController = new PIDController(SwerveConstants.angleKP, 
+                                          SwerveConstants.angleKD, 
+                                          SwerveConstants.angleKI);
+    turningController.setTolerance(SwerveConstants.kTolerance);
+    turningController.enableContinuousInput(-180, 180);
 
     configAngleMotorDefault();
     configDriveMotorDefault();
@@ -184,11 +190,8 @@ public class SwerveModule {
   public void update() {
     SmartDashboard.putNumber(m_name + "wheel angle", getAbsoluteEncoder());
     SmartDashboard.putString(m_name +"'s state:", getState().toString());
-    SmartDashboard.putNumber(m_name + "'s error", turningController.getError());
-    SmartDashboard.putNumber(m_name + "'s turningFactor", turningFactor);
     // SmartDashboard.putNumber(m_name + "'s desired angle", angle.getDegrees());
-    // SmartDashboard.putNumber(m_name + "'s setPoint", turningController.getSetpoint());
-    // SmartDashboard.putBoolean(m_name + "at setPoint", turningController.atSetpoint());
+
   }
 
   /** @return The distance the drive motor has moved. */
@@ -224,9 +227,6 @@ public class SwerveModule {
     m_turnConfig.inverted(turnReversed);
     m_turnConfig.smartCurrentLimit(SwerveConstants.angleContinuousCurrentLimit);
     m_turnConfig.voltageCompensation(SwerveConstants.voltageComp);
-
-    turningController.setTolerance(SwerveConstants.kTolerance);
-    turningController.enableContinuousInput(-180, 180);
 
     configAngleMotor();
     Timer.delay(1);

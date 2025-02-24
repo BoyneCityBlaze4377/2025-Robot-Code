@@ -1,11 +1,8 @@
 package frc.robot;
 
-import choreo.auto.AutoFactory;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import frc.robot.Constants.AffectorConstants;
-import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.Constants.AutoAimConstants.Alignment;
 import frc.robot.Constants.AutoAimConstants.Position;
@@ -18,7 +15,6 @@ import frc.robot.commands.ElevatorCommands.*;
 import frc.robot.commands.PieceAffectorsCommands.*;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /*
@@ -53,9 +49,9 @@ public class RobotContainer {
 
   private final Command AllToFloor = new AllToSetPosition(m_elevator, m_coralAffector, Position.floor);
   private final Command AllToL1 = new AllToSetPosition(m_elevator, m_coralAffector, Position.L1);
-  private final Command AllToL12Algae = new AllToSetPosition(m_elevator, m_coralAffector, Position.L12algae);
+  private final Command AllToL2Algae = new AllToSetPosition(m_elevator, m_coralAffector, Position.L2algae);
   private final Command AllToL2 = new AllToSetPosition(m_elevator, m_coralAffector, Position.L2);
-  private final Command AllToL23Algae = new AllToSetPosition(m_elevator, m_coralAffector, Position.L23algae);
+  private final Command AllToL3Algae = new AllToSetPosition(m_elevator, m_coralAffector, Position.L3algae);
   private final Command AllToL3 = new AllToSetPosition(m_elevator, m_coralAffector, Position.L3);
   private final Command AllToL4 = new AllToSetPosition(m_elevator, m_coralAffector, Position.L4);
   private final Command AllToHP = new AllToSetPosition(m_elevator, m_coralAffector, Position.HP);
@@ -99,16 +95,18 @@ public class RobotContainer {
     new JoystickButton(m_driverStick, IOConstants.switchOrientationButtonID).onTrue(SwitchOrientation);
     new JoystickButton(m_driverStick, IOConstants.switchBrakeButtonID).onTrue(SwitchBrake);
     // new JoystickButton(m_driverStick, IOConstants.autoAlignButtonID).whileTrue(null);
-    new JoystickButton(m_driverStick, 1).whileTrue(new AutonAutoAlign(m_driveTrain, m_visionSubsystem, 
-                                                                              m_driverStick, .25, Alignment.center));
+    new JoystickButton(m_driverStick, 1).whileTrue(new AutonAutoAlign(m_driveTrain, 
+                                                                                   m_visionSubsystem, 
+                                                                                   .25, 
+                                                                                   Alignment.center));
 
     /* Operator */
     //Set positions
     // new JoystickButton(m_operatorStick1, IOConstants.floorPosButtonID).whileTrue(AllToFloor);
     // new JoystickButton(m_operatorStick1, IOConstants.L1PosButtonID).whileTrue(AllToL1);
-    // new JoystickButton(m_operatorStick1, IOConstants.L12AlgaePosButtonID).whileTrue(AllToL12Algae);
+    // new JoystickButton(m_operatorStick1, IOConstants.L2AlgaePosButtonID).whileTrue(AllToL2Algae);
     // new JoystickButton(m_operatorStick1, IOConstants.L2PosButtonID).whileTrue(AllToL2);
-    // new JoystickButton(m_operatorStick1, IOConstants.L23AlgaePOsButtonID).whileTrue(AllToL23Algae);
+    // new JoystickButton(m_operatorStick1, IOConstants.L3AlgaePOsButtonID).whileTrue(AllToL3Algae);
     // new JoystickButton(m_operatorStick1, IOConstants.L3PosButtonID).whileTrue(AllToL3);
     // new JoystickButton(m_operatorStick1, IOConstants.L4PosButtonID).whileTrue(AllToL4);
     // new JoystickButton(m_operatorStick1, IOConstants.HPPosButtonID).whileTrue(AllToHP);
@@ -124,7 +122,7 @@ public class RobotContainer {
     new JoystickButton(m_operatorStick2, IOConstants.climbButtonID).whileTrue(Climb);
 
     //Overrides
-    new JoystickButton(m_operatorStick1, IOConstants.elevatroOverrideButtonID).whileTrue(ElevatorOverride);
+    new JoystickButton(m_operatorStick1, IOConstants.elevatorOverrideButtonID).whileTrue(ElevatorOverride);
     new JoystickButton(m_operatorStick2, IOConstants.wristOverrideButtonID).whileTrue(WristOverride);
   }
 

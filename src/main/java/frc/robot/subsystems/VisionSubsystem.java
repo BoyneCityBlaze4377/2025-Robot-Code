@@ -77,15 +77,15 @@ public class VisionSubsystem extends SubsystemBase {
   }
 
   public double getTX() {
-    return tx;
+    return tID == 0 ? Float.NaN : tx;
   }
 
   public double getTY() {
-    return ty;
+    return tID == 0 ? Float.NaN : ty;
   }
 
   public double getTA() {
-    return ta;
+    return tID == 0 ? Float.NaN : ta;
   }
 
   public double getTargetID() {

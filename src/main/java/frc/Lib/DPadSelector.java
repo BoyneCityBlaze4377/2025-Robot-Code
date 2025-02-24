@@ -4,7 +4,7 @@ package frc.Lib;
 public class DPadSelector<OutputType> {
     private final int[] m_degrees;
 
-    /* 0 is up, degrees increase clockwise */
+    /* 0 is up, degrees increase clockwise, no input is -1 */
     public DPadSelector(int... degrees) {
         m_degrees = degrees;
     }

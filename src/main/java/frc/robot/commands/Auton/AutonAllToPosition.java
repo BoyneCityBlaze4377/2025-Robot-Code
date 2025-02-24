@@ -2,43 +2,44 @@ package frc.robot.commands.Auton;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.AffectorConstants;
 import frc.robot.Constants.AutoAimConstants;
 import frc.robot.Constants.AutoAimConstants.Position;
 import frc.robot.Constants.ElevatorConstants;
-import frc.robot.Constants.IOConstants;
 import frc.robot.subsystems.CoralAffector;
 import frc.robot.subsystems.Elevator;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class AutonSetPosition extends Command {
+public class AutonAllToPosition extends Command {
   private final Elevator m_elevator;
   private final CoralAffector m_coralAffector;
   private final PIDController wristController, elevatorController;
   private final double elevatorTarget, coralWristTarget;
   private double elevatorOutput, coralWristOutput;
-  private final Position position;
   
-  /** Creates a new SelectPosition. */
-  public AutonSetPosition(Elevator elevator, CoralAffector coralAffector, Position desiredPosition) {
+  public AutonAllToPosition(Elevator elevator, CoralAffector coralAffector, 
+                            double elevatorPos, double wristPos) {
     m_elevator = elevator;
     m_coralAffector = coralAffector;
-    position = desiredPosition;
-
+                          
     elevatorController = new PIDController(ElevatorConstants.kP, ElevatorConstants.kI, ElevatorConstants.kD);
     elevatorController.setTolerance(ElevatorConstants.kTolerance);
-
+                          
     wristController = new PIDController(AffectorConstants.coralWristKP, 
                                         AffectorConstants.coralWristKI, 
                                         AffectorConstants.coralWristKD);
     wristController.setTolerance(AffectorConstants.coralWristKTolerance);
-
-    elevatorTarget = AutoAimConstants.positionValues.get(position)[0];
-    coralWristTarget = AutoAimConstants.positionValues.get(position)[1];
+                          
+    elevatorTarget = elevatorPos;
+    coralWristTarget = wristPos;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_elevator, m_coralAffector);
+  }
+
+  public AutonAllToPosition(Elevator elevator, CoralAffector coralAffector, Position desiredPosition) {
+    this(elevator, coralAffector, AutoAimConstants.positionValues.get(desiredPosition)[0], 
+                                  AutoAimConstants.positionValues.get(desiredPosition)[1]);
   }
 
   // Called when the command is initially scheduled.
@@ -46,9 +47,6 @@ public class AutonSetPosition extends Command {
   public void initialize() {
     elevatorOutput = 0;
     coralWristOutput = 0;
-    IOConstants.DiagnosticTab.addPersistent("AllAtTarget", false);
-    // IOConstants.DiagnosticTab.addPersistent("ElevatorAtTarget", false);
-    // IOConstants.DiagnosticTab.addPersistent("WristAtTarget", false);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -59,14 +57,8 @@ public class AutonSetPosition extends Command {
     m_elevator.set(elevatorOutput);
 
     coralWristOutput = MathUtil.clamp(wristController.calculate(m_coralAffector.getWristDegrees(), coralWristTarget), 
-                                   AffectorConstants.maxCoralWristDownSpeed, AffectorConstants.maxCoralWristDownSpeed);
-    m_coralAffector.moveWrist(-coralWristOutput);
-
-    IOConstants.DiagnosticTab.addPersistent("Position:", "Going to " + position.toString());
-
-    // if (elevatorController.atSetpoint()) IOConstants.DiagnosticTab.addPersistent("ElevatorAtTarget", true);
-    // if (wristController.atSetpoint()) IOConstants.DiagnosticTab.addPersistent("WristAtTarget", true);
-
+                                   AffectorConstants.maxCoralWristDownSpeed, AffectorConstants.maxCoralWristUpSpeed);
+    m_coralAffector.moveWrist(coralWristOutput);
   }
 
   // Called once the command ends or is interrupted.
@@ -77,9 +69,6 @@ public class AutonSetPosition extends Command {
 
     elevatorOutput = 0;
     coralWristOutput = 0;
-
-    // IOConstants.DiagnosticTab.addPersistent("AllAtTarget", true);
-    // IOConstants.DiagnosticTab.addPersistent("Position:", "At " + position.toString());
   }
 
   // Returns true when the command should end.
