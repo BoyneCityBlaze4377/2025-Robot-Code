@@ -2,7 +2,6 @@ package frc.robot.commands.Auton;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.AutoAimConstants;
 import frc.robot.Constants.AutoAimConstants.Alignment;
@@ -56,6 +55,7 @@ public class AutonAutoAlign extends Command {
                       / targetDistance)) + AutoAimConstants.LLDefaultOffsetDegrees;
     targetAngle = AutoAimConstants.angleFromReefStation.get(AutoAimConstants.reefStationFromAprilTagID.get(
                                                             m_visionSubsystem.getTargetID()));
+    m_driveTrain.setOrientation(false);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -78,6 +78,7 @@ public class AutonAutoAlign extends Command {
     xSpeed = 0;
     ySpeed = 0;
     rot = 0;
+    m_driveTrain.setOrientation(true);
   }
 
   // Returns true when the command should end.

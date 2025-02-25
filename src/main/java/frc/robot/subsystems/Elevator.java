@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.Map;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -33,22 +35,36 @@ public class Elevator extends SubsystemBase {
     elevatorSpeed = 0;
 
     configMotorControllerDefaults();
-    elevatorHeight = IOConstants.MatchTab.add("Elevator Height", 0).getEntry();
-    elevatorSpeedSender = IOConstants.DiagnosticTab.add("Elevator Speed", 0).getEntry();
-    upperLimit = IOConstants.DiagnosticTab.add("At Upper Limit?", false).getEntry();
-    lowerLimit = IOConstants.DiagnosticTab.add("At Lower Limit?", true).getEntry();
-    positionStatusSender = IOConstants.MatchTab.add("Position", "At Position.floor").getEntry();
-    lockedSender = IOConstants.DiagnosticTab.add("Elevator locked", false).getEntry();
+    elevatorHeight = IOConstants.MatchTab.add("Elevator Height", 0)
+                                         .withWidget("Number Bar")
+                                         .withProperties(Map.of("min_value", 0,
+                                                                "max_value", 220,
+                                                                "divisions", 11,
+                                                                "orientation", "vertical"))
+                                         .getEntry();
+    elevatorSpeedSender = IOConstants.DiagnosticTab.add("Elevator Speed", 0)
+                                                   .withWidget("Number Slider")
+                                                   .withProperties(Map.of("min_value", -1, "max_value", 1))
+                                                   .getEntry();
+    upperLimit = IOConstants.DiagnosticTab.add("At Upper Limit?", false)
+                                          .withWidget("Boolean Box").getEntry();
+    lowerLimit = IOConstants.DiagnosticTab.add("At Lower Limit?", true)
+                                          .withWidget("Boolean Box").getEntry();
+    positionStatusSender = IOConstants.MatchTab.add("Position", "At Position.floor")
+                                               .withWidget("Text Display").getEntry();
+    lockedSender = IOConstants.DiagnosticTab.add("Elevator locked", false)
+                                            .withWidget("Boolean Box").getEntry();
   }
 
   @Override
   public void periodic() {
     if (atUpperLimit()) {
-      elevatorSpeed = -ElevatorConstants.correctionSpeed;
+      elevatorMotor.set(-ElevatorConstants.correctionSpeed);
     } else if (atLowerLimit()) {
-      elevatorSpeed = ElevatorConstants.correctionSpeed;
+      elevatorMotor.set(ElevatorConstants.correctionSpeed);
+    } else {
+      elevatorMotor.set(elevatorSpeed);
     }
-    //elevatorMotor.set(elevatorSpeed);
     
     elevatorHeight.setDouble(getEncoderVal());
     elevatorSpeedSender.setDouble(elevatorSpeed);

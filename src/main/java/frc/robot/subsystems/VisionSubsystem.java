@@ -10,12 +10,10 @@ import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.Lib.LimelightHelpers;
+import frc.Lib.LimelightHelpers.LimelightTarget_Fiducial;
 import frc.robot.Constants.IOConstants;
 import frc.robot.Constants.SensorConstants;
-import frc.robot.LimelightHelpers;
-import frc.robot.LimelightHelpers.LimelightTarget_Fiducial;
-// import org.photonvision.EstimatedRobotPose;
-
 import au.grapplerobotics.LaserCan;
 import au.grapplerobotics.interfaces.LaserCanInterface;
 
@@ -32,13 +30,15 @@ public class VisionSubsystem extends SubsystemBase {
     laserCan = new LaserCan(17);
     lcMeasurement = laserCan.getMeasurement();
 
-    txSender = IOConstants.DiagnosticTab.add("tx", tx).getEntry();
-    targetIDSender = IOConstants.DiagnosticTab.add("target ID", tID).getEntry();
+    txSender = IOConstants.DiagnosticTab.add("tx", tx)
+                                        .withWidget("Text Display").getEntry();
+    targetIDSender = IOConstants.DiagnosticTab.add("target ID", tID)
+                                              .withWidget("Text Display").getEntry();
     LCMeasurementSender = IOConstants.DiagnosticTab.add("LaserCAN measured distance", 
-                                                        lcMeasurement.distance_mm).getEntry();
-    LCHasMeasurement = IOConstants.DiagnosticTab.add("LCHasMeasurement", 
-                                                            lcMeasurement.status == 
-                                                            LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT).getEntry();
+                                                        lcMeasurement.distance_mm)
+                                                   .withWidget("Text Display").getEntry();
+    LCHasMeasurement = IOConstants.DiagnosticTab.add("LCHasMeasurement", false)
+                                                .withWidget("Boolean Box").getEntry();
   }
 
   @Override

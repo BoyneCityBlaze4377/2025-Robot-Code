@@ -3,6 +3,8 @@ package frc.robot.subsystems;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
+import java.util.Map;
+
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 // import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -18,8 +20,11 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.Constants.AutoAimConstants.ReefStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 
 public class DriveTrain extends SubsystemBase {
   private int periodicTimer = 1;
@@ -44,7 +49,8 @@ public class DriveTrain extends SubsystemBase {
 
   private final Elevator m_elevator;
 
-  private final GenericEntry robotHeading, poseEstimate, xSpeedSender, ySpeedSender, omegaSender;
+  private final GenericEntry robotHeading, poseEstimate, xSpeedSender, 
+                             ySpeedSender, omegaSender;
 
 
   //Choreo stuff
@@ -95,12 +101,49 @@ public class DriveTrain extends SubsystemBase {
                                                   m_backLeft.getPosition(), m_backRight.getPosition()}, 
                                                   getPose());
 
-    robotHeading = IOConstants.MatchTab.add("Robot Heading", heading).getEntry();
-    poseEstimate = IOConstants.DiagnosticTab.add("Estimated Robot Pose", 
-                                                 m_poseEstimator.getEstimatedPosition().toString()).getEntry();
-    xSpeedSender = IOConstants.MatchTab.add("xSpeed", 0).getEntry();
-    ySpeedSender = IOConstants.MatchTab.add("ySpeed", 0).getEntry();
-    omegaSender = IOConstants.MatchTab.add("rot", 0).getEntry();
+    robotHeading = IOConstants.MatchTab.add("Robot Heading", heading)
+                                       .withWidget("Radial Gauge")
+                                       .withProperties(Map.of("start_angle", -180, "end_angle", 180,
+                                                              "min_value", -180, "max_value", 180,
+                                                              "wrap_value", true, "show_pointer", false))
+                                       .getEntry();
+    poseEstimate = IOConstants.DiagnosticTab.add("Field", m_poseEstimator.getEstimatedPosition())
+                                            .withWidget("Field")
+                                            .withProperties(Map.of("robot_width", DriveConstants.trackWidth,
+                                                                   "robot_length", DriveConstants.wheelBase))
+                                            .getEntry();
+    xSpeedSender = IOConstants.MatchTab.add("xSpeed", 0)
+                                       .withWidget("Number Slider")
+                                       .withProperties(Map.of("min_value", -1, "max_value", 1))
+                                       .getEntry();
+    ySpeedSender = IOConstants.MatchTab.add("ySpeed", 0)
+                                       .withWidget("Number Slider")
+                                       .withProperties(Map.of("min_value", -1, "max_value", 1))
+                                       .getEntry();
+    omegaSender = IOConstants.MatchTab.add("rot", 0)
+                                       .withWidget("Number Slider")
+                                       .withProperties(Map.of("min_value", -1, "max_value", 1))
+                                       .getEntry();
+    SmartDashboard.putData("Swerve", new Sendable() {
+      @Override
+      public void initSendable(SendableBuilder builder) {
+        builder.setSmartDashboardType("SwerveDrive");
+  
+        builder.addDoubleProperty("Front Left Angle", () -> m_frontLeft.getState().angle.getRadians(), null);
+        builder.addDoubleProperty("Front Left Velocity", () -> m_frontLeft.getState().speedMetersPerSecond, null);
+  
+        builder.addDoubleProperty("Front Right Angle", () -> m_frontLeft.getState().angle.getRadians(), null);
+        builder.addDoubleProperty("Front Right Velocity", () -> m_frontLeft.getState().speedMetersPerSecond, null);
+  
+        builder.addDoubleProperty("Back Left Angle", () -> m_frontLeft.getState().angle.getRadians(), null);
+        builder.addDoubleProperty("Back Left Velocity", () -> m_frontLeft.getState().speedMetersPerSecond, null);
+  
+        builder.addDoubleProperty("Back Right Angle", () -> m_frontLeft.getState().angle.getRadians(), null);
+        builder.addDoubleProperty("Back Right Velocity", () -> m_frontLeft.getState().speedMetersPerSecond, null);
+  
+        builder.addDoubleProperty("Robot Angle", () -> m_gyro.getRotation2d().getRadians(), null);
+      }
+    });
 
     zeroHeading();
     brakeAll();
@@ -135,7 +178,7 @@ public class DriveTrain extends SubsystemBase {
       periodicTimer = 0;
     }
 
-    isBrake = m_frontLeft.getIdleMode() == IdleMode.kBrake ? true : false;
+    isBrake = m_frontLeft.getIdleMode() == IdleMode.kBrake;
 
     updatePoseEstimator();
     estimateField.setRobotPose(getPoseEstimate());
