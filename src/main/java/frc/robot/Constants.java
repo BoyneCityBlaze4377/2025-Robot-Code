@@ -8,7 +8,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.Unit;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.Lib.AdvancedPose2D;
@@ -47,7 +46,7 @@ public final class Constants {
     public static final int L1PosButtonID = 2;
     public static final int L2AlgaePosButtonID = 3;
     public static final int L2PosButtonID = 4;
-    public static final int L3AlgaePOsButtonID = 5;
+    public static final int L3AlgaePosButtonID = 5;
     public static final int L3PosButtonID = 6;
     public static final int L4PosButtonID = 7;
     public static final int HPPosButtonID = 8;
@@ -74,7 +73,7 @@ public final class Constants {
     public static final double conversionFactor = 1;
 
     public static final double lowerLimit = 5;
-    public static final double upperLimit = 210;
+    public static final double upperLimit = 215;
 
     public static final double kP = .25;
     public static final double kI = 0;
@@ -96,7 +95,7 @@ public final class Constants {
     public static final double L2AlgaePos = 107;
     public static final double L2Pos = 85;
     public static final double L3AlgaePos = 170;
-    public static final double L3Pos = 208;
+    public static final double L3Pos = 213;
     public static final double L4Pos = 208;
     public static final double HPPos = 0;
   }
