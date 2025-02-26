@@ -58,12 +58,12 @@ public class VisionSubsystem extends SubsystemBase {
 
     LimelightTarget_Fiducial[] targets = LimelightHelpers.getLatestResults(SensorConstants.limeLightName)
                                                          .targetingResults.targets_Fiducials;
-    tID = (targets.length > 0 ? targets[0].fiducialID : 0);
+    tID = !(targets.length > 0) ? 0 : targets[0].fiducialID;
 
     /* LaserCAN */
     lcMeasurement = laserCan.getMeasurement();
     dis = lcMeasurement != null && lcMeasurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT 
-                                   ? lcMeasurement.distance_mm : -1;
+          ? lcMeasurement.distance_mm : -1;
 
     /* Value Posting */
     txSender.setDouble(getTX());

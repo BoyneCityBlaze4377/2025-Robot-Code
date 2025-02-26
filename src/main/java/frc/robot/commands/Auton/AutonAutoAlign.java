@@ -93,6 +93,7 @@ public class AutonAutoAlign extends Command {
             //(horizController.atSetpoint() && 
             distanceController.atSetpoint(); 
             //&& angleController.atSetpoint());
-            //|| m_visionSubsystem.getTargetID() == 0;
+            //|| (m_visionSubsystem.getTargetID() == 0
+            //|| m_visionSubsystem.getDistanceMeasurementmm() == -1;
   }
 }

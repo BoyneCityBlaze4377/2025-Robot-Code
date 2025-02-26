@@ -5,12 +5,12 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.DriveTrain;
 
-public class AutonDrive extends Command {
+public class RobotRelativeAutonDrive extends Command {
   private double xSpeed, ySpeed, rot, targetHeading, turnError, relativeAngle, initialTurnValue, time;
   private final DriveTrain m_driveTrain;
   private final Timer m_timer;
   /** Creates a new AutonDrive. */
-  public AutonDrive(DriveTrain driveTrain, double desiredDriveAngle, double vMetersPerSecond, 
+  public RobotRelativeAutonDrive(DriveTrain driveTrain, double desiredDriveAngle, double vMetersPerSecond, 
                     double omegaRadiansPerSecond, double targetDistance, double TargetHeading) {
     ySpeed = vMetersPerSecond * Math.cos(desiredDriveAngle);
     xSpeed = vMetersPerSecond * Math.sin(desiredDriveAngle);
@@ -28,7 +28,7 @@ public class AutonDrive extends Command {
   public void initialize() {
     initialTurnValue = m_driveTrain.getHeading();
     m_driveTrain.brakeAll();
-    m_driveTrain.setOrientation(true);
+    m_driveTrain.setOrientation(false);
 
     Math.copySign(targetHeading, rot);
 
@@ -39,10 +39,27 @@ public class AutonDrive extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    relativeAngle = MathUtil.inputModulus(m_driveTrain.getHeading() - initialTurnValue, 
-                                          -360, 360);
-    turnError = MathUtil.inputModulus(targetHeading + Math.copySign(relativeAngle, rot), 
-                                      -360, 360);
+    relativeAngle = m_driveTrain.getHeading() - initialTurnValue;
+    turnError = targetHeading + Math.copySign(relativeAngle, rot);
+
+    MathUtil.inputModulus(relativeAngle, -360, 360);
+    MathUtil.inputModulus(turnError, -360, 360);
+
+    // if (relativeAngle >= 360) {
+    //   relativeAngle -= 360;
+    // }
+   
+    // if (relativeAngle <= -360) {
+    //   relativeAngle += 360;
+    // }
+
+    // if (turnError >= 360) {
+    //   turnError -= 360;
+    // }
+   
+    // if (turnError <= -360) {
+    //   turnError += 360;
+    // } 
 
     if (m_timer.get() >= time) {
       xSpeed = 0;
@@ -55,7 +72,7 @@ public class AutonDrive extends Command {
       turnError = 0;
     }
 
-    m_driveTrain.autonDrive(-xSpeed, ySpeed, rot);
+    m_driveTrain.autonDrive(xSpeed, ySpeed, rot);
   }
 
   // Called once the command ends or is interrupted.

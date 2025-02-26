@@ -31,7 +31,7 @@ public class AlgaeAffector extends SubsystemBase {
     configMotorControllerDefaults();
 
     algaeDetector = new DigitalInput(SensorConstants.algaeBreakID);
-    hasAlgaeSender = IOConstants.MatchTab.add("HasAlgae", hasAlgae()).getEntry();
+    hasAlgaeSender = IOConstants.TeleopTab.add("HasAlgae", hasAlgae()).withWidget("Boolean Box").getEntry();
   }
   
   @Override

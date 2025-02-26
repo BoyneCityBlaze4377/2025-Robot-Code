@@ -103,7 +103,7 @@ public class DriveTrain extends SubsystemBase {
                                                   m_backLeft.getPosition(), m_backRight.getPosition()}, 
                                                   getPose());
 
-    robotHeading = IOConstants.MatchTab.add("Robot Heading", heading)
+    robotHeading = IOConstants.TeleopTab.add("Robot Heading", heading)
                                        .withWidget("Radial Gauge")
                                        .withProperties(Map.of("start_angle", -180, "end_angle", 180,
                                                               "min_value", -180, "max_value", 180,
@@ -114,15 +114,15 @@ public class DriveTrain extends SubsystemBase {
                                             .withProperties(Map.of("robot_width", DriveConstants.trackWidth,
                                                                    "robot_length", DriveConstants.wheelBase))
                                             .getEntry();
-    xSpeedSender = IOConstants.MatchTab.add("xSpeed", 0)
+    xSpeedSender = IOConstants.TeleopTab.add("xSpeed", 0)
                                        .withWidget("Number Slider")
                                        .withProperties(Map.of("min_value", -1, "max_value", 1))
                                        .getEntry();
-    ySpeedSender = IOConstants.MatchTab.add("ySpeed", 0)
+    ySpeedSender = IOConstants.TeleopTab.add("ySpeed", 0)
                                        .withWidget("Number Slider")
                                        .withProperties(Map.of("min_value", -1, "max_value", 1))
                                        .getEntry();
-    omegaSender = IOConstants.MatchTab.add("rot", 0)
+    omegaSender = IOConstants.TeleopTab.add("rot", 0)
                                        .withWidget("Number Slider")
                                        .withProperties(Map.of("min_value", -1, "max_value", 1))
                                        .getEntry();

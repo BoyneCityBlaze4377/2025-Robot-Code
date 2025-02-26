@@ -37,7 +37,7 @@ public class Elevator extends SubsystemBase {
     positionStatusString = "At Position.floor";
 
     configMotorControllerDefaults();
-    elevatorHeight = IOConstants.MatchTab.add("Elevator Height", 0)
+    elevatorHeight = IOConstants.TeleopTab.add("Elevator Height", 0)
                                          .withWidget("Number Bar")
                                          .withProperties(Map.of("min_value", 0,
                                                                 "max_value", 220,
@@ -52,7 +52,7 @@ public class Elevator extends SubsystemBase {
                                           .withWidget("Boolean Box").getEntry();
     lowerLimit = IOConstants.DiagnosticTab.add("At Lower Limit?", true)
                                           .withWidget("Boolean Box").getEntry();
-    positionStatusSender = IOConstants.MatchTab.add("Position", positionStatusString)
+    positionStatusSender = IOConstants.TeleopTab.add("Position", positionStatusString)
                                                .withWidget("Text Display").getEntry();
     lockedSender = IOConstants.DiagnosticTab.add("Elevator locked", false)
                                             .withWidget("Boolean Box").getEntry();

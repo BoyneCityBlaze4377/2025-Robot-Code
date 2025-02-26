@@ -22,7 +22,8 @@ import frc.Lib.AdvancedPose2D;
  */
 public final class Constants {
   public class IOConstants {
-    public static final ShuffleboardTab MatchTab = Shuffleboard.getTab("Match");
+    public static final ShuffleboardTab TeleopTab = Shuffleboard.getTab("Teleop");
+    public static final ShuffleboardTab AutonTab = Shuffleboard.getTab("Auton");
     public static final ShuffleboardTab DiagnosticTab = Shuffleboard.getTab("Diagnostic");
     public static final ShuffleboardTab ConfigTab = Shuffleboard.getTab("Configuration");
 

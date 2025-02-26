@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.Map;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -37,9 +39,15 @@ public class CoralAffector extends SubsystemBase {
 
     coralDetector = new DigitalInput(SensorConstants.coralBreakID);
 
-    wristValSender = IOConstants.DiagnosticTab.add("Wrist Encoder Degrees", getWristDegrees()).getEntry();
-    hasCoralSender = IOConstants.MatchTab.add("HasCoral", hasCoral()).getEntry();
-    lockedSender = IOConstants.DiagnosticTab.add("CoralWrist Locked", false).getEntry();
+    wristValSender = IOConstants.DiagnosticTab.add("Wrist Encoder Degrees", getWristDegrees())
+                                              .withWidget("Radial Gauge")
+                                              .withProperties(Map.of("start_angle", 180, "end_angle", 0,
+                                                                     "min_value", 0, "max_value", 180, 
+                                                                     "number_of_labels", 4, "show_pointer", false))
+                                              .getEntry();
+    hasCoralSender = IOConstants.TeleopTab.add("HasCoral", hasCoral()).withWidget("Boolean Box").getEntry();
+    lockedSender = IOConstants.DiagnosticTab.add("CoralWrist Locked", false)
+                                            .withWidget("Boolean Box").getEntry();
   }
   
   @Override
