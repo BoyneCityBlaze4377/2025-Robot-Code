@@ -1,4 +1,4 @@
-package frc.robot.commands.Auton;
+package frc.robot.commands.Auton.Functions;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;

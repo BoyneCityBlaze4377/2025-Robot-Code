@@ -1,4 +1,4 @@
-package frc.robot.commands.Auton;
+package frc.robot.commands.Auton.Functions;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -8,20 +8,23 @@ import frc.robot.Constants.AutoAimConstants;
 import frc.robot.Constants.AutoAimConstants.Position;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.subsystems.CoralAffector;
+import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Elevator;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class AutonAllToPosition extends Command {
+public class InRangeAllToPosition extends Command {
   private final Elevator m_elevator;
+  private final DriveTrain m_driveTrain;
   private final CoralAffector m_coralAffector;
   private final PIDController wristController, elevatorController;
   private final double elevatorTarget, coralWristTarget;
   private double elevatorOutput, coralWristOutput;
   
-  public AutonAllToPosition(Elevator elevator, CoralAffector coralAffector, 
+  public InRangeAllToPosition(Elevator elevator, CoralAffector coralAffector, DriveTrain driveTrain,
                             double elevatorPos, double wristPos) {
     m_elevator = elevator;
     m_coralAffector = coralAffector;
+    m_driveTrain = driveTrain;
                           
     elevatorController = new PIDController(ElevatorConstants.kP, ElevatorConstants.kI, ElevatorConstants.kD);
     elevatorController.setTolerance(ElevatorConstants.kTolerance);
@@ -37,9 +40,9 @@ public class AutonAllToPosition extends Command {
     addRequirements(m_elevator, m_coralAffector);
   }
 
-  public AutonAllToPosition(Elevator elevator, CoralAffector coralAffector, Position desiredPosition) {
-    this(elevator, coralAffector, AutoAimConstants.positionValues.get(desiredPosition)[0], 
-                                  AutoAimConstants.positionValues.get(desiredPosition)[1]);
+  public InRangeAllToPosition(Elevator elevator, CoralAffector coralAffector, DriveTrain driveTrain, Position desiredPosition) {
+    this(elevator, coralAffector, driveTrain, AutoAimConstants.positionValues.get(desiredPosition)[0], 
+                                              AutoAimConstants.positionValues.get(desiredPosition)[1]);
   }
 
   // Called when the command is initially scheduled.
@@ -54,11 +57,16 @@ public class AutonAllToPosition extends Command {
   public void execute() {
     elevatorOutput = MathUtil.clamp(elevatorController.calculate(m_elevator.getEncoderVal(), elevatorTarget), 
                                    ElevatorConstants.maxDownSpeed, ElevatorConstants.maxUpSpeed);
-    m_elevator.set(elevatorOutput);
-
     coralWristOutput = MathUtil.clamp(wristController.calculate(m_coralAffector.getWristDegrees(), coralWristTarget), 
                                    AffectorConstants.maxCoralWristDownSpeed, AffectorConstants.maxCoralWristUpSpeed);
-    m_coralAffector.moveWrist(coralWristOutput);
+    
+    if (m_driveTrain.getInRange()) {
+      m_elevator.set(elevatorOutput);
+      m_coralAffector.moveWrist(coralWristOutput);
+    } else {
+      m_elevator.lockElevator();
+      m_coralAffector.lockWrist();
+    }
   }
 
   // Called once the command ends or is interrupted.

@@ -1,4 +1,4 @@
-package frc.robot.commands.Auton;
+package frc.robot.commands.Auton.Functions;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -56,8 +56,9 @@ public class AutonAutoAlign extends Command {
     targetAngle = AutoAimConstants.angleFromReefStation.get(AutoAimConstants.reefStationFromAprilTagID.get(
                                                             m_visionSubsystem.getTargetID()));
     m_driveTrain.setOrientation(false);
-    SmartDashboard.putNumber("VNKFDJBV", targetDistance * 1000);
+    SmartDashboard.putNumber("VNKFDJBV", targetDistance);
     targetAngle = 50;
+    m_driveTrain.setInRange(false);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -65,12 +66,12 @@ public class AutonAutoAlign extends Command {
   public void execute() {
     ySpeed = MathUtil.clamp(horizController.calculate(m_visionSubsystem.getTX(), targetOffsetDeg), 
                             -maxHorizOutput, maxHorizOutput);
-    xSpeed = MathUtil.clamp(distanceController.calculate(m_visionSubsystem.getDistanceMeasurementmm(), targetDistance * 1000), 
+    xSpeed = MathUtil.clamp(distanceController.calculate(m_visionSubsystem.getDistanceMeasurementmm() / 1000, targetDistance), 
                             -maxDisOutput, maxDisOutput);
     rot = MathUtil.clamp(angleController.calculate(m_driveTrain.getHeading(), targetAngle), 
                          -maxRotOutput, maxRotOutput);
 
-    SmartDashboard.putNumber("OUTPUT", distanceController.calculate(m_visionSubsystem.getDistanceMeasurementmm(), targetDistance * 1000));
+    if (distanceController.getError() < AutoAimConstants.inRangeThreshold) m_driveTrain.setInRange(true); else m_driveTrain.setInRange(false);
 
     m_driveTrain.autonDrive(-xSpeed, 0, -0);
   }

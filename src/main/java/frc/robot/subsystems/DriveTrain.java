@@ -40,6 +40,7 @@ public class DriveTrain extends SubsystemBase {
   private boolean isLocked = false;
   private boolean slow = false;
   private boolean isBrake = true;
+  private boolean autonInRange = false;
   private double speedScaler, heading, x, y, omega, translationElevatorHeightSpeedScaler, 
                  rotationElevatorHeightSpeedScaler, elevatorHeight;
 
@@ -510,5 +511,13 @@ public class DriveTrain extends SubsystemBase {
       }
     }
     return AutoAimConstants.reefStationFromAngle.get(selectedAngle);
+  }
+
+  public boolean getInRange() {
+    return autonInRange;
+  }
+
+  public void setInRange(boolean isInRange) {
+    autonInRange = isInRange;
   }
 }

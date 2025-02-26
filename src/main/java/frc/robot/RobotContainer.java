@@ -8,7 +8,7 @@ import frc.robot.Constants.AutoAimConstants.Alignment;
 import frc.robot.Constants.AutoAimConstants.Position;
 import frc.robot.subsystems.*;
 import frc.robot.commands.AllToSetPosition;
-import frc.robot.commands.Auton.AutonAutoAlign;
+import frc.robot.commands.Auton.Functions.AutonAutoAlign;
 import frc.robot.commands.ClimberCommands.*;
 import frc.robot.commands.DriveCommands.*;
 import frc.robot.commands.ElevatorCommands.*;

@@ -1,24 +1,35 @@
-package frc.robot.commands.Auton;
+package frc.robot.commands.Auton.Functions;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.AutoAimConstants;
+import frc.robot.Constants.AutoAimConstants.ReefStation;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.VisionSubsystem;
 
-public class RobotRelativeAutonDrive extends Command {
+public class FirstRobotRelativeAutonDrive extends Command {
   private double xSpeed, ySpeed, rot, targetHeading, turnError, relativeAngle, initialTurnValue, time;
   private final DriveTrain m_driveTrain;
+  private final VisionSubsystem m_visionSubsystem;
   private final Timer m_timer;
+  private final double targetID;
   /** Creates a new AutonDrive. */
-  public RobotRelativeAutonDrive(DriveTrain driveTrain, double desiredDriveAngle, double vMetersPerSecond, 
-                    double omegaRadiansPerSecond, double targetDistance, double TargetHeading) {
+  public FirstRobotRelativeAutonDrive(DriveTrain driveTrain, double desiredDriveAngle, double vMetersPerSecond, 
+                    double omegaRadiansPerSecond, double targetDistance, double TargetHeading,
+                    VisionSubsystem visionSubsystem, ReefStation targetStation) {
     ySpeed = vMetersPerSecond * Math.cos(desiredDriveAngle);
     xSpeed = vMetersPerSecond * Math.sin(desiredDriveAngle);
     rot = omegaRadiansPerSecond;
     targetHeading = TargetHeading;
     m_driveTrain = driveTrain;
+    m_visionSubsystem = visionSubsystem;
     m_timer = new Timer();
     time = targetDistance / Math.hypot(xSpeed, ySpeed);
+    targetID = DriverStation.getAlliance().get() == Alliance.Blue ? AutoAimConstants.blueReefIDsFromStation.get(targetStation)
+                                                                  : AutoAimConstants.redReefIDsFromStation.get(targetStation);
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_driveTrain);
   }
@@ -34,6 +45,7 @@ public class RobotRelativeAutonDrive extends Command {
 
     m_timer.reset();
     m_timer.start();
+    m_driveTrain.setInRange(false);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -92,6 +104,7 @@ public class RobotRelativeAutonDrive extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_timer.get() >= time && Math.abs(turnError) <= 2;
+    return (m_timer.get() >= time && Math.abs(turnError) <= 2) 
+            || m_visionSubsystem.getTargetID() == targetID;
   }
 }

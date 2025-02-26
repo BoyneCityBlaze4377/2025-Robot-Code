@@ -1,4 +1,4 @@
-package frc.robot.commands.Auton;
+package frc.robot.commands.Auton.Functions;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -6,12 +6,12 @@ import frc.robot.Constants.AutonConstants;
 import frc.robot.subsystems.CoralAffector;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class AutonCoralScore extends Command {
+public class AutonCoralCollect extends Command {
   private final CoralAffector m_affector;
   private final Timer timer;
 
-  /** Creates a new AutonCoralScore. */
-  public AutonCoralScore(CoralAffector affector) {
+  /** Creates a new AutonAlgaeCollect. */
+  public AutonCoralCollect(CoralAffector affector) {
     m_affector = affector;
     timer = new Timer();
     // Use addRequirements() here to declare subsystem dependencies.
@@ -28,19 +28,19 @@ public class AutonCoralScore extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_affector.eject();
+    m_affector.collect();
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_affector.stopAffector();
     timer.stop();
+    m_affector.stopAffector();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return timer.get() >= AutonConstants.coralScoreTime;
+    return m_affector.hasCoral() || timer.get() >= AutonConstants.coralCollectTimeout;
   }
 }

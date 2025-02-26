@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Unit;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.Lib.AdvancedPose2D;
@@ -274,12 +275,17 @@ public final class Constants {
     }};
             
     public static final double centerOfReefToRobotDistance = Units.inchesToMeters(32.75) + DriveConstants.trackWidth / 2 + 0.01; // 118.475
-    public static final double coralStationToRobotDistance = DriveConstants.trackWidth / 2;
     public static final double coralAffectorOffsetFromRobotCenter = Units.inchesToMeters(2);
     public static final double leftCoralReefOffset = Units.inchesToMeters(6.47) + coralAffectorOffsetFromRobotCenter;
     public static final double rightCoralReefOffset = Units.inchesToMeters(6.47) - coralAffectorOffsetFromRobotCenter;
+
     public static final double LLDefaultOffsetDegrees = 0;
-    public static final double LCToBumperEdgeOffsetMeters = .14986;
+    public static final double LCToBumperEdgeOffsetMeters = Units.inchesToMeters(5.9);
+    public static final double inRangeThreshold = .5;
+
+    public static final double coralStationToRobotDistance = DriveConstants.trackWidth / 2 + .15;
+    public static final double coralStationSideOffsetDistance = Units.inchesToMeters(76 / 4);
+
 
     public static final HashMap<Alignment, Double> offsetFromAlignment = new HashMap<Alignment, Double> () {{
       put(Alignment.left, leftCoralReefOffset);
@@ -358,6 +364,24 @@ public final class Constants {
       put(6., ReefStation.frontLeft);
 
       put(0., ReefStation.front);
+    }};
+
+    public static final HashMap<ReefStation, Double> blueReefIDsFromStation = new HashMap<ReefStation, Double>() {{
+      put(ReefStation.front, 18.);
+      put(ReefStation.frontRight, 17.);
+      put(ReefStation.backRight, 22.);
+      put(ReefStation.back, 21.);
+      put(ReefStation.backLeft, 20.);
+      put(ReefStation.frontLeft, 19.);
+    }};
+
+    public static final HashMap<ReefStation, Double> redReefIDsFromStation = new HashMap<ReefStation, Double>() {{
+      put(ReefStation.front, 7.);
+      put(ReefStation.frontRight, 8.);
+      put(ReefStation.backRight, 9.);
+      put(ReefStation.back, 10.);
+      put(ReefStation.backLeft, 11.);
+      put(ReefStation.frontLeft, 6.);
     }};
 
     public static final AdvancedPose2D blueLeftCoralStationPos = new AdvancedPose2D(new Translation2d(0.836168, 0.6334625), null).withVector(Rotation2d.fromDegrees(54), new Translation2d(coralStationToRobotDistance, 0), Rotation2d.fromDegrees(-126));

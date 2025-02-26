@@ -1,4 +1,4 @@
-package frc.robot.commands.Auton;
+package frc.robot.commands.Auton.Functions;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Timer;
@@ -34,6 +34,7 @@ public class AutonDrive extends Command {
 
     m_timer.reset();
     m_timer.start();
+    m_driveTrain.setInRange(false);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
