@@ -2,14 +2,17 @@ package frc.robot.commands.Auton.Sequences;
 
 import java.util.HashMap;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.Lib.AdvancedPose2D;
 import frc.robot.Constants.AutoAimConstants;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.AutoAimConstants.Alignment;
 import frc.robot.Constants.AutoAimConstants.Position;
 import frc.robot.Constants.AutoAimConstants.ReefStation;
@@ -22,6 +25,7 @@ import frc.robot.commands.Auton.Functions.AutonDriveToPosition;
 import frc.robot.commands.Auton.Functions.FirstRobotRelativeAutonDrive;
 import frc.robot.commands.Auton.Functions.InRangeAllToPosition;
 import frc.robot.commands.Auton.Functions.RobotRelativeAutonDrive;
+import frc.robot.commands.Auton.Functions.VisionTargetDetected;
 import frc.robot.subsystems.AlgaeAffector;
 import frc.robot.subsystems.CoralAffector;
 import frc.robot.subsystems.DriveTrain;
@@ -32,12 +36,12 @@ import frc.robot.subsystems.VisionSubsystem;
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class MainAuton extends SequentialCommandGroup {
-  private HashMap<ReefStation, AdvancedPose2D> reef = DriverStation.getAlliance().get() == Alliance.Blue ?
-                                                      AutoAimConstants.blueReef : AutoAimConstants.redReef;
+  private HashMap<ReefStation, AdvancedPose2D> reef;
   /** Creates a new MainAuton. */
   public MainAuton(DriveTrain driveTrain, Elevator elevator, 
                    CoralAffector coralAffector, AlgaeAffector algaeAffector, 
-                   VisionSubsystem visionSubsystem) {
+                   VisionSubsystem visionSubsystem, Alliance alliance) {
+    reef = alliance == Alliance.Blue ? AutoAimConstants.blueReef : AutoAimConstants.redReef;
     
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
@@ -53,6 +57,20 @@ public class MainAuton extends SequentialCommandGroup {
                                                                   AutoAimConstants.blueRightCoralStationPos.withRobotRelativeTransformation(
                                                                       new Translation2d(0, -AutoAimConstants.coralStationSideOffsetDistance)),
                                                                   4, Math.PI/2)),
-                                         new AutonCoralCollect(coralAffector));
+                                         new AutonCoralCollect(coralAffector),
+                                         new ParallelRaceGroup(new AutonDriveToPosition(driveTrain, AutoAimConstants.blueRightCoralStationPos.withRobotRelativeTransformation(
+                                                                  new Translation2d(0, -AutoAimConstants.coralStationSideOffsetDistance)), 
+                                                                  reef.get(ReefStation.frontRight), 0, 0),
+                                                               new VisionTargetDetected(visionSubsystem, ReefStation.frontRight)),
+                                         new ParallelCommandGroup(new AutonAutoAlign(driveTrain, visionSubsystem, AutoAimConstants.centerOfReefToRobotDistance, Alignment.right),
+                                                                  new InRangeAllToPosition(elevator, coralAffector, driveTrain, Position.L4)),
+                                         new AutonCoralScore(coralAffector), 
+                                         new AutonDriveToPosition(driveTrain, reef.get(ReefStation.frontRight), (alliance == Alliance.Blue ? FieldConstants.blueRightStartAlgae : FieldConstants.blueRightStartAlgae)
+                                                                                                                .withRobotRelativeTransformation(new Translation2d(-.1, 0)).rotateBy(
+                                                                                                                  new Rotation2d(Math.atan(reef.get(ReefStation.frontRight).minus(
+                                                                                                                    (alliance == Alliance.Blue ? FieldConstants.blueRightStartAlgae : 
+                                                                                                                    FieldConstants.blueRightStartAlgae)).getY() / 
+                                                                                                                    reef.get(ReefStation.frontRight).minus((alliance == Alliance.Blue ? 
+                                                                                                                    FieldConstants.blueRightStartAlgae : FieldConstants.blueRightStartAlgae)).getX()))),3, Math.PI/3);
   }
 }
