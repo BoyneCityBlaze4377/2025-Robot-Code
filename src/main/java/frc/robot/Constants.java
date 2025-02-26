@@ -256,6 +256,13 @@ public final class Constants {
 
     // public static AdvancedPose2D INIT_POSE_BLUE = new AdvancedPose2D(2, 4, Rotation2d.fromDegrees(0));
     public static AdvancedPose2D blueReefCenterPos = new AdvancedPose2D(4.48945, fieldWidth / 2, Rotation2d.fromDegrees(0));
+
+    public static final AdvancedPose2D blueLeftStartAlgae = new AdvancedPose2D(new Translation2d(1.220, 5.848), new Rotation2d());
+    public static final AdvancedPose2D blueCenterStartAlgae = new AdvancedPose2D(new Translation2d(1.220, 4.026), new Rotation2d());
+    public static final AdvancedPose2D blueRightStartAlgae = new AdvancedPose2D(new Translation2d(1.220, 2.189), new Rotation2d());
+
+    public static final AdvancedPose2D blueProcessor = new AdvancedPose2D(new Translation2d(6.348, .459), new Rotation2d(-Math.PI/2));
+    public static final AdvancedPose2D redprocessor = blueProcessor.flipBoth();
   }
 
   public class AutoAimConstants{
