@@ -9,16 +9,20 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.Lib.LimelightHelpers;
 import frc.Lib.LimelightHelpers.LimelightTarget_Fiducial;
+import frc.robot.Constants.AutoAimConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.Constants.SensorConstants;
+import au.grapplerobotics.ConfigurationFailedException;
 import au.grapplerobotics.LaserCan;
 import au.grapplerobotics.interfaces.LaserCanInterface;
+import au.grapplerobotics.interfaces.LaserCanInterface.RangingMode;
 
 public class VisionSubsystem extends SubsystemBase {
-  private double tx, ty, ta, tID;
+  private double tx, ty, ta, tID, dis;
   private final String name;
   private final LaserCan laserCan;
   private LaserCanInterface.Measurement lcMeasurement;
@@ -28,14 +32,17 @@ public class VisionSubsystem extends SubsystemBase {
   public VisionSubsystem(String cameraName) {
     name = cameraName;
     laserCan = new LaserCan(17);
+    try {
+      laserCan.setRangingMode(RangingMode.SHORT);
+    } catch (ConfigurationFailedException e) {}
     lcMeasurement = laserCan.getMeasurement();
+    dis = -1;
 
     txSender = IOConstants.DiagnosticTab.add("tx", tx)
                                         .withWidget("Text Display").getEntry();
     targetIDSender = IOConstants.DiagnosticTab.add("target ID", tID)
                                               .withWidget("Text Display").getEntry();
-    LCMeasurementSender = IOConstants.DiagnosticTab.add("LaserCAN measured distance", 
-                                                        lcMeasurement.distance_mm)
+    LCMeasurementSender = IOConstants.DiagnosticTab.add("LaserCAN measured distance", -1)
                                                    .withWidget("Text Display").getEntry();
     LCHasMeasurement = IOConstants.DiagnosticTab.add("LCHasMeasurement", false)
                                                 .withWidget("Boolean Box").getEntry();
@@ -53,12 +60,19 @@ public class VisionSubsystem extends SubsystemBase {
                                                          .targetingResults.targets_Fiducials;
     tID = (targets.length > 0 ? targets[0].fiducialID : 0);
 
+    /* LaserCAN */
+    lcMeasurement = laserCan.getMeasurement();
+    dis = lcMeasurement != null && lcMeasurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT 
+                                   ? lcMeasurement.distance_mm : -1;
+
     /* Value Posting */
     txSender.setDouble(getTX());
     targetIDSender.setDouble(getTargetID());
     LCMeasurementSender.setDouble(getDistanceMeasurementmm());
     LCHasMeasurement.setBoolean(lcMeasurement != null && lcMeasurement.status == 
                                                          LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT);
+
+    SmartDashboard.putNumber("TempMeasure", (dis / 1000) - AutoAimConstants.LCToBumperEdgeOffsetMeters);
   }
 
   // public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
@@ -76,21 +90,21 @@ public class VisionSubsystem extends SubsystemBase {
   }
 
   public double getDistanceMeasurementmm() {
-    return lcMeasurement != null && lcMeasurement.status == 
-                                    LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT 
-                                    ? lcMeasurement.distance_mm : -1;
+    return lcMeasurement != null && lcMeasurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT 
+                                    ? (((dis / 1000) - AutoAimConstants.LCToBumperEdgeOffsetMeters) * 1000) 
+                                    : -1;
   }
 
   public double getTX() {
-    return tID == 0 ? Float.NaN : tx;
+    return tx;
   }
 
   public double getTY() {
-    return tID == 0 ? Float.NaN : ty;
+    return ty;
   }
 
   public double getTA() {
-    return tID == 0 ? Float.NaN : ta;
+    return ta;
   }
 
   public double getTargetID() {

@@ -274,11 +274,11 @@ public final class Constants {
             
     public static final double centerOfReefToRobotDistance = Units.inchesToMeters(32.75) + DriveConstants.trackWidth / 2 + 0.01; // 118.475
     public static final double coralStationToRobotDistance = DriveConstants.trackWidth / 2;
-    public static final double coralAffectorOffsetFromRobotCenter = Units.inchesToMeters(2.5);
+    public static final double coralAffectorOffsetFromRobotCenter = Units.inchesToMeters(2);
     public static final double leftCoralReefOffset = Units.inchesToMeters(6.47) + coralAffectorOffsetFromRobotCenter;
     public static final double rightCoralReefOffset = Units.inchesToMeters(6.47) - coralAffectorOffsetFromRobotCenter;
-    public static final double LLDefaultOffsetDegrees = 10.81;
-    public static final double LCToBumperEdgeOffsetMeters = Units.inchesToMeters(6);
+    public static final double LLDefaultOffsetDegrees = 0;
+    public static final double LCToBumperEdgeOffsetMeters = .14986;
 
     public static final HashMap<Alignment, Double> offsetFromAlignment = new HashMap<Alignment, Double> () {{
       put(Alignment.left, leftCoralReefOffset);
@@ -364,9 +364,9 @@ public final class Constants {
     public static final AdvancedPose2D redLeftCoralStationPos = blueLeftCoralStationPos.horizontallyFlip();
     public static final AdvancedPose2D redRightCoralStationPos = blueRightCoralStationPos.horizontallyFlip();
 
-    public static final double horizkP = .1;
+    public static final double horizkP = .05;
     public static final double horizkI = 0;
-    public static final double horizkD = 0;
+    public static final double horizkD = .002;
     public static final double horizkTolerance = 1;
 
     public static final double diskP = .01;
@@ -374,10 +374,10 @@ public final class Constants {
     public static final double diskD = 0;
     public static final double diskTolerance = 20;
 
-    public static final double turnkP = .5;
+    public static final double turnkP = .1;
     public static final double turnkI = 0;
     public static final double turnkD = 0;
-    public static final double turnkTolerance = 1;
+    public static final double turnkTolerance = .5;
   }
 
   public class ClimberConstants {

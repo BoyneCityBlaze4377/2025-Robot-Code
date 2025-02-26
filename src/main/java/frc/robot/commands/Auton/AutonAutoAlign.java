@@ -2,6 +2,7 @@ package frc.robot.commands.Auton;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.AutoAimConstants;
 import frc.robot.Constants.AutoAimConstants.Alignment;
@@ -22,7 +23,7 @@ public class AutonAutoAlign extends Command {
     m_driveTrain = driveTrain;
     m_visionSubsystem = visionSubsystem;
 
-    targetDistance = TargetDistance;
+    targetDistance = TargetDistance + AutoAimConstants.LCToBumperEdgeOffsetMeters;
     alignment = a;
 
     horizController = new PIDController(AutoAimConstants.horizkP, 
@@ -43,19 +44,20 @@ public class AutonAutoAlign extends Command {
 
     maxHorizOutput = 3;
     maxDisOutput = 3;
-    maxRotOutput = Math.PI/2;
+    maxRotOutput = Math.PI * 3/2;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    targetDistance += AutoAimConstants.LCToBumperEdgeOffsetMeters;
     targetOffsetDeg = (AutoAimConstants.offsetFromAlignment.get(alignment) == 0 ? 0 : 
                       1 / Math.atan(AutoAimConstants.offsetFromAlignment.get(alignment) 
                       / targetDistance)) + AutoAimConstants.LLDefaultOffsetDegrees;
     targetAngle = AutoAimConstants.angleFromReefStation.get(AutoAimConstants.reefStationFromAprilTagID.get(
                                                             m_visionSubsystem.getTargetID()));
     m_driveTrain.setOrientation(false);
+    SmartDashboard.putNumber("VNKFDJBV", targetDistance * 1000);
+    targetAngle = 50;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -68,7 +70,9 @@ public class AutonAutoAlign extends Command {
     rot = MathUtil.clamp(angleController.calculate(m_driveTrain.getHeading(), targetAngle), 
                          -maxRotOutput, maxRotOutput);
 
-    m_driveTrain.autonDrive(-xSpeed, ySpeed, -rot);
+    SmartDashboard.putNumber("OUTPUT", distanceController.calculate(m_visionSubsystem.getDistanceMeasurementmm(), targetDistance * 1000));
+
+    m_driveTrain.autonDrive(-xSpeed, 0, -0);
   }
 
   // Called once the command ends or is interrupted.
@@ -79,12 +83,16 @@ public class AutonAutoAlign extends Command {
     ySpeed = 0;
     rot = 0;
     m_driveTrain.setOrientation(true);
+    SmartDashboard.putBoolean("VNKFDJBV", false);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return (horizController.atSetpoint() && distanceController.atSetpoint() && 
-            angleController.atSetpoint()) || m_visionSubsystem.getTargetID() == 0;
+    return 
+            //(horizController.atSetpoint() && 
+            distanceController.atSetpoint(); 
+            //&& angleController.atSetpoint());
+            //|| m_visionSubsystem.getTargetID() == 0;
   }
 }

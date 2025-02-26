@@ -95,9 +95,9 @@ public class RobotContainer {
     new JoystickButton(m_driverStick, IOConstants.switchOrientationButtonID).onTrue(SwitchOrientation);
     new JoystickButton(m_driverStick, IOConstants.switchBrakeButtonID).onTrue(SwitchBrake);
     // new JoystickButton(m_driverStick, IOConstants.autoAlignButtonID).whileTrue(null);
-    new JoystickButton(m_driverStick, 1).whileTrue(new AutonAutoAlign(m_driveTrain, 
+    new JoystickButton(m_driverStick, 12).whileTrue(new AutonAutoAlign(m_driveTrain, 
                                                                                    m_visionSubsystem, 
-                                                                                   .25, 
+                                                                                   .3, 
                                                                                    Alignment.center));
 
     /* Operator */

@@ -34,6 +34,8 @@ public class Elevator extends SubsystemBase {
     elevatorEncoder = elevatorMotor.getEncoder();
     elevatorSpeed = 0;
 
+    positionStatusString = "At Position.floor";
+
     configMotorControllerDefaults();
     elevatorHeight = IOConstants.MatchTab.add("Elevator Height", 0)
                                          .withWidget("Number Bar")
@@ -50,7 +52,7 @@ public class Elevator extends SubsystemBase {
                                           .withWidget("Boolean Box").getEntry();
     lowerLimit = IOConstants.DiagnosticTab.add("At Lower Limit?", true)
                                           .withWidget("Boolean Box").getEntry();
-    positionStatusSender = IOConstants.MatchTab.add("Position", "At Position.floor")
+    positionStatusSender = IOConstants.MatchTab.add("Position", positionStatusString)
                                                .withWidget("Text Display").getEntry();
     lockedSender = IOConstants.DiagnosticTab.add("Elevator locked", false)
                                             .withWidget("Boolean Box").getEntry();

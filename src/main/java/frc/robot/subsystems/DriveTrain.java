@@ -6,6 +6,8 @@ import com.studica.frc.AHRS.NavXComType;
 import java.util.Map;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+
+import edu.wpi.first.math.MathUtil;
 // import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -107,7 +109,7 @@ public class DriveTrain extends SubsystemBase {
                                                               "min_value", -180, "max_value", 180,
                                                               "wrap_value", true, "show_pointer", false))
                                        .getEntry();
-    poseEstimate = IOConstants.DiagnosticTab.add("Field", m_poseEstimator.getEstimatedPosition())
+    poseEstimate = IOConstants.DiagnosticTab.add("Field", m_poseEstimator.getEstimatedPosition().toString())
                                             .withWidget("Field")
                                             .withProperties(Map.of("robot_width", DriveConstants.trackWidth,
                                                                    "robot_length", DriveConstants.wheelBase))
@@ -160,6 +162,8 @@ public class DriveTrain extends SubsystemBase {
 
     estimateField = new Field2d();
 
+    m_gyro.reset();
+
     //headingController.enableContinuousInput(-Math.PI, Math.PI);
 
     x = 0;
@@ -196,12 +200,14 @@ public class DriveTrain extends SubsystemBase {
 
     heading = m_gyro.getYaw() - m_gyro.getAngleAdjustment();
 
-    translationElevatorHeightSpeedScaler = DriveConstants.maxDriveSpeed 
-                                           - DriveConstants.elevatorHeightFactorTranslation 
-                                           * elevatorHeight;
-    rotationElevatorHeightSpeedScaler = DriveConstants.maxRotspeed 
-                                        - DriveConstants.elevatorHeightFactorRotation 
-                                        * elevatorHeight;
+    translationElevatorHeightSpeedScaler = 1;
+                                          //  DriveConstants.maxDriveSpeed 
+                                          //  - DriveConstants.elevatorHeightFactorTranslation 
+                                          //  * elevatorHeight;
+    rotationElevatorHeightSpeedScaler = 1;
+                                        // DriveConstants.maxRotspeed 
+                                        // - DriveConstants.elevatorHeightFactorRotation 
+                                        // * elevatorHeight;
 
     //drive
     instanceDrive(x * translationElevatorHeightSpeedScaler, y * translationElevatorHeightSpeedScaler, 
@@ -211,9 +217,9 @@ public class DriveTrain extends SubsystemBase {
   }
 
   private void instanceDrive(double xSpeed, double ySpeed, double omega, boolean fieldRelative) {
-    var swerveModuleStates = DriveConstants.driveKinematics.toSwerveModuleStates((fieldOrientation
+    var swerveModuleStates = DriveConstants.driveKinematics.toSwerveModuleStates(fieldOrientation
                 ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, omega, m_gyro.getRotation2d()) 
-                : new ChassisSpeeds(-xSpeed, -ySpeed, omega)));
+                : new ChassisSpeeds(xSpeed, ySpeed, omega));
 
     setModuleStates(swerveModuleStates, (xSpeed == 0 && ySpeed == 0 && omega == 0));
   }
@@ -226,11 +232,13 @@ public class DriveTrain extends SubsystemBase {
    * @param rot Angular rate of the robot.
    */
   public void teleopDrive(double xSpeed, double ySpeed, double rot) {
-    // rot = Math.pow(rot, 3);
+    rot = Math.pow(rot, 3);
+
+    rot = MathUtil.applyDeadband(rot, .1);
 
     x = xSpeed * DriveConstants.maxSpeedMetersPerSecond * speedScaler;
     y = ySpeed * DriveConstants.maxSpeedMetersPerSecond * speedScaler;
-    omega = rot * Math.PI;
+    omega = rot * Math.PI * 2;
   }
 
   /**
