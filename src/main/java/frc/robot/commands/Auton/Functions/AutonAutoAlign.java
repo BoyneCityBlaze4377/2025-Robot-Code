@@ -24,7 +24,7 @@ public class AutonAutoAlign extends Command {
     m_driveTrain = driveTrain;
     m_visionSubsystem = visionSubsystem;
 
-    targetDistance = TargetDistance ;
+    targetDistance = TargetDistance;
     alignment = a;
 
     horizController = new PIDController(AutoAimConstants.horizkP, 
@@ -59,7 +59,6 @@ public class AutonAutoAlign extends Command {
     targetAngle = AutoAimConstants.angleFromReefStation.get(AutoAimConstants.reefStationFromAprilTagID.get(
                                                             m_visionSubsystem.getTargetID()));
     m_driveTrain.setOrientation(false);
-    SmartDashboard.putNumber("VNKFDJBV", targetDistance);
     targetAngle = 0;
     m_driveTrain.setInRange(false);
   }
@@ -96,11 +95,10 @@ public class AutonAutoAlign extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return 
-    // (horizController.atSetpoint() && 
-            distanceController.atSetpoint();
-            // && angleController.atSetpoint());
-            // || m_visionSubsystem.getTargetID() == 0
-            // || m_visionSubsystem.getDistanceMeasurementmm() == -1;
+    return (horizController.atSetpoint() && 
+            distanceController.atSetpoint()
+            && angleController.atSetpoint())
+            || m_visionSubsystem.getTargetID() == 0
+            || m_visionSubsystem.getDistanceMeasurementmm() == -1;
   }
 }
