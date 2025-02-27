@@ -5,13 +5,17 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.Constants.FieldConstants;
 
-public class AdvancedPose2D extends Pose2d{
+public class AdvancedPose2D extends Pose2d {
     public AdvancedPose2D(Translation2d translation, Rotation2d rotation){
         super(translation, rotation);
     }
 
     public AdvancedPose2D(double x, double y, Rotation2d rotation){
         super(new Translation2d(x, y), rotation);
+    }
+
+    public AdvancedPose2D(Pose2d pose2d) {
+        super(pose2d.getTranslation().getX(), pose2d.getTranslation().getY(), pose2d.getRotation());
     }
 
     public AdvancedPose2D horizontallyFlip(){

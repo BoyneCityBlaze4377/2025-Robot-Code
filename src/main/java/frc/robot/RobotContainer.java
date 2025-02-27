@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -9,6 +10,7 @@ import frc.robot.Constants.AutoAimConstants.Position;
 import frc.robot.subsystems.*;
 import frc.robot.commands.AllToSetPosition;
 import frc.robot.commands.Auton.Functions.AutonAutoAlign;
+import frc.robot.commands.Auton.Sequences.MainAuton;
 import frc.robot.commands.ClimberCommands.*;
 import frc.robot.commands.DriveCommands.*;
 import frc.robot.commands.ElevatorCommands.*;
@@ -67,13 +69,17 @@ public class RobotContainer {
   private final Command ElevatorOverride = new ElevatorOverride(m_elevator, m_operatorStick1);
   private final Command WristOverride = new CoralWristOverride(m_coralAffector, m_operatorStick2);
 
+  /* Auton */
+  private final Command MainAuton = new MainAuton(m_driveTrain, m_elevator, m_coralAffector, 
+                                                  m_algaeAffector, m_visionSubsystem, DriverStation.getAlliance().get());
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() { 
     m_driveTrain.setDefaultCommand(TeleopDrive);
     configureButtonBindings();
     m_driveTrain.setGyroOffset(0);
 
-    autonChooser.addOption("Test", null);
+    autonChooser.addOption("Main Auton", MainAuton);
     IOConstants.ConfigTab.add(autonChooser);
   }
 
@@ -97,8 +103,8 @@ public class RobotContainer {
     // new JoystickButton(m_driverStick, IOConstants.autoAlignButtonID).whileTrue(null);
     new JoystickButton(m_driverStick, 12).whileTrue(new AutonAutoAlign(m_driveTrain, 
                                                                                    m_visionSubsystem, 
-                                                                                   .3, 
-                                                                                   Alignment.center));
+                                                                                   .01, 
+                                                                                   Alignment.left));
 
     /* Operator */
     //Set positions

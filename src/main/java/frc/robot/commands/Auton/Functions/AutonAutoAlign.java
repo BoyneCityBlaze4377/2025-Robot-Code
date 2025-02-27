@@ -17,13 +17,14 @@ public class AutonAutoAlign extends Command {
   private final PIDController angleController, horizController, distanceController;
   private final Alignment alignment;
   private final VisionSubsystem m_visionSubsystem;
+  private boolean orientation;
 
   /** Creates a new LimeLightDrive. */
   public AutonAutoAlign(DriveTrain driveTrain, VisionSubsystem visionSubsystem, double TargetDistance, Alignment a) {
     m_driveTrain = driveTrain;
     m_visionSubsystem = visionSubsystem;
 
-    targetDistance = TargetDistance + AutoAimConstants.LCToBumperEdgeOffsetMeters;
+    targetDistance = TargetDistance ;
     alignment = a;
 
     horizController = new PIDController(AutoAimConstants.horizkP, 
@@ -45,6 +46,8 @@ public class AutonAutoAlign extends Command {
     maxHorizOutput = 3;
     maxDisOutput = 3;
     maxRotOutput = Math.PI * 3/2;
+
+    orientation = m_driveTrain.isFieldOriented();
   }
 
   // Called when the command is initially scheduled.
@@ -57,7 +60,7 @@ public class AutonAutoAlign extends Command {
                                                             m_visionSubsystem.getTargetID()));
     m_driveTrain.setOrientation(false);
     SmartDashboard.putNumber("VNKFDJBV", targetDistance);
-    targetAngle = 50;
+    targetAngle = 0;
     m_driveTrain.setInRange(false);
   }
 
@@ -66,12 +69,16 @@ public class AutonAutoAlign extends Command {
   public void execute() {
     ySpeed = MathUtil.clamp(horizController.calculate(m_visionSubsystem.getTX(), targetOffsetDeg), 
                             -maxHorizOutput, maxHorizOutput);
-    xSpeed = MathUtil.clamp(distanceController.calculate(m_visionSubsystem.getDistanceMeasurementmm() / 1000, targetDistance), 
+    xSpeed = MathUtil.clamp(distanceController.calculate(m_visionSubsystem.getDistanceMeasurementmm(), targetDistance * 1000), 
                             -maxDisOutput, maxDisOutput);
     rot = MathUtil.clamp(angleController.calculate(m_driveTrain.getHeading(), targetAngle), 
                          -maxRotOutput, maxRotOutput);
 
     if (distanceController.getError() < AutoAimConstants.inRangeThreshold) m_driveTrain.setInRange(true); else m_driveTrain.setInRange(false);
+
+    // if (horizController.atSetpoint()) ySpeed = 0;
+    // if (distanceController.atSetpoint()) xSpeed = 0;
+    if (angleController.atSetpoint()) rot = 0;
 
     m_driveTrain.autonDrive(-xSpeed, 0, -0);
   }
@@ -79,22 +86,21 @@ public class AutonAutoAlign extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_driveTrain.autonDrive(0, 0, 0);
+    m_driveTrain.lockPose();
     xSpeed = 0;
     ySpeed = 0;
     rot = 0;
-    m_driveTrain.setOrientation(true);
-    SmartDashboard.putBoolean("VNKFDJBV", false);
+    m_driveTrain.setOrientation(orientation);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
     return 
-            //(horizController.atSetpoint() && 
-            distanceController.atSetpoint(); 
-            //&& angleController.atSetpoint());
-            //|| (m_visionSubsystem.getTargetID() == 0
-            //|| m_visionSubsystem.getDistanceMeasurementmm() == -1;
+    // (horizController.atSetpoint() && 
+            distanceController.atSetpoint();
+            // && angleController.atSetpoint());
+            // || m_visionSubsystem.getTargetID() == 0
+            // || m_visionSubsystem.getDistanceMeasurementmm() == -1;
   }
 }

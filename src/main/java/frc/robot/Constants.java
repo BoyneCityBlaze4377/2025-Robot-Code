@@ -75,7 +75,7 @@ public final class Constants {
     public static final double conversionFactor = 1;
 
     public static final double lowerLimit = 5;
-    public static final double upperLimit = 215;
+    public static final double upperLimit = 195;
 
     public static final double kP = .25;
     public static final double kI = 0;
@@ -94,11 +94,11 @@ public final class Constants {
     public static final double defaultPos = lowerLimit;
     public static final double floorPos = lowerLimit;
     public static final double L1Pos = 24;
-    public static final double L2AlgaePos = 107;
+    public static final double L2AlgaePos = 120;
     public static final double L2Pos = 85;
-    public static final double L3AlgaePos = 170;
-    public static final double L3Pos = 213;
-    public static final double L4Pos = 208;
+    public static final double L3AlgaePos = 180;
+    public static final double L3Pos = 192;
+    public static final double L4Pos = 188;
     public static final double HPPos = 0;
   }
 
@@ -116,7 +116,7 @@ public final class Constants {
     public static final double coralWristL4 = 104;
     public static final double coralWristHP = 30;
 
-    public static final double wristOverrideSpeed = .15;
+    public static final double wristOverrideSpeed = .3;
 
     public static final double coralWristKP = .05; //.25
     public static final double coralWristKI = 0; //0
@@ -210,8 +210,8 @@ public final class Constants {
 
     public static final boolean gyroReversed = true;
 
-    public static final double speedScaler = .25;
-    public static final double maxDriveSpeed = .9;
+    public static final double speedScaler = 1;
+    public static final double maxDriveSpeed = .6;
     public static final double minDriveSpeed = .1;
     public static final double maxRotspeed = 1;
     public static final double minRotSpeed = .3;
@@ -286,9 +286,9 @@ public final class Constants {
     public static final double leftCoralReefOffset = Units.inchesToMeters(6.47) + coralAffectorOffsetFromRobotCenter;
     public static final double rightCoralReefOffset = Units.inchesToMeters(6.47) - coralAffectorOffsetFromRobotCenter;
 
-    public static final double LLDefaultOffsetDegrees = 0;
-    public static final double LCToBumperEdgeOffsetMeters = Units.inchesToMeters(5.9);
-    public static final double inRangeThreshold = .5;
+    public static final double LLDefaultOffsetDegrees = 4;
+    public static final double LCToBumperEdgeOffsetMeters = Units.inchesToMeters(6.125);
+    public static final double inRangeThreshold = .5; //Meters
 
     public static final double coralStationToRobotDistance = DriveConstants.trackWidth / 2 + .15;
     public static final double coralStationSideOffsetDistance = Units.inchesToMeters(76 / 4);
@@ -399,12 +399,12 @@ public final class Constants {
     public static final double horizkP = .05;
     public static final double horizkI = 0;
     public static final double horizkD = .002;
-    public static final double horizkTolerance = 1;
+    public static final double horizkTolerance = 1.6;
 
-    public static final double diskP = .01;
-    public static final double diskI = 0;
+    public static final double diskP = .004;
+    public static final double diskI = .0008;
     public static final double diskD = 0;
-    public static final double diskTolerance = 20;
+    public static final double diskTolerance = 5;
 
     public static final double turnkP = .1;
     public static final double turnkI = 0;

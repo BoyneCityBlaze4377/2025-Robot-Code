@@ -8,6 +8,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.Lib.AdvancedPose2D;
@@ -17,6 +18,8 @@ import frc.robot.Constants.AutoAimConstants.Alignment;
 import frc.robot.Constants.AutoAimConstants.Position;
 import frc.robot.Constants.AutoAimConstants.ReefStation;
 import frc.robot.commands.AllToSetPosition;
+import frc.robot.commands.Auton.Functions.AutonAlgaeCollect;
+import frc.robot.commands.Auton.Functions.AutonAlgaeScore;
 import frc.robot.commands.Auton.Functions.AutonAutoAlign;
 import frc.robot.commands.Auton.Functions.AutonCoralCollect;
 import frc.robot.commands.Auton.Functions.AutonCoralScore;
@@ -46,7 +49,7 @@ public class MainAuton extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(new FirstRobotRelativeAutonDrive(driveTrain, 0, 4, 0, 
-                                    Units.inchesToMeters(100), driveTrain.getHeading(), visionSubsystem,
+                                    Units.inchesToMeters(110), driveTrain.getHeading(), visionSubsystem,
                                     ReefStation.backRight),
                 new ParallelCommandGroup(new AutonAutoAlign(driveTrain, visionSubsystem, AutoAimConstants.centerOfReefToRobotDistance, Alignment.left)),
                                          new InRangeAllToPosition(elevator, coralAffector, driveTrain, Position.L4),
@@ -65,12 +68,24 @@ public class MainAuton extends SequentialCommandGroup {
                                          new ParallelCommandGroup(new AutonAutoAlign(driveTrain, visionSubsystem, AutoAimConstants.centerOfReefToRobotDistance, Alignment.right),
                                                                   new InRangeAllToPosition(elevator, coralAffector, driveTrain, Position.L4)),
                                          new AutonCoralScore(coralAffector), 
-                                         new AutonDriveToPosition(driveTrain, reef.get(ReefStation.frontRight), (alliance == Alliance.Blue ? FieldConstants.blueRightStartAlgae : FieldConstants.blueRightStartAlgae)
-                                                                                                                .withRobotRelativeTransformation(new Translation2d(-.1, 0)).rotateBy(
+                                         new AutonDriveToPosition(driveTrain, reef.get(ReefStation.frontRight), new AdvancedPose2D((alliance == Alliance.Blue ? FieldConstants.blueRightStartAlgae : FieldConstants.blueRightStartAlgae)
+                                                                                                                .withRobotRelativeTransformation(new Translation2d(-.5, 0)).rotateBy(
                                                                                                                   new Rotation2d(Math.atan(reef.get(ReefStation.frontRight).minus(
                                                                                                                     (alliance == Alliance.Blue ? FieldConstants.blueRightStartAlgae : 
                                                                                                                     FieldConstants.blueRightStartAlgae)).getY() / 
                                                                                                                     reef.get(ReefStation.frontRight).minus((alliance == Alliance.Blue ? 
-                                                                                                                    FieldConstants.blueRightStartAlgae : FieldConstants.blueRightStartAlgae)).getX()))),3, Math.PI/3);
+                                                                                                                    FieldConstants.blueRightStartAlgae : FieldConstants.blueRightStartAlgae)).getX())))),
+                                                                                                                    3, Math.PI/3), 
+                                          new ParallelDeadlineGroup(new AutonAlgaeCollect(algaeAffector), 
+                                                                    new RobotRelativeAutonDrive(driveTrain, 0, 3, 
+                                                                                                0, .6, 360)),
+                                          new AutonDriveToPosition(driveTrain, (alliance == Alliance.Blue 
+                                                                                ? FieldConstants.blueRightStartAlgae 
+                                                                                : FieldConstants.blueRightStartAlgae), 
+                                                                   FieldConstants.blueProcessor.withVector(new Rotation2d().fromDegrees(90),
+                                                                                                           new Translation2d(0, .5), new Rotation2d().fromDegrees(-90)),
+                                                                    4, Math.PI/2),
+                                          new ParallelCommandGroup(new RobotRelativeAutonDrive(driveTrain, 0, 1, 0, .5, 360),
+                                                                   new AutonAlgaeScore(algaeAffector)));
   }
 }

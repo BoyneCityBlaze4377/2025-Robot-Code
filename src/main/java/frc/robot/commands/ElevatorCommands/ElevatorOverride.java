@@ -25,7 +25,12 @@ public class ElevatorOverride extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_elevator.set(MathUtil.applyDeadband(-m_stick.getRawAxis(1) * ElevatorConstants.overrideSpeed, .1));
+    double input = MathUtil.applyDeadband(-m_stick.getRawAxis(1) * ElevatorConstants.overrideSpeed, .1);
+    if (Math.abs(input) < .05) {
+      m_elevator.lockElevator();
+    } else {
+      m_elevator.set(input);
+    }
   }
 
   // Called once the command ends or is interrupted.

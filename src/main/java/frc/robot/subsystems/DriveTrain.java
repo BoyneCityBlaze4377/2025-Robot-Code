@@ -192,23 +192,18 @@ public class DriveTrain extends SubsystemBase {
     /** Dashboard Posting */
     robotHeading.setDouble(heading);
     poseEstimate.setString(getPoseEstimate().toString());
-    xSpeedSender.setDouble(x);
-    ySpeedSender.setDouble(y);
-    omegaSender.setDouble(omega);
 
     // Update the odometry in the periodic block
     m_odometry.update(m_gyro.getRotation2d(), getSwerveModulePositions());
 
     heading = m_gyro.getYaw() - m_gyro.getAngleAdjustment();
 
-    translationElevatorHeightSpeedScaler = 1;
-                                          //  DriveConstants.maxDriveSpeed 
-                                          //  - DriveConstants.elevatorHeightFactorTranslation 
-                                          //  * elevatorHeight;
-    rotationElevatorHeightSpeedScaler = 1;
-                                        // DriveConstants.maxRotspeed 
-                                        // - DriveConstants.elevatorHeightFactorRotation 
-                                        // * elevatorHeight;
+    translationElevatorHeightSpeedScaler = DriveConstants.maxDriveSpeed 
+                                           - DriveConstants.elevatorHeightFactorTranslation 
+                                           * elevatorHeight;
+    rotationElevatorHeightSpeedScaler = DriveConstants.maxRotspeed 
+                                        - DriveConstants.elevatorHeightFactorRotation 
+                                        * elevatorHeight;
 
     //drive
     instanceDrive(x * translationElevatorHeightSpeedScaler, y * translationElevatorHeightSpeedScaler, 
@@ -223,6 +218,10 @@ public class DriveTrain extends SubsystemBase {
                 : new ChassisSpeeds(xSpeed, ySpeed, omega));
 
     setModuleStates(swerveModuleStates, (xSpeed == 0 && ySpeed == 0 && omega == 0));
+
+    xSpeedSender.setDouble(x);
+    ySpeedSender.setDouble(y);
+    omegaSender.setDouble(omega);
   }
 
   /**

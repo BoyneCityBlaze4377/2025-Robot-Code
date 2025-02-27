@@ -15,8 +15,8 @@ public class RobotRelativeAutonDrive extends Command {
     ySpeed = vMetersPerSecond * Math.cos(desiredDriveAngle);
     xSpeed = vMetersPerSecond * Math.sin(desiredDriveAngle);
     rot = omegaRadiansPerSecond;
-    targetHeading = TargetHeading;
     m_driveTrain = driveTrain;
+    targetHeading = TargetHeading == 360 ? m_driveTrain.getHeading() : TargetHeading;
     m_timer = new Timer();
     time = targetDistance / Math.hypot(xSpeed, ySpeed);
     // Use addRequirements() here to declare subsystem dependencies.

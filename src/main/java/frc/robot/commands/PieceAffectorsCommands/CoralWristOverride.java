@@ -31,10 +31,10 @@ public class CoralWristOverride extends Command {
   @Override
   public void execute() {
     input = MathUtil.applyDeadband(m_stick.getRawAxis(0) * AffectorConstants.wristOverrideSpeed, .1);
-    if (input == 0) {
+    if (Math.abs(input) < .05) {
       m_coralAffector.lockWrist();
     } else {
-      m_coralAffector.moveWrist(input);
+      m_coralAffector.moveWrist(-input);
     }
     
   }

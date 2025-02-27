@@ -48,6 +48,8 @@ public class CoralAffector extends SubsystemBase {
     hasCoralSender = IOConstants.TeleopTab.add("HasCoral", hasCoral()).withWidget("Boolean Box").getEntry();
     lockedSender = IOConstants.DiagnosticTab.add("CoralWrist Locked", false)
                                             .withWidget("Boolean Box").getEntry();
+
+    zeroWristEncoder();
   }
   
   @Override
