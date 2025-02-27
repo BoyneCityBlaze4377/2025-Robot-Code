@@ -90,9 +90,6 @@ public class FirstRobotRelativeAutonDrive extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_driveTrain.stop();
-    m_driveTrain.lockPose();
-
     targetHeading = m_driveTrain.getHeading();
     rot = 0;
     xSpeed = 0;

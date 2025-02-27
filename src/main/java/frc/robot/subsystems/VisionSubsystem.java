@@ -2,6 +2,8 @@ package frc.robot.subsystems;
 
 import java.util.Optional;
 
+import org.photonvision.EstimatedRobotPose;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -12,7 +14,6 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.Lib.LimelightHelpers;
-import frc.Lib.LimelightHelpers.LimelightTarget_Fiducial;
 import frc.robot.Constants.AutoAimConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.Constants.SensorConstants;
@@ -55,10 +56,7 @@ public class VisionSubsystem extends SubsystemBase {
     tx = table.getEntry("tx").getDouble(0);
     ty = table.getEntry("ty").getDouble(0);
     ta = table.getEntry("ta").getDouble(0);
-
-    LimelightTarget_Fiducial[] targets = LimelightHelpers.getLatestResults(SensorConstants.limeLightName)
-                                                         .targetingResults.targets_Fiducials;
-    tID = !(targets.length > 0) ? 0 : targets[0].fiducialID;
+    tID = table.getEntry("fID").getDouble(0);
 
     /* LaserCAN */
     lcMeasurement = laserCan.getMeasurement();
@@ -75,14 +73,14 @@ public class VisionSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("TempMeasure", (dis / 1000) - AutoAimConstants.LCToBumperEdgeOffsetMeters);
   }
 
-  // public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
-  //   LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name);
-  //   return Optional.of(new EstimatedRobotPose(new Pose3d(new Translation3d(mt2.pose.getTranslation()),
-  //                                                         new Rotation3d(mt2.pose.getRotation())),
-  //                                             mt2.timestampSeconds,
-  //                                             null,
-  //                                             null));
-  // }
+  public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
+    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name);
+    return Optional.of(new EstimatedRobotPose(new Pose3d(new Translation3d(mt2.pose.getTranslation()),
+                                                          new Rotation3d(mt2.pose.getRotation())),
+                                              mt2.timestampSeconds,
+                                              null,
+                                              null));
+  }
 
   public Optional<Pose2d> getEstimatedPose2d() {
     LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name);

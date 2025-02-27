@@ -15,7 +15,7 @@ public class VisionTargetDetected extends Command {
   public VisionTargetDetected(VisionSubsystem subsystem, ReefStation targetStation) {
     m_subsystem = subsystem;
     targetID = DriverStation.getAlliance().get() == Alliance.Blue ? AutoAimConstants.blueReefIDsFromStation.get(targetStation)
-                                                                  : AutoAimConstants.redReefIDsFromStation.get(targetStation);; 
+                                                                  : AutoAimConstants.redReefIDsFromStation.get(targetStation);
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_subsystem);
   }

@@ -1,0 +1,24 @@
+package frc.robot.commands.Auton.Functions;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.subsystems.DriveTrain;
+
+// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
+// information, see:
+// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
+public class SetDriveTrainPose extends InstantCommand {
+  private final DriveTrain m_driveTrain;
+  private final Pose2d m_pose;
+  public SetDriveTrainPose(DriveTrain driveTrain, Pose2d pose) {
+    m_driveTrain = driveTrain;
+    m_pose = pose;
+    // Use addRequirements() here to declare subsystem dependencies.
+  }
+
+  // Called when the command is initially scheduled.
+  @Override
+  public void initialize() {
+    m_driveTrain.setPoseEstimate(m_pose);
+  }
+}

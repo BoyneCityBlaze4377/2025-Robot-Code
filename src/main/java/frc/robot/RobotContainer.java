@@ -10,7 +10,7 @@ import frc.robot.Constants.AutoAimConstants.Position;
 import frc.robot.subsystems.*;
 import frc.robot.commands.AllToSetPosition;
 import frc.robot.commands.Auton.Functions.AutonAutoAlign;
-import frc.robot.commands.Auton.Sequences.MainAuton;
+import frc.robot.commands.Auton.Sequences.MainAutonEndAlgae;
 import frc.robot.commands.ClimberCommands.*;
 import frc.robot.commands.DriveCommands.*;
 import frc.robot.commands.ElevatorCommands.*;
@@ -70,7 +70,7 @@ public class RobotContainer {
   private final Command WristOverride = new CoralWristOverride(m_coralAffector, m_operatorStick2);
 
   /* Auton */
-  private final Command MainAuton = new MainAuton(m_driveTrain, m_elevator, m_coralAffector, 
+  private final Command MainAuton = new MainAutonEndAlgae(m_driveTrain, m_elevator, m_coralAffector, 
                                                   m_algaeAffector, m_visionSubsystem, DriverStation.getAlliance().get());
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */

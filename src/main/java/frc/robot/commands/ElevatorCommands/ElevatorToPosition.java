@@ -4,7 +4,9 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.AutoAimConstants;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.AutoAimConstants.Position;
 import frc.robot.subsystems.Elevator;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -14,9 +16,9 @@ public class ElevatorToPosition extends Command {
   private final PIDController elevatorController;
 
   /** Creates a new ElevatorToPosition. */
-  public ElevatorToPosition(Elevator elevator, double DesiredPos) {
+  public ElevatorToPosition(Elevator elevator, Position DesiredPos) {
     m_elevator = elevator;
-    desiredPos = DesiredPos;
+    desiredPos = AutoAimConstants.positionValues.get(DesiredPos)[0];
     elevatorController = new PIDController(ElevatorConstants.kP, ElevatorConstants.kI, ElevatorConstants.kD);
     elevatorController.setTolerance(ElevatorConstants.kTolerance);
     // Use addRequirements() here to declare subsystem dependencies.

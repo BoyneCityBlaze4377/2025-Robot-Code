@@ -4,23 +4,29 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.Lib.AdvancedPose2D;
+import frc.robot.Constants.AutoAimConstants;
 import frc.robot.subsystems.DriveTrain;
 
 public class AutonDriveToPosition extends Command {
-  private double xSpeed, ySpeed, rot, targetHeading, turnError, relativeAngle, initialTurnValue, time, desiredDriveAngle;
+  private double xSpeed, ySpeed, rot, targetHeading, turnError, relativeAngle, 
+                 initialTurnValue, time, desiredDriveAngle, desiredDistance, v;
   private final DriveTrain m_driveTrain;
   private final Timer m_timer;
   /** Creates a new AutonDrive. */
-  public AutonDriveToPosition(DriveTrain driveTrain, AdvancedPose2D currentPosition, AdvancedPose2D desiredPose,
-                              double vMetersPerSecond, double omegaRadiansPerSecond) {
-    desiredDriveAngle = Math.atan(currentPosition.minus(desiredPose).getY() /currentPosition.minus(desiredPose).getX());
+  public AutonDriveToPosition(DriveTrain driveTrain, AdvancedPose2D currentPosition, 
+                              AdvancedPose2D desiredPose, double vMetersPerSecond, 
+                              double omegaRadiansPerSecond) {
+    desiredDriveAngle = Math.atan(currentPosition.minus(desiredPose).getY() /
+                                  currentPosition.minus(desiredPose).getX());
     ySpeed = vMetersPerSecond * Math.cos(desiredDriveAngle);
     xSpeed = vMetersPerSecond * Math.sin(desiredDriveAngle);
+    v = vMetersPerSecond;
     rot = omegaRadiansPerSecond;
+    desiredDistance = currentPosition.getTranslation().getDistance(desiredPose.getTranslation());
     targetHeading = desiredPose.getRotation().getDegrees();
     m_driveTrain = driveTrain;
     m_timer = new Timer();
-    time = currentPosition.getTranslation().getDistance(desiredPose.getTranslation()) / vMetersPerSecond;
+    time = desiredDistance / vMetersPerSecond;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_driveTrain);
   }
@@ -59,14 +65,13 @@ public class AutonDriveToPosition extends Command {
     }
 
     m_driveTrain.autonDrive(-xSpeed, ySpeed, rot);
+    m_driveTrain.setInRange(m_timer.get() <= (desiredDistance - AutoAimConstants.inRangeThreshold) 
+                                              / v);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_driveTrain.stop();
-    m_driveTrain.lockPose();
-
     targetHeading = m_driveTrain.getHeading();
     rot = 0;
     xSpeed = 0;

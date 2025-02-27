@@ -284,7 +284,7 @@ public final class Constants {
     public static final double centerOfReefToRobotDistance = Units.inchesToMeters(32.75) + DriveConstants.trackWidth / 2 + 0.01; // 118.475
     public static final double coralAffectorOffsetFromRobotCenter = Units.inchesToMeters(2);
     public static final double leftCoralReefOffset = Units.inchesToMeters(6.47) + coralAffectorOffsetFromRobotCenter;
-    public static final double rightCoralReefOffset = Units.inchesToMeters(6.47) - coralAffectorOffsetFromRobotCenter;
+    public static final double rightCoralReefOffset = coralAffectorOffsetFromRobotCenter - Units.inchesToMeters(6.47);
 
     public static final double LLDefaultOffsetDegrees = 4;
     public static final double LCToBumperEdgeOffsetMeters = Units.inchesToMeters(6.125);
@@ -393,8 +393,8 @@ public final class Constants {
 
     public static final AdvancedPose2D blueLeftCoralStationPos = new AdvancedPose2D(new Translation2d(0.836168, 0.6334625), null).withVector(Rotation2d.fromDegrees(54), new Translation2d(coralStationToRobotDistance, 0), Rotation2d.fromDegrees(-126));
     public static final AdvancedPose2D blueRightCoralStationPos = new AdvancedPose2D(new Translation2d(0.836168, 7.4185375), null).withVector(Rotation2d.fromDegrees(-54), new Translation2d(coralStationToRobotDistance, 0), Rotation2d.fromDegrees(126));
-    public static final AdvancedPose2D redLeftCoralStationPos = blueLeftCoralStationPos.horizontallyFlip();
-    public static final AdvancedPose2D redRightCoralStationPos = blueRightCoralStationPos.horizontallyFlip();
+    public static final AdvancedPose2D redLeftCoralStationPos = blueLeftCoralStationPos.flipBoth();
+    public static final AdvancedPose2D redRightCoralStationPos = blueRightCoralStationPos.flipBoth();
 
     public static final double horizkP = .05;
     public static final double horizkI = 0;
