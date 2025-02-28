@@ -46,6 +46,7 @@ public class AllToSetPosition extends Command {
     coralWristOutput = 0;
 
     m_elevator.setPositionString("Going to " + position.toString());
+    m_elevator.setAtPos(false);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -70,6 +71,7 @@ public class AllToSetPosition extends Command {
     coralWristOutput = 0;
 
     m_elevator.setPositionString("At " + position.toString());
+    m_elevator.setAtPos(false);
   }
 
   // Returns true when the command should end.

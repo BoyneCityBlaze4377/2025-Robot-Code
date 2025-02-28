@@ -24,6 +24,7 @@ public class CoralAffector extends SubsystemBase {
   private final DigitalInput coralDetector;
   private final GenericEntry wristValSender, hasCoralSender, lockedSender;
   private boolean locked;
+  private final double dA;
 
   /** Creates a new PieceAffector. */
   public CoralAffector() {
@@ -34,6 +35,8 @@ public class CoralAffector extends SubsystemBase {
     coralWristConfig = new SparkMaxConfig();
 
     wristEncoder = coralWrist.getEncoder();
+
+    dA = AffectorConstants.startingAngle - wristEncoder.getPosition() * AffectorConstants.coralWristConversionFactor;
 
     configMotorControllerDefaults();
 
@@ -105,7 +108,7 @@ public class CoralAffector extends SubsystemBase {
   }
 
   public double getWristDegrees() {
-    return wristEncoder.getPosition() * AffectorConstants.coralWristConversionFactor;
+    return wristEncoder.getPosition() * AffectorConstants.coralWristConversionFactor + dA;
   }
 
   public void lockWrist() {

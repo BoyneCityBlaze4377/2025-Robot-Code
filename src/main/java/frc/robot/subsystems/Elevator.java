@@ -19,11 +19,13 @@ public class Elevator extends SubsystemBase {
   private final SparkMax elevatorMotor;
   private final SparkMaxConfig elevatorMotorConfig;
   private final RelativeEncoder elevatorEncoder;
-  private boolean locked;
+  private boolean locked, atPos;
   private double elevatorSpeed;
   private String positionStatusString;
+  private final double dH;
 
-  private final GenericEntry elevatorHeight, elevatorSpeedSender, upperLimit, lowerLimit, positionStatusSender, lockedSender;
+  private final GenericEntry elevatorHeight, elevatorSpeedSender, upperLimit, lowerLimit, 
+                             positionStatusSender, lockedSender, atPositionSender;
 
   /** Creates a new Elevator. */
   public Elevator() {
@@ -33,8 +35,12 @@ public class Elevator extends SubsystemBase {
 
     elevatorEncoder = elevatorMotor.getEncoder();
     elevatorSpeed = 0;
+    dH = ElevatorConstants.startingHeight - elevatorEncoder.getPosition();
 
     positionStatusString = "At Position.floor";
+
+    atPos = false;
+    locked = false;
 
     configMotorControllerDefaults();
     elevatorHeight = IOConstants.TeleopTab.add("Elevator Height", 0)
@@ -56,6 +62,8 @@ public class Elevator extends SubsystemBase {
                                                .withWidget("Text Display").getEntry();
     lockedSender = IOConstants.DiagnosticTab.add("Elevator locked", false)
                                             .withWidget("Boolean Box").getEntry();
+    atPositionSender = IOConstants.TeleopTab.add("At Position", atPos)
+                                            .withWidget("Boolean Box").getEntry();
   }
 
   @Override
@@ -74,6 +82,7 @@ public class Elevator extends SubsystemBase {
     lowerLimit.setBoolean(atLowerLimit());
     positionStatusSender.setString(positionStatusString);
     lockedSender.setBoolean(locked);
+    atPositionSender.setBoolean(atPos);
   }
 
   public void set(double speed) {
@@ -109,7 +118,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public double getEncoderVal() {
-    return elevatorEncoder.getPosition();
+    return elevatorEncoder.getPosition() + dH;
   }
 
   public void lockElevator() {
@@ -127,5 +136,9 @@ public class Elevator extends SubsystemBase {
 
   public void setPositionString(String positionString) {
     positionStatusString = positionString;
+  }
+
+  public void setAtPos(boolean atPosition) {
+    atPos = atPosition;
   }
 }

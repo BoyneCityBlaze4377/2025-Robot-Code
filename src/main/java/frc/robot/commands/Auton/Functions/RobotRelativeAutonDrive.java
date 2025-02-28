@@ -3,10 +3,11 @@ package frc.robot.commands.Auton.Functions;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.AutoAimConstants;
 import frc.robot.subsystems.DriveTrain;
 
 public class RobotRelativeAutonDrive extends Command {
-  private double xSpeed, ySpeed, rot, targetHeading, turnError, relativeAngle, initialTurnValue, time;
+  private double xSpeed, ySpeed, rot, targetHeading, turnError, relativeAngle, initialTurnValue, time, desiredDistance, v;
   private final DriveTrain m_driveTrain;
   private final Timer m_timer;
   /** Creates a new AutonDrive. */
@@ -15,10 +16,12 @@ public class RobotRelativeAutonDrive extends Command {
     ySpeed = vMetersPerSecond * Math.cos(desiredDriveAngle);
     xSpeed = vMetersPerSecond * Math.sin(desiredDriveAngle);
     rot = omegaRadiansPerSecond;
+    desiredDistance = targetDistance;
+    v = vMetersPerSecond;
     m_driveTrain = driveTrain;
     targetHeading = TargetHeading == 360 ? m_driveTrain.getHeading() : TargetHeading;
     m_timer = new Timer();
-    time = targetDistance / Math.hypot(xSpeed, ySpeed);
+    time = Math.abs(targetDistance / vMetersPerSecond);
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_driveTrain);
   }
@@ -40,27 +43,27 @@ public class RobotRelativeAutonDrive extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    relativeAngle = m_driveTrain.getHeading() - initialTurnValue;
-    turnError = targetHeading + Math.copySign(relativeAngle, rot);
+    // relativeAngle = m_driveTrain.getHeading() - initialTurnValue;
+    // turnError = targetHeading + Math.copySign(relativeAngle, rot);
 
-    MathUtil.inputModulus(relativeAngle, -360, 360);
-    MathUtil.inputModulus(turnError, -360, 360);
+    // MathUtil.inputModulus(relativeAngle, -360, 360);
+    // MathUtil.inputModulus(turnError, -360, 360);
 
-    // if (relativeAngle >= 360) {
-    //   relativeAngle -= 360;
-    // }
+    if (relativeAngle >= 360) {
+      relativeAngle -= 360;
+    }
    
-    // if (relativeAngle <= -360) {
-    //   relativeAngle += 360;
-    // }
+    if (relativeAngle <= -360) {
+      relativeAngle += 360;
+    }
 
-    // if (turnError >= 360) {
-    //   turnError -= 360;
-    // }
+    if (turnError >= 360) {
+      turnError -= 360;
+    }
    
-    // if (turnError <= -360) {
-    //   turnError += 360;
-    // } 
+    if (turnError <= -360) {
+      turnError += 360;
+    } 
 
     if (m_timer.get() >= time) {
       xSpeed = 0;
@@ -74,6 +77,8 @@ public class RobotRelativeAutonDrive extends Command {
     }
 
     m_driveTrain.autonDrive(xSpeed, ySpeed, rot);
+    m_driveTrain.setInRange(m_timer.get() <= (desiredDistance - AutoAimConstants.inRangeThreshold) / v);
+
   }
 
   // Called once the command ends or is interrupted.

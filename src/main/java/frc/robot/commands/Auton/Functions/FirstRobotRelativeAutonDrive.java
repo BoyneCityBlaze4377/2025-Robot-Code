@@ -27,7 +27,7 @@ public class FirstRobotRelativeAutonDrive extends Command {
     m_driveTrain = driveTrain;
     m_visionSubsystem = visionSubsystem;
     m_timer = new Timer();
-    time = targetDistance / Math.hypot(xSpeed, ySpeed);
+    time = targetDistance / vMetersPerSecond;
     targetID = DriverStation.getAlliance().get() == Alliance.Blue ? AutoAimConstants.blueReefIDsFromStation.get(targetStation)
                                                                   : AutoAimConstants.redReefIDsFromStation.get(targetStation);
     // Use addRequirements() here to declare subsystem dependencies.

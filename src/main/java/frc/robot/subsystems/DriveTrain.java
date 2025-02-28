@@ -4,10 +4,16 @@ import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
 import java.util.Map;
+import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
+import java.util.function.DoubleConsumer;
+import java.util.function.DoubleSupplier;
+import java.util.function.LongConsumer;
+import java.util.function.LongSupplier;
+import java.util.function.Supplier;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import edu.wpi.first.math.MathUtil;
 // import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -25,6 +31,9 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.util.function.BooleanConsumer;
+import edu.wpi.first.util.function.FloatConsumer;
+import edu.wpi.first.util.function.FloatSupplier;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 
@@ -33,6 +42,7 @@ public class DriveTrain extends SubsystemBase {
 
   // Robot swerve modules
   private final SwerveModule m_frontLeft, m_frontRight, m_backLeft, m_backRight;
+  private final Sendable swerveSendable;
 
   // The gyro sensor
   public final AHRS m_gyro = new AHRS(NavXComType.kMXP_SPI);
@@ -43,6 +53,7 @@ public class DriveTrain extends SubsystemBase {
   private boolean autonInRange = false;
   private double speedScaler, heading, x, y, omega, translationElevatorHeightSpeedScaler, 
                  rotationElevatorHeightSpeedScaler, elevatorHeight;
+  private final double dTheta;
 
   // Odometry class for tracking robot pose
   SwerveDriveOdometry m_odometry;
@@ -54,7 +65,7 @@ public class DriveTrain extends SubsystemBase {
 
   private final GenericEntry robotHeading, poseEstimate, xSpeedSender, 
                              ySpeedSender, omegaSender;
-
+  private final SendableBuilder swerveBuilder;
 
   //Choreo stuff
   // private final PIDController xController = new PIDController(10.0, 0.0, 0.0);
@@ -103,6 +114,215 @@ public class DriveTrain extends SubsystemBase {
                       new SwerveModulePosition[] {m_frontLeft.getPosition(), m_frontRight.getPosition(),
                                                   m_backLeft.getPosition(), m_backRight.getPosition()}, 
                                                   getPose());
+    swerveBuilder = new SendableBuilder() {
+      @Override
+      public void close() throws Exception {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'close'");
+      }
+
+      @Override
+      public void setSmartDashboardType(String type) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setSmartDashboardType'");
+      }
+
+      @Override
+      public void setActuator(boolean value) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setActuator'");
+      }
+
+      @Override
+      public void setSafeState(Runnable func) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setSafeState'");
+      }
+
+      @Override
+      public void addBooleanProperty(String key, BooleanSupplier getter, BooleanConsumer setter) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'addBooleanProperty'");
+      }
+
+      @Override
+      public void publishConstBoolean(String key, boolean value) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'publishConstBoolean'");
+      }
+
+      @Override
+      public void addIntegerProperty(String key, LongSupplier getter, LongConsumer setter) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'addIntegerProperty'");
+      }
+
+      @Override
+      public void publishConstInteger(String key, long value) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'publishConstInteger'");
+      }
+
+      @Override
+      public void addFloatProperty(String key, FloatSupplier getter, FloatConsumer setter) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'addFloatProperty'");
+      }
+
+      @Override
+      public void publishConstFloat(String key, float value) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'publishConstFloat'");
+      }
+
+      @Override
+      public void addDoubleProperty(String key, DoubleSupplier getter, DoubleConsumer setter) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'addDoubleProperty'");
+      }
+
+      @Override
+      public void publishConstDouble(String key, double value) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'publishConstDouble'");
+      }
+
+      @Override
+      public void addStringProperty(String key, Supplier<String> getter, Consumer<String> setter) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'addStringProperty'");
+      }
+
+      @Override
+      public void publishConstString(String key, String value) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'publishConstString'");
+      }
+
+      @Override
+      public void addBooleanArrayProperty(String key, Supplier<boolean[]> getter, Consumer<boolean[]> setter) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'addBooleanArrayProperty'");
+      }
+
+      @Override
+      public void publishConstBooleanArray(String key, boolean[] value) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'publishConstBooleanArray'");
+      }
+
+      @Override
+      public void addIntegerArrayProperty(String key, Supplier<long[]> getter, Consumer<long[]> setter) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'addIntegerArrayProperty'");
+      }
+
+      @Override
+      public void publishConstIntegerArray(String key, long[] value) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'publishConstIntegerArray'");
+      }
+
+      @Override
+      public void addFloatArrayProperty(String key, Supplier<float[]> getter, Consumer<float[]> setter) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'addFloatArrayProperty'");
+      }
+
+      @Override
+      public void publishConstFloatArray(String key, float[] value) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'publishConstFloatArray'");
+      }
+
+      @Override
+      public void addDoubleArrayProperty(String key, Supplier<double[]> getter, Consumer<double[]> setter) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'addDoubleArrayProperty'");
+      }
+
+      @Override
+      public void publishConstDoubleArray(String key, double[] value) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'publishConstDoubleArray'");
+      }
+
+      @Override
+      public void addStringArrayProperty(String key, Supplier<String[]> getter, Consumer<String[]> setter) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'addStringArrayProperty'");
+      }
+
+      @Override
+      public void publishConstStringArray(String key, String[] value) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'publishConstStringArray'");
+      }
+
+      @Override
+      public void addRawProperty(String key, String typeString, Supplier<byte[]> getter, Consumer<byte[]> setter) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'addRawProperty'");
+      }
+
+      @Override
+      public void publishConstRaw(String key, String typeString, byte[] value) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'publishConstRaw'");
+      }
+
+      @Override
+      public BackendKind getBackendKind() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getBackendKind'");
+      }
+
+      @Override
+      public boolean isPublished() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'isPublished'");
+      }
+
+      @Override
+      public void update() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'update'");
+      }
+
+      @Override
+      public void clearProperties() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'clearProperties'");
+      }
+
+      @Override
+      public void addCloseable(AutoCloseable closeable) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'addCloseable'");
+      }
+      
+    };
+    swerveSendable = new Sendable() {
+      @Override
+      public void initSendable(SendableBuilder builder) {
+        builder.setSmartDashboardType("Swerve Drive");
+    
+        builder.addDoubleProperty("Front Left Angle", () -> m_frontLeft.getState().angle.getRadians(), null);
+        builder.addDoubleProperty("Front Left Velocity", () -> m_frontLeft.getState().speedMetersPerSecond, null);
+
+        builder.addDoubleProperty("Front Right Angle", () -> m_frontLeft.getState().angle.getRadians(), null);
+        builder.addDoubleProperty("Front Right Velocity", () -> m_frontLeft.getState().speedMetersPerSecond, null);
+    
+        builder.addDoubleProperty("Back Left Angle", () -> m_frontLeft.getState().angle.getRadians(), null);
+        builder.addDoubleProperty("Back Left Velocity", () -> m_frontLeft.getState().speedMetersPerSecond, null);
+    
+        builder.addDoubleProperty("Back Right Angle", () -> m_frontLeft.getState().angle.getRadians(), null);
+        builder.addDoubleProperty("Back Right Velocity", () -> m_frontLeft.getState().speedMetersPerSecond, null);
+    
+        builder.addDoubleProperty("Robot Angle", () -> m_gyro.getRotation2d().getRadians(), null);
+      }
+    };
+    swerveSendable.initSendable(swerveBuilder);
 
     robotHeading = IOConstants.TeleopTab.add("Robot Heading", heading)
                                        .withWidget("Radial Gauge")
@@ -127,26 +347,9 @@ public class DriveTrain extends SubsystemBase {
                                        .withWidget("Number Slider")
                                        .withProperties(Map.of("min_value", -1, "max_value", 1))
                                        .getEntry();
-    SmartDashboard.putData("Swerve", new Sendable() {
-      @Override
-      public void initSendable(SendableBuilder builder) {
-        builder.setSmartDashboardType("SwerveDrive");
-  
-        builder.addDoubleProperty("Front Left Angle", () -> m_frontLeft.getState().angle.getRadians(), null);
-        builder.addDoubleProperty("Front Left Velocity", () -> m_frontLeft.getState().speedMetersPerSecond, null);
-  
-        builder.addDoubleProperty("Front Right Angle", () -> m_frontLeft.getState().angle.getRadians(), null);
-        builder.addDoubleProperty("Front Right Velocity", () -> m_frontLeft.getState().speedMetersPerSecond, null);
-  
-        builder.addDoubleProperty("Back Left Angle", () -> m_frontLeft.getState().angle.getRadians(), null);
-        builder.addDoubleProperty("Back Left Velocity", () -> m_frontLeft.getState().speedMetersPerSecond, null);
-  
-        builder.addDoubleProperty("Back Right Angle", () -> m_frontLeft.getState().angle.getRadians(), null);
-        builder.addDoubleProperty("Back Right Velocity", () -> m_frontLeft.getState().speedMetersPerSecond, null);
-  
-        builder.addDoubleProperty("Robot Angle", () -> m_gyro.getRotation2d().getRadians(), null);
-      }
-    });
+    SmartDashboard.putData(swerveSendable);
+
+    dTheta = DriveConstants.startingHeading - m_gyro.getAngle();
 
     zeroHeading();
     brakeAll();
@@ -196,7 +399,7 @@ public class DriveTrain extends SubsystemBase {
     // Update the odometry in the periodic block
     m_odometry.update(m_gyro.getRotation2d(), getSwerveModulePositions());
 
-    heading = m_gyro.getYaw() - m_gyro.getAngleAdjustment();
+    heading = m_gyro.getAngle() + dTheta;
 
     translationElevatorHeightSpeedScaler = DriveConstants.maxDriveSpeed 
                                            - DriveConstants.elevatorHeightFactorTranslation 
@@ -206,13 +409,15 @@ public class DriveTrain extends SubsystemBase {
                                         * elevatorHeight;
 
     //drive
-    instanceDrive(x * translationElevatorHeightSpeedScaler, y * translationElevatorHeightSpeedScaler, 
-                  omega * rotationElevatorHeightSpeedScaler, fieldOrientation);
+    instanceDrive(x * translationElevatorHeightSpeedScaler, 
+                  y * translationElevatorHeightSpeedScaler, 
+                  omega * rotationElevatorHeightSpeedScaler, 
+                  fieldOrientation);
 
     periodicTimer ++;
   }
 
-  private void instanceDrive(double xSpeed, double ySpeed, double omega, boolean fieldRelative) {
+  public void instanceDrive(double xSpeed, double ySpeed, double omega, boolean fieldRelative) {
     var swerveModuleStates = DriveConstants.driveKinematics.toSwerveModuleStates(fieldOrientation
                 ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, omega, m_gyro.getRotation2d()) 
                 : new ChassisSpeeds(xSpeed, ySpeed, omega));
@@ -234,11 +439,9 @@ public class DriveTrain extends SubsystemBase {
   public void teleopDrive(double xSpeed, double ySpeed, double rot) {
     rot = Math.pow(rot, 3);
 
-    rot = MathUtil.applyDeadband(rot, .1);
-
     x = xSpeed * DriveConstants.maxSpeedMetersPerSecond * speedScaler;
     y = ySpeed * DriveConstants.maxSpeedMetersPerSecond * speedScaler;
-    omega = rot * Math.PI * 2;
+    omega = rot * Math.PI * 2 * speedScaler;
   }
 
   /**

@@ -72,12 +72,14 @@ public final class Constants {
     public static final int elevatorMotorID = 9;
     public static final int elevatorTwoID = 10;
 
+    public static final double startingHeight = 0;
+
     public static final double conversionFactor = 1;
 
     public static final double lowerLimit = 5;
-    public static final double upperLimit = 195;
+    public static final double upperLimit = 215;
 
-    public static final double kP = .25;
+    public static final double kP = .1;
     public static final double kI = 0;
     public static final double kD = 0;
     public static final double kTolerance = 1;
@@ -94,11 +96,11 @@ public final class Constants {
     public static final double defaultPos = lowerLimit;
     public static final double floorPos = lowerLimit;
     public static final double L1Pos = 24;
-    public static final double L2AlgaePos = 120;
+    public static final double L2AlgaePos = 101;
     public static final double L2Pos = 85;
-    public static final double L3AlgaePos = 180;
-    public static final double L3Pos = 192;
-    public static final double L4Pos = 188;
+    public static final double L3AlgaePos = 167;
+    public static final double L3Pos = 208;
+    public static final double L4Pos = 208;
     public static final double HPPos = 0;
   }
 
@@ -106,6 +108,8 @@ public final class Constants {
     /** CORAL */
     public static final int coralAffectorID = 11;
     public static final int coralWristID = 12;
+
+    public static final double startingAngle = 0;
 
     public static final double coralWristConversionFactor = (360 / 64);
     public static final double wristScoringThreshold = 90;
@@ -118,7 +122,7 @@ public final class Constants {
 
     public static final double wristOverrideSpeed = .3;
 
-    public static final double coralWristKP = .05; //.25
+    public static final double coralWristKP = .02; //.05
     public static final double coralWristKI = 0; //0
     public static final double coralWristKD = 0; //0
     public static final double coralWristKTolerance = 1;
@@ -225,11 +229,13 @@ public final class Constants {
     public static final double maxAccelerationMetersPerSecondSquared = 1;
 
     public static final double xyDeadband = .1;
-    public static final double zDeadband = .3;
+    public static final double zDeadband = .35;
 
     public static final double ksVolts = 5;
     public static final double kvVoltSecondsPerMeter = 4;
     public static final double kaVoltSecondsSquaredPerMeter = 1;
+
+    public static final double startingHeading = 0;
   }
 
   public static final class ModuleConstants {
@@ -404,7 +410,7 @@ public final class Constants {
     public static final double diskP = .004;
     public static final double diskI = .0008;
     public static final double diskD = 0;
-    public static final double diskTolerance = 5;
+    public static final double diskTolerance = 80;
 
     public static final double turnkP = .1;
     public static final double turnkI = 0;
@@ -414,19 +420,14 @@ public final class Constants {
 
   public class ClimberConstants {
     public static final int climberControllerID = 15;
-    public static final double climberspeed = .4;
+    public static final double climberspeed = .9;
   }
 
   public class AutonConstants {
-    public static final double coralCollectTimeout = 1;
+    public static final double coralCollectTimeout = 3;
     public static final double coralScoreTime = .5;
-    public static final double algaeCollectTimeout = 1;
+    public static final double algaeCollectTimeout = 5;
     public static final double alageScoreTime = .5;
-    // public static final double 
-    // public static final double
-    // public static final double
-    // public static final double
-    // public static final double
   }
 
   public class SensorConstants {

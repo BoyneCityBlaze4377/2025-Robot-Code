@@ -30,8 +30,8 @@ public class CoralWristOverride extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    input = MathUtil.applyDeadband(m_stick.getRawAxis(0) * AffectorConstants.wristOverrideSpeed, .1);
-    if (Math.abs(input) < .05) {
+    input = m_stick.getRawAxis(0) * AffectorConstants.wristOverrideSpeed;
+    if (Math.abs(input) < .2) {
       m_coralAffector.lockWrist();
     } else {
       m_coralAffector.moveWrist(-input);

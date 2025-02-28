@@ -20,5 +20,6 @@ public class SetDriveTrainPose extends InstantCommand {
   @Override
   public void initialize() {
     m_driveTrain.setPoseEstimate(m_pose);
+    m_driveTrain.setGyroOffset(m_pose.getRotation().getDegrees());
   }
 }

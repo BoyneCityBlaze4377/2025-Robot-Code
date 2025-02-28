@@ -3,6 +3,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import frc.robot.Constants.IOConstants;
 import frc.robot.Constants.AutoAimConstants.Alignment;
@@ -10,7 +11,8 @@ import frc.robot.Constants.AutoAimConstants.Position;
 import frc.robot.subsystems.*;
 import frc.robot.commands.AllToSetPosition;
 import frc.robot.commands.Auton.Functions.AutonAutoAlign;
-import frc.robot.commands.Auton.Sequences.MainAutonEndAlgae;
+import frc.robot.commands.Auton.Functions.AutonDrive;
+import frc.robot.commands.Auton.Sequences.*;
 import frc.robot.commands.ClimberCommands.*;
 import frc.robot.commands.DriveCommands.*;
 import frc.robot.commands.ElevatorCommands.*;
@@ -26,6 +28,8 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
  * (including subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+  private final Alliance alliance = DriverStation.getAlliance().get();
+
   private final Joystick m_driverStick = new Joystick(IOConstants.driverControllerID); //Driving
   private final Joystick m_operatorStick1 = new Joystick(IOConstants.operatorController1ID); //Set positions and elevatorOverride
   private final Joystick m_operatorStick2 = new Joystick(IOConstants.operatorController2ID); //Affectors, climber, and wristOverride
@@ -70,8 +74,22 @@ public class RobotContainer {
   private final Command WristOverride = new CoralWristOverride(m_coralAffector, m_operatorStick2);
 
   /* Auton */
-  private final Command MainAuton = new MainAutonEndAlgae(m_driveTrain, m_elevator, m_coralAffector, 
-                                                  m_algaeAffector, m_visionSubsystem, DriverStation.getAlliance().get());
+  private final Command MainAutonEndCoral = new MainAutonEndAlgae(m_driveTrain, m_elevator, m_coralAffector, 
+                                                                  m_algaeAffector, m_visionSubsystem, alliance);
+  private final Command MainAutonEndAlgae = new MainAutonEndCoral(m_driveTrain, m_elevator, m_coralAffector, 
+                                                                  m_visionSubsystem, alliance);
+  private final Command DriveOffLine = new DriveOffLine(m_driveTrain);
+  private final Command Score1CoralL4 = new Score1CoralL4(m_driveTrain, m_elevator, m_coralAffector, m_visionSubsystem, alliance);
+  private final Command ScoreCoralAndProcessor = new Score1L4AndProcessor(m_driveTrain, m_elevator, m_coralAffector, 
+                                                                          m_algaeAffector, m_visionSubsystem, alliance);
+
+  Command testdrive = new AutonDrive(m_driveTrain,
+                                      45, 
+                                      1, 
+                                      Math.PI/2, 
+                                      1.5, 
+                                      90);
+
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() { 
@@ -79,12 +97,21 @@ public class RobotContainer {
     configureButtonBindings();
     m_driveTrain.setGyroOffset(0);
 
-    autonChooser.addOption("Main Auton", MainAuton);
-    IOConstants.ConfigTab.add(autonChooser);
+    configAutonChooser();
+    IOConstants.ConfigTab.add("Auton Chooser", autonChooser);
   }
 
   public void setDriveTrainPoseEstimate() {
     m_driveTrain.setPoseEstimate(m_visionSubsystem.getEstimatedPose2d().get());
+  }
+
+  public void configAutonChooser() {
+    autonChooser.setDefaultOption("No Auton", null);
+    autonChooser.addOption("Main Auton - Coral Ending", MainAutonEndCoral);
+    autonChooser.addOption("Main Auton - Algae Ending", MainAutonEndAlgae);
+    autonChooser.addOption("Drive Off Line", DriveOffLine);
+    autonChooser.addOption("Score One on L4", Score1CoralL4);
+    autonChooser.addOption("Score one Coral, Process Algae", ScoreCoralAndProcessor);
   }
 
   /**
@@ -101,10 +128,7 @@ public class RobotContainer {
     new JoystickButton(m_driverStick, IOConstants.switchOrientationButtonID).onTrue(SwitchOrientation);
     new JoystickButton(m_driverStick, IOConstants.switchBrakeButtonID).onTrue(SwitchBrake);
     // new JoystickButton(m_driverStick, IOConstants.autoAlignButtonID).whileTrue(null);
-    new JoystickButton(m_driverStick, 12).whileTrue(new AutonAutoAlign(m_driveTrain, 
-                                                                                   m_visionSubsystem, 
-                                                                                   .01, 
-                                                                                   Alignment.left));
+    new JoystickButton(m_driverStick, 12).whileTrue(testdrive);
 
     /* Operator */
     //Set positions
