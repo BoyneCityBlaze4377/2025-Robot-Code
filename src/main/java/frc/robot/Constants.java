@@ -30,17 +30,17 @@ public final class Constants {
 
     /* CONTROLLER IDS */
     public static final int driverControllerID = 0;
-    public static final int operatorController1ID = 1;
-    public static final int operatorController2ID = 2;
+    public static final int operatorController1ID = 2;
+    public static final int operatorController2ID = 1;
 
     /* BUTTON IDS */
     /* Driver */
-    public static final int quickBrakeButtonID = 1;
+    public static final int quickBrakeButtonID = 6;
     public static final int slowModeButtonID = 2;
     public static final int switchBrakeButtonID = 5;
-    public static final int switchOrientationButtonID = 4;
-    public static final int lockPoseButtonID = 3;
-    public static final int autoAlignButtonID = 0;
+    public static final int switchOrientationButtonID = 3;
+    public static final int lockPoseButtonID = 4;
+    public static final int autoAlignButtonID = 1;
 
     /* Operator */
     // Positions
@@ -50,8 +50,8 @@ public final class Constants {
     public static final int L2PosButtonID = 4;
     public static final int L3AlgaePosButtonID = 5;
     public static final int L3PosButtonID = 6;
-    public static final int L4PosButtonID = 7;
-    public static final int HPPosButtonID = 8;
+    public static final int L4PosButtonID = 8;
+    public static final int HPPosButtonID = 7;
 
     public static final int elevatorOverrideButtonID = 12;
 

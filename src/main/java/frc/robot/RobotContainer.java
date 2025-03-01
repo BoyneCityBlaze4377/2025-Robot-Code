@@ -49,6 +49,7 @@ public class RobotContainer {
   private final Command SwitchOrientation = new SwitchOrientation(m_driveTrain);
   private final Command QuickBrake = new QuickBrake(m_driveTrain);
   private final Command SlowMode = new SlowMode(m_driveTrain);
+  private final Command AutoAlign = new AutoAlign(m_driveTrain, m_visionSubsystem, 0, 0);
 
   // private final Command ElevatorOverride = new ElevatorOverride(m_elevator, m_operatorStick);
   // private final Command CoralWristOverride = new CoralWristOverride(m_coralAffector, m_driverStick);
@@ -83,12 +84,12 @@ public class RobotContainer {
   private final Command ScoreCoralAndProcessor = new Score1L4AndProcessor(m_driveTrain, m_elevator, m_coralAffector, 
                                                                           m_algaeAffector, m_visionSubsystem, alliance);
 
-  Command testdrive = new AutonDrive(m_driveTrain,
-                                      45, 
-                                      1, 
-                                      Math.PI/2, 
-                                      1.5, 
-                                      90);
+  private final Command testdrive = new AutonDrive(m_driveTrain,
+                                                   45, 
+                                                   1, 
+                                                   Math.PI/2, 
+                                                   1.5, 
+                                                   90);
 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -112,6 +113,7 @@ public class RobotContainer {
     autonChooser.addOption("Drive Off Line", DriveOffLine);
     autonChooser.addOption("Score One on L4", Score1CoralL4);
     autonChooser.addOption("Score one Coral, Process Algae", ScoreCoralAndProcessor);
+    autonChooser.addOption("TEST", testdrive);
   }
 
   /**
@@ -122,13 +124,16 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     /* DRIVER */
-    // new JoystickButton(m_driverStick, IOConstants.quickBrakeButtonID).whileTrue(QuickBrake);
+    new JoystickButton(m_driverStick, IOConstants.quickBrakeButtonID).whileTrue(QuickBrake);
     new JoystickButton(m_driverStick, IOConstants.slowModeButtonID).whileTrue(SlowMode);
     new JoystickButton(m_driverStick, IOConstants.lockPoseButtonID).whileTrue(LockPose);
     new JoystickButton(m_driverStick, IOConstants.switchOrientationButtonID).onTrue(SwitchOrientation);
     new JoystickButton(m_driverStick, IOConstants.switchBrakeButtonID).onTrue(SwitchBrake);
-    // new JoystickButton(m_driverStick, IOConstants.autoAlignButtonID).whileTrue(null);
-    new JoystickButton(m_driverStick, 12).whileTrue(testdrive);
+    new JoystickButton(m_driverStick, IOConstants.autoAlignButtonID).whileTrue(new AutoAlign(m_driveTrain, 
+                                                                                             m_visionSubsystem, 
+                                                                                             .01, 
+                                                                                             m_driverStick.getPOV()));
+    // new JoystickButton(m_driverStick, 12).whileTrue(testdrive);
 
     /* Operator */
     //Set positions
@@ -139,7 +144,7 @@ public class RobotContainer {
     new JoystickButton(m_operatorStick1, IOConstants.L3AlgaePosButtonID).whileTrue(AllToL3Algae);
     new JoystickButton(m_operatorStick1, IOConstants.L3PosButtonID).whileTrue(AllToL3);
     new JoystickButton(m_operatorStick1, IOConstants.L4PosButtonID).whileTrue(AllToL4);
-    // new JoystickButton(m_operatorStick1, IOConstants.HPPosButtonID).whileTrue(AllToHP);
+    new JoystickButton(m_operatorStick1, IOConstants.HPPosButtonID).whileTrue(AllToHP);
 
     //Affectors
     new JoystickButton(m_operatorStick2, IOConstants.coralCollectButtonID).whileTrue(CoralCollect);

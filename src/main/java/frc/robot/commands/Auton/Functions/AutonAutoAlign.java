@@ -56,8 +56,9 @@ public class AutonAutoAlign extends Command {
     targetOffsetDeg = (AutoAimConstants.offsetFromAlignment.get(alignment) == 0 ? 0 : 
                       1 / Math.atan(AutoAimConstants.offsetFromAlignment.get(alignment) 
                       / targetDistance)) + AutoAimConstants.LLDefaultOffsetDegrees;
-    targetAngle = AutoAimConstants.angleFromReefStation.get(AutoAimConstants.reefStationFromAprilTagID.get(
-                                                            m_visionSubsystem.getTargetID()));
+    targetAngle = m_driveTrain.getEstimatedStation();
+    // AutoAimConstants.angleFromReefStation.get(AutoAimConstants.reefStationFromAprilTagID.get(
+    //                                                         m_visionSubsystem.getTargetID()));
     m_driveTrain.setOrientation(false);
     targetAngle = 0;
     m_driveTrain.setInRange(false);
@@ -79,7 +80,7 @@ public class AutonAutoAlign extends Command {
     // if (distanceController.atSetpoint()) xSpeed = 0;
     if (angleController.atSetpoint()) rot = 0;
 
-    m_driveTrain.autonDrive(-xSpeed, 0, -0);
+    m_driveTrain.autoAlignDrive(-xSpeed, ySpeed, -rot);
   }
 
   // Called once the command ends or is interrupted.
@@ -99,7 +100,7 @@ public class AutonAutoAlign extends Command {
     return (horizController.atSetpoint() && 
             distanceController.atSetpoint()
             && angleController.atSetpoint())
-            || m_visionSubsystem.getTargetID() == 0
+            // || m_visionSubsystem.getTargetID() == 0
             || m_visionSubsystem.getDistanceMeasurementmm() == -1;
   }
 }

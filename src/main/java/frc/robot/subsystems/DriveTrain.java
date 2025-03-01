@@ -42,7 +42,7 @@ public class DriveTrain extends SubsystemBase {
 
   // Robot swerve modules
   private final SwerveModule m_frontLeft, m_frontRight, m_backLeft, m_backRight;
-  private final Sendable swerveSendable;
+  // private final Sendable swerveSendable;
 
   // The gyro sensor
   public final AHRS m_gyro = new AHRS(NavXComType.kMXP_SPI);
@@ -65,7 +65,7 @@ public class DriveTrain extends SubsystemBase {
 
   private final GenericEntry robotHeading, poseEstimate, xSpeedSender, 
                              ySpeedSender, omegaSender;
-  private final SendableBuilder swerveBuilder;
+  // private final SendableBuilder swerveBuilder;
 
   //Choreo stuff
   // private final PIDController xController = new PIDController(10.0, 0.0, 0.0);
@@ -114,215 +114,215 @@ public class DriveTrain extends SubsystemBase {
                       new SwerveModulePosition[] {m_frontLeft.getPosition(), m_frontRight.getPosition(),
                                                   m_backLeft.getPosition(), m_backRight.getPosition()}, 
                                                   getPose());
-    swerveBuilder = new SendableBuilder() {
-      @Override
-      public void close() throws Exception {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'close'");
-      }
+    // swerveBuilder = new SendableBuilder() {
+    //   @Override
+    //   public void close() throws Exception {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'close'");
+    //   }
 
-      @Override
-      public void setSmartDashboardType(String type) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setSmartDashboardType'");
-      }
+    //   @Override
+    //   public void setSmartDashboardType(String type) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'setSmartDashboardType'");
+    //   }
 
-      @Override
-      public void setActuator(boolean value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setActuator'");
-      }
+    //   @Override
+    //   public void setActuator(boolean value) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'setActuator'");
+    //   }
 
-      @Override
-      public void setSafeState(Runnable func) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setSafeState'");
-      }
+    //   @Override
+    //   public void setSafeState(Runnable func) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'setSafeState'");
+    //   }
 
-      @Override
-      public void addBooleanProperty(String key, BooleanSupplier getter, BooleanConsumer setter) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addBooleanProperty'");
-      }
+    //   @Override
+    //   public void addBooleanProperty(String key, BooleanSupplier getter, BooleanConsumer setter) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'addBooleanProperty'");
+    //   }
 
-      @Override
-      public void publishConstBoolean(String key, boolean value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'publishConstBoolean'");
-      }
+    //   @Override
+    //   public void publishConstBoolean(String key, boolean value) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'publishConstBoolean'");
+    //   }
 
-      @Override
-      public void addIntegerProperty(String key, LongSupplier getter, LongConsumer setter) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addIntegerProperty'");
-      }
+    //   @Override
+    //   public void addIntegerProperty(String key, LongSupplier getter, LongConsumer setter) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'addIntegerProperty'");
+    //   }
 
-      @Override
-      public void publishConstInteger(String key, long value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'publishConstInteger'");
-      }
+    //   @Override
+    //   public void publishConstInteger(String key, long value) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'publishConstInteger'");
+    //   }
 
-      @Override
-      public void addFloatProperty(String key, FloatSupplier getter, FloatConsumer setter) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addFloatProperty'");
-      }
+    //   @Override
+    //   public void addFloatProperty(String key, FloatSupplier getter, FloatConsumer setter) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'addFloatProperty'");
+    //   }
 
-      @Override
-      public void publishConstFloat(String key, float value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'publishConstFloat'");
-      }
+    //   @Override
+    //   public void publishConstFloat(String key, float value) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'publishConstFloat'");
+    //   }
 
-      @Override
-      public void addDoubleProperty(String key, DoubleSupplier getter, DoubleConsumer setter) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addDoubleProperty'");
-      }
+    //   @Override
+    //   public void addDoubleProperty(String key, DoubleSupplier getter, DoubleConsumer setter) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'addDoubleProperty'");
+    //   }
 
-      @Override
-      public void publishConstDouble(String key, double value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'publishConstDouble'");
-      }
+    //   @Override
+    //   public void publishConstDouble(String key, double value) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'publishConstDouble'");
+    //   }
 
-      @Override
-      public void addStringProperty(String key, Supplier<String> getter, Consumer<String> setter) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addStringProperty'");
-      }
+    //   @Override
+    //   public void addStringProperty(String key, Supplier<String> getter, Consumer<String> setter) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'addStringProperty'");
+    //   }
 
-      @Override
-      public void publishConstString(String key, String value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'publishConstString'");
-      }
+    //   @Override
+    //   public void publishConstString(String key, String value) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'publishConstString'");
+    //   }
 
-      @Override
-      public void addBooleanArrayProperty(String key, Supplier<boolean[]> getter, Consumer<boolean[]> setter) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addBooleanArrayProperty'");
-      }
+    //   @Override
+    //   public void addBooleanArrayProperty(String key, Supplier<boolean[]> getter, Consumer<boolean[]> setter) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'addBooleanArrayProperty'");
+    //   }
 
-      @Override
-      public void publishConstBooleanArray(String key, boolean[] value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'publishConstBooleanArray'");
-      }
+    //   @Override
+    //   public void publishConstBooleanArray(String key, boolean[] value) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'publishConstBooleanArray'");
+    //   }
 
-      @Override
-      public void addIntegerArrayProperty(String key, Supplier<long[]> getter, Consumer<long[]> setter) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addIntegerArrayProperty'");
-      }
+    //   @Override
+    //   public void addIntegerArrayProperty(String key, Supplier<long[]> getter, Consumer<long[]> setter) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'addIntegerArrayProperty'");
+    //   }
 
-      @Override
-      public void publishConstIntegerArray(String key, long[] value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'publishConstIntegerArray'");
-      }
+    //   @Override
+    //   public void publishConstIntegerArray(String key, long[] value) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'publishConstIntegerArray'");
+    //   }
 
-      @Override
-      public void addFloatArrayProperty(String key, Supplier<float[]> getter, Consumer<float[]> setter) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addFloatArrayProperty'");
-      }
+    //   @Override
+    //   public void addFloatArrayProperty(String key, Supplier<float[]> getter, Consumer<float[]> setter) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'addFloatArrayProperty'");
+    //   }
 
-      @Override
-      public void publishConstFloatArray(String key, float[] value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'publishConstFloatArray'");
-      }
+    //   @Override
+    //   public void publishConstFloatArray(String key, float[] value) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'publishConstFloatArray'");
+    //   }
 
-      @Override
-      public void addDoubleArrayProperty(String key, Supplier<double[]> getter, Consumer<double[]> setter) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addDoubleArrayProperty'");
-      }
+    //   @Override
+    //   public void addDoubleArrayProperty(String key, Supplier<double[]> getter, Consumer<double[]> setter) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'addDoubleArrayProperty'");
+    //   }
 
-      @Override
-      public void publishConstDoubleArray(String key, double[] value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'publishConstDoubleArray'");
-      }
+    //   @Override
+    //   public void publishConstDoubleArray(String key, double[] value) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'publishConstDoubleArray'");
+    //   }
 
-      @Override
-      public void addStringArrayProperty(String key, Supplier<String[]> getter, Consumer<String[]> setter) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addStringArrayProperty'");
-      }
+    //   @Override
+    //   public void addStringArrayProperty(String key, Supplier<String[]> getter, Consumer<String[]> setter) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'addStringArrayProperty'");
+    //   }
 
-      @Override
-      public void publishConstStringArray(String key, String[] value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'publishConstStringArray'");
-      }
+    //   @Override
+    //   public void publishConstStringArray(String key, String[] value) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'publishConstStringArray'");
+    //   }
 
-      @Override
-      public void addRawProperty(String key, String typeString, Supplier<byte[]> getter, Consumer<byte[]> setter) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addRawProperty'");
-      }
+    //   @Override
+    //   public void addRawProperty(String key, String typeString, Supplier<byte[]> getter, Consumer<byte[]> setter) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'addRawProperty'");
+    //   }
 
-      @Override
-      public void publishConstRaw(String key, String typeString, byte[] value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'publishConstRaw'");
-      }
+    //   @Override
+    //   public void publishConstRaw(String key, String typeString, byte[] value) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'publishConstRaw'");
+    //   }
 
-      @Override
-      public BackendKind getBackendKind() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getBackendKind'");
-      }
+    //   @Override
+    //   public BackendKind getBackendKind() {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'getBackendKind'");
+    //   }
 
-      @Override
-      public boolean isPublished() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isPublished'");
-      }
+    //   @Override
+    //   public boolean isPublished() {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'isPublished'");
+    //   }
 
-      @Override
-      public void update() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'update'");
-      }
+    //   @Override
+    //   public void update() {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'update'");
+    //   }
 
-      @Override
-      public void clearProperties() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'clearProperties'");
-      }
+    //   @Override
+    //   public void clearProperties() {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'clearProperties'");
+    //   }
 
-      @Override
-      public void addCloseable(AutoCloseable closeable) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addCloseable'");
-      }
+    //   @Override
+    //   public void addCloseable(AutoCloseable closeable) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'addCloseable'");
+    //   }
       
-    };
-    swerveSendable = new Sendable() {
-      @Override
-      public void initSendable(SendableBuilder builder) {
-        builder.setSmartDashboardType("Swerve Drive");
+    // };
+    // swerveSendable = new Sendable() {
+    //   @Override
+    //   public void initSendable(SendableBuilder builder) {
+    //     builder.setSmartDashboardType("Swerve Drive");
     
-        builder.addDoubleProperty("Front Left Angle", () -> m_frontLeft.getState().angle.getRadians(), null);
-        builder.addDoubleProperty("Front Left Velocity", () -> m_frontLeft.getState().speedMetersPerSecond, null);
+    //     builder.addDoubleProperty("Front Left Angle", () -> m_frontLeft.getState().angle.getRadians(), null);
+    //     builder.addDoubleProperty("Front Left Velocity", () -> m_frontLeft.getState().speedMetersPerSecond, null);
 
-        builder.addDoubleProperty("Front Right Angle", () -> m_frontLeft.getState().angle.getRadians(), null);
-        builder.addDoubleProperty("Front Right Velocity", () -> m_frontLeft.getState().speedMetersPerSecond, null);
+    //     builder.addDoubleProperty("Front Right Angle", () -> m_frontLeft.getState().angle.getRadians(), null);
+    //     builder.addDoubleProperty("Front Right Velocity", () -> m_frontLeft.getState().speedMetersPerSecond, null);
     
-        builder.addDoubleProperty("Back Left Angle", () -> m_frontLeft.getState().angle.getRadians(), null);
-        builder.addDoubleProperty("Back Left Velocity", () -> m_frontLeft.getState().speedMetersPerSecond, null);
+    //     builder.addDoubleProperty("Back Left Angle", () -> m_frontLeft.getState().angle.getRadians(), null);
+    //     builder.addDoubleProperty("Back Left Velocity", () -> m_frontLeft.getState().speedMetersPerSecond, null);
     
-        builder.addDoubleProperty("Back Right Angle", () -> m_frontLeft.getState().angle.getRadians(), null);
-        builder.addDoubleProperty("Back Right Velocity", () -> m_frontLeft.getState().speedMetersPerSecond, null);
+    //     builder.addDoubleProperty("Back Right Angle", () -> m_frontLeft.getState().angle.getRadians(), null);
+    //     builder.addDoubleProperty("Back Right Velocity", () -> m_frontLeft.getState().speedMetersPerSecond, null);
     
-        builder.addDoubleProperty("Robot Angle", () -> m_gyro.getRotation2d().getRadians(), null);
-      }
-    };
-    swerveSendable.initSendable(swerveBuilder);
+    //     builder.addDoubleProperty("Robot Angle", () -> m_gyro.getRotation2d().getRadians(), null);
+    //   }
+    // };
+    // swerveSendable.initSendable(swerveBuilder);
 
     robotHeading = IOConstants.TeleopTab.add("Robot Heading", heading)
                                        .withWidget("Radial Gauge")
@@ -347,7 +347,7 @@ public class DriveTrain extends SubsystemBase {
                                        .withWidget("Number Slider")
                                        .withProperties(Map.of("min_value", -1, "max_value", 1))
                                        .getEntry();
-    SmartDashboard.putData(swerveSendable);
+    // SmartDashboard.putData(swerveSendable);
 
     dTheta = DriveConstants.startingHeading - m_gyro.getAngle();
 
@@ -415,6 +415,8 @@ public class DriveTrain extends SubsystemBase {
                   fieldOrientation);
 
     periodicTimer ++;
+
+    SmartDashboard.putBoolean("INRANGE", autonInRange);
   }
 
   public void instanceDrive(double xSpeed, double ySpeed, double omega, boolean fieldRelative) {
@@ -427,6 +429,13 @@ public class DriveTrain extends SubsystemBase {
     xSpeedSender.setDouble(x);
     ySpeedSender.setDouble(y);
     omegaSender.setDouble(omega);
+  }
+
+  public void autoAlignDrive(double xSpeed, double ySpeed, double rotSpeed) {
+    instanceDrive(xSpeed * translationElevatorHeightSpeedScaler * 2,
+                  ySpeed * translationElevatorHeightSpeedScaler,
+                  rotSpeed * rotationElevatorHeightSpeedScaler, 
+                  false);
   }
 
   /**
@@ -701,7 +710,7 @@ public class DriveTrain extends SubsystemBase {
     return distance;
   }
 
-  public ReefStation getEstimatedStation() {
+  public double getEstimatedStation() {
     double prevError = 180;
     double selectedAngle = 0;
 
@@ -712,7 +721,7 @@ public class DriveTrain extends SubsystemBase {
         selectedAngle = AutoAimConstants.reefStationAngles[i];
       }
     }
-    return AutoAimConstants.reefStationFromAngle.get(selectedAngle);
+    return selectedAngle;
   }
 
   public boolean getInRange() {

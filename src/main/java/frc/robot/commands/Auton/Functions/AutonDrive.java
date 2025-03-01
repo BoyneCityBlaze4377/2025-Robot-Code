@@ -1,6 +1,5 @@
 package frc.robot.commands.Auton.Functions;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -39,8 +38,6 @@ public class AutonDrive extends Command {
     m_driveTrain.brakeAll();
     m_driveTrain.setOrientation(true);
 
-    Math.copySign(targetHeading, rot);
-
     m_timer.reset();
     m_timer.start();
     m_driveTrain.setInRange(false);
@@ -78,6 +75,8 @@ public class AutonDrive extends Command {
     }
 
     SmartDashboard.putNumber("TIMER", m_timer.get());
+    SmartDashboard.putNumber("TURNERROR", turnError);
+    SmartDashboard.putNumber("RELANGLE", relativeAngle);
 
     if (Math.abs(turnError) <= 5) {
       targetHeading = m_driveTrain.getHeading();

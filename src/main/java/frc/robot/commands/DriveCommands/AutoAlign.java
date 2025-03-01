@@ -2,8 +2,9 @@ package frc.robot.commands.DriveCommands;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.Lib.DPadSelector;
 import frc.robot.Constants.AutoAimConstants;
 import frc.robot.Constants.AutoAimConstants.Alignment;
 import frc.robot.subsystems.DriveTrain;
@@ -15,18 +16,27 @@ public class AutoAlign extends Command {
   private double xSpeed, ySpeed, rot, targetDistance, targetOffsetDeg, targetAngle, maxHorizOutput, 
                   maxDisOutput, maxRotOutput;
   private final PIDController angleController, horizController, distanceController;
-  private final DPadSelector<Alignment> alignmentSelector;
   private final Alignment alignment;
   private final VisionSubsystem m_visionSubsystem;
+  private boolean orientation;
 
   /** Creates a new LimeLightDrive. */
-  public AutoAlign(DriveTrain driveTrain, VisionSubsystem visionSubsystem, int POVDegrees, double TargetDistance) {
+  public AutoAlign(DriveTrain driveTrain, VisionSubsystem visionSubsystem, double TargetDistance, int pov) {
     m_driveTrain = driveTrain;
     m_visionSubsystem = visionSubsystem;
 
     targetDistance = TargetDistance;
-    alignmentSelector = new DPadSelector<Alignment>(270,90);
-    alignment = alignmentSelector.selectOutput(POVDegrees, Alignment.center, Alignment.left, Alignment.right);
+    switch (pov) {
+      case 270:
+        alignment = Alignment.left;
+      break;
+      case 90:
+        alignment = Alignment.right;
+      break;
+      default:
+        alignment = Alignment.center;
+      break;
+    }
 
     horizController = new PIDController(AutoAimConstants.horizkP, 
                                         AutoAimConstants.horizkI, 
@@ -46,18 +56,22 @@ public class AutoAlign extends Command {
 
     maxHorizOutput = 3;
     maxDisOutput = 3;
-    maxRotOutput = Math.PI/2;
+    maxRotOutput = Math.PI * 3/2;
+
+    orientation = m_driveTrain.isFieldOriented();
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    targetDistance += AutoAimConstants.LCToBumperEdgeOffsetMeters;
     targetOffsetDeg = (AutoAimConstants.offsetFromAlignment.get(alignment) == 0 ? 0 : 
                       1 / Math.atan(AutoAimConstants.offsetFromAlignment.get(alignment) 
                       / targetDistance)) + AutoAimConstants.LLDefaultOffsetDegrees;
-    targetAngle = AutoAimConstants.angleFromReefStation.get(AutoAimConstants.reefStationFromAprilTagID.get(
-                                                            m_visionSubsystem.getTargetID()));
+    targetAngle = m_driveTrain.getEstimatedStation();
+    // AutoAimConstants.angleFromReefStation.get(AutoAimConstants.reefStationFromAprilTagID.get(
+    //                                                         m_visionSubsystem.getTargetID()));
+    m_driveTrain.setOrientation(false);
+    targetAngle = 0;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -70,22 +84,31 @@ public class AutoAlign extends Command {
     rot = MathUtil.clamp(angleController.calculate(m_driveTrain.getHeading(), targetAngle), 
                          -maxRotOutput, maxRotOutput);
 
+    // if (horizController.atSetpoint()) ySpeed = 0;
+    // if (distanceController.atSetpoint()) xSpeed = 0;
+    if (angleController.atSetpoint()) rot = 0;
+
     m_driveTrain.autonDrive(-xSpeed, ySpeed, -rot);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_driveTrain.autonDrive(0, 0, 0);
+    m_driveTrain.stop();
+    m_driveTrain.lockPose();
     xSpeed = 0;
     ySpeed = 0;
     rot = 0;
+    m_driveTrain.setOrientation(orientation);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return (horizController.atSetpoint() && distanceController.atSetpoint() && 
-            angleController.atSetpoint()) || m_visionSubsystem.getTargetID() == 0;
+    return (horizController.atSetpoint() && 
+            distanceController.atSetpoint()
+            && angleController.atSetpoint())
+            // || m_visionSubsystem.getTargetID() == 0
+            || m_visionSubsystem.getDistanceMeasurementmm() == -1;
   }
 }
