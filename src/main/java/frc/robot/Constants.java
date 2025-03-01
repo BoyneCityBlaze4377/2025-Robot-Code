@@ -46,12 +46,12 @@ public final class Constants {
     // Positions
     public static final int floorPosButtonID = 1;
     public static final int L1PosButtonID = 2;
-    public static final int L2AlgaePosButtonID = 3;
+    public static final int L2AlgaePosButtonID = 5;
     public static final int L2PosButtonID = 4;
-    public static final int L3AlgaePosButtonID = 5;
+    public static final int L3AlgaePosButtonID = 7;
     public static final int L3PosButtonID = 6;
     public static final int L4PosButtonID = 8;
-    public static final int HPPosButtonID = 7;
+    public static final int HPPosButtonID = 3;
 
     public static final int elevatorOverrideButtonID = 12;
 

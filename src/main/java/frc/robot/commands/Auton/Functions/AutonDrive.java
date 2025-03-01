@@ -7,7 +7,7 @@ import frc.robot.Constants.AutoAimConstants;
 import frc.robot.subsystems.DriveTrain;
 
 public class AutonDrive extends Command {
-  private double xSpeed, ySpeed, rot, targetHeading, turnError, relativeAngle, initialTurnValue, time, desiredDistance, v;
+  private double xSpeed, ySpeed, rot, targetHeading, time, desiredDistance, v;
   private final DriveTrain m_driveTrain;
   private final Timer m_timer;
   /** Creates a new AutonDrive. */
@@ -15,7 +15,7 @@ public class AutonDrive extends Command {
                     double omegaRadiansPerSecond, double targetDistance, double TargetHeading) {
     xSpeed = vMetersPerSecond * Math.cos(desiredDriveAngle);
     ySpeed = vMetersPerSecond * Math.sin(desiredDriveAngle);
-    rot = omegaRadiansPerSecond;
+    rot = Math.abs(omegaRadiansPerSecond);
     desiredDistance = targetDistance;
     v = vMetersPerSecond;
     targetHeading = TargetHeading;
@@ -34,57 +34,33 @@ public class AutonDrive extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    initialTurnValue = m_driveTrain.getHeading();
     m_driveTrain.brakeAll();
     m_driveTrain.setOrientation(true);
 
     m_timer.reset();
     m_timer.start();
     m_driveTrain.setInRange(false);
+
+    rot *= targetHeading < m_driveTrain.getHeading() ? -1 : 1;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    relativeAngle = m_driveTrain.getHeading() - initialTurnValue;
-    turnError = targetHeading + Math.copySign(relativeAngle, rot);
-    // relativeAngle = MathUtil.inputModulus(m_driveTrain.getHeading() - initialTurnValue, 
-    //                                       -360, 360);
-    // turnError = MathUtil.inputModulus(targetHeading + Math.copySign(relativeAngle, rot), 
-    //                                   -360, 360);
-
-    if (relativeAngle >= 360) {
-      relativeAngle -= 360;
-    }
-   
-    if (relativeAngle <= -360) {
-      relativeAngle += 360;
-    }
-
-    if (turnError >= 360) {
-      turnError -= 360;
-    }
-   
-    if (turnError <= -360) {
-      turnError += 360;
-    } 
-
     if (m_timer.get() >= time) {
       xSpeed = 0;
       ySpeed = 0;
     }
 
     SmartDashboard.putNumber("TIMER", m_timer.get());
-    SmartDashboard.putNumber("TURNERROR", turnError);
-    SmartDashboard.putNumber("RELANGLE", relativeAngle);
+    SmartDashboard.putNumber("TURNERROR", targetHeading - m_driveTrain.getHeading());
 
-    if (Math.abs(turnError) <= 5) {
+    if (Math.abs(targetHeading - m_driveTrain.getHeading()) <= 2) {
       targetHeading = m_driveTrain.getHeading();
       rot = 0;
-      turnError = 0;
     }
 
-    m_driveTrain.autonDrive(xSpeed, ySpeed, -rot);
+    m_driveTrain.autonDrive(xSpeed, ySpeed, rot);
     m_driveTrain.setInRange(m_timer.get() <= (desiredDistance - AutoAimConstants.inRangeThreshold) / v);
   }
 
@@ -105,6 +81,6 @@ public class AutonDrive extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_timer.get() >= time && Math.abs(turnError) <= 2;
+    return m_timer.get() >= time && Math.abs(targetHeading - m_driveTrain.getHeading()) <= 3;
   }
 }

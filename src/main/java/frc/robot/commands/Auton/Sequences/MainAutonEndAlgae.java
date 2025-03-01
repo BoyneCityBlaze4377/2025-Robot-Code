@@ -23,8 +23,9 @@ import frc.robot.commands.Auton.Functions.AutonAllToPosition;
 import frc.robot.commands.Auton.Functions.AutonAutoAlign;
 import frc.robot.commands.Auton.Functions.AutonCoralCollect;
 import frc.robot.commands.Auton.Functions.AutonCoralScore;
+import frc.robot.commands.Auton.Functions.AutonDrive;
 import frc.robot.commands.Auton.Functions.AutonDriveToPosition;
-import frc.robot.commands.Auton.Functions.FirstRobotRelativeAutonDrive;
+import frc.robot.commands.Auton.Functions.FirstAutonDrive;
 import frc.robot.commands.Auton.Functions.InRangeAllToPosition;
 import frc.robot.commands.Auton.Functions.RobotRelativeAutonDrive;
 import frc.robot.commands.Auton.Functions.SetDriveTrainPose;
@@ -53,9 +54,8 @@ public class MainAutonEndAlgae extends SequentialCommandGroup {
     
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addCommands(new FirstRobotRelativeAutonDrive(driveTrain, 0, 4, 0, 
-                                                 Units.inchesToMeters(110), driveTrain.getHeading(), visionSubsystem,
-                                                 ReefStation.backRight),
+    addCommands(new FirstAutonDrive(driveTrain, 0, 4, Math.PI * 2, 
+                               Units.inchesToMeters(100), 120),
                 new ParallelCommandGroup(new AutonAutoAlign(driveTrain, visionSubsystem, .01, Alignment.left)),
                                          new InRangeAllToPosition(elevator, coralAffector, driveTrain, Position.L4),
                 new SequentialCommandGroup(new AutonCoralScore(coralAffector), new SetDriveTrainPose(driveTrain, reef.get(ReefStation.backRight)

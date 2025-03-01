@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -12,6 +13,7 @@ import frc.robot.subsystems.*;
 import frc.robot.commands.AllToSetPosition;
 import frc.robot.commands.Auton.Functions.AutonAutoAlign;
 import frc.robot.commands.Auton.Functions.AutonDrive;
+import frc.robot.commands.Auton.Functions.FirstAutonDrive;
 import frc.robot.commands.Auton.Sequences.*;
 import frc.robot.commands.ClimberCommands.*;
 import frc.robot.commands.DriveCommands.*;
@@ -84,12 +86,8 @@ public class RobotContainer {
   private final Command ScoreCoralAndProcessor = new Score1L4AndProcessor(m_driveTrain, m_elevator, m_coralAffector, 
                                                                           m_algaeAffector, m_visionSubsystem, alliance);
 
-  private final Command testdrive = new AutonDrive(m_driveTrain,
-                                                   45, 
-                                                   1, 
-                                                   Math.PI/2, 
-                                                   1.5, 
-                                                   90);
+  private final Command testdrive = new FirstAutonDrive(m_driveTrain, 180, 4, Math.PI * 2, 
+                                                        Units.inchesToMeters(104), 120);
 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -129,10 +127,10 @@ public class RobotContainer {
     new JoystickButton(m_driverStick, IOConstants.lockPoseButtonID).whileTrue(LockPose);
     new JoystickButton(m_driverStick, IOConstants.switchOrientationButtonID).onTrue(SwitchOrientation);
     new JoystickButton(m_driverStick, IOConstants.switchBrakeButtonID).onTrue(SwitchBrake);
-    new JoystickButton(m_driverStick, IOConstants.autoAlignButtonID).whileTrue(new AutoAlign(m_driveTrain, 
-                                                                                             m_visionSubsystem, 
-                                                                                             .01, 
-                                                                                             m_driverStick.getPOV()));
+    // new JoystickButton(m_driverStick, IOConstants.autoAlignButtonID).whileTrue(new AutoAlign(m_driveTrain, 
+    //                                                                                          m_visionSubsystem, 
+    //                                                                                          .01, 
+    //                                                                                          m_driverStick.getPOV()));
     // new JoystickButton(m_driverStick, 12).whileTrue(testdrive);
 
     /* Operator */
