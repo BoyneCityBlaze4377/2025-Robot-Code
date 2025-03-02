@@ -53,7 +53,6 @@ public class DriveTrain extends SubsystemBase {
   private boolean autonInRange = false;
   private double speedScaler, heading, x, y, omega, translationElevatorHeightSpeedScaler, 
                  rotationElevatorHeightSpeedScaler, elevatorHeight;
-  private final double dTheta;
 
   // Odometry class for tracking robot pose
   SwerveDriveOdometry m_odometry;
@@ -349,8 +348,6 @@ public class DriveTrain extends SubsystemBase {
                                        .getEntry();
     // SmartDashboard.putData(swerveSendable);
 
-    dTheta = DriveConstants.startingHeading - m_gyro.getAngle();
-
     zeroHeading();
     brakeAll();
     fieldOrientation = true;
@@ -393,13 +390,11 @@ public class DriveTrain extends SubsystemBase {
     elevatorHeight = m_elevator.getEncoderVal();
 
     /** Dashboard Posting */
-    robotHeading.setDouble(heading);
+    robotHeading.setDouble(getHeading());
     poseEstimate.setString(getPoseEstimate().toString());
 
     // Update the odometry in the periodic block
     m_odometry.update(m_gyro.getRotation2d(), getSwerveModulePositions());
-
-    heading = m_gyro.getAngle() + dTheta;
 
     translationElevatorHeightSpeedScaler = DriveConstants.maxDriveSpeed 
                                            - DriveConstants.elevatorHeightFactorTranslation 
@@ -417,6 +412,8 @@ public class DriveTrain extends SubsystemBase {
     periodicTimer ++;
 
     SmartDashboard.putBoolean("INRANGE", autonInRange);
+
+    heading = m_gyro.getYaw();
   }
 
   public void instanceDrive(double xSpeed, double ySpeed, double omega, boolean fieldRelative) {
@@ -681,7 +678,7 @@ public class DriveTrain extends SubsystemBase {
    * @return The robot's heading in degrees, from -180 to 180
    */
   public synchronized double getHeading() {
-    return heading;
+    return m_gyro.getYaw();
   }
 
    /** @return The roll of the gyro */

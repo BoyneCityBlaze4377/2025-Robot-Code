@@ -35,12 +35,12 @@ public final class Constants {
 
     /* BUTTON IDS */
     /* Driver */
-    public static final int quickBrakeButtonID = 6;
-    public static final int slowModeButtonID = 2;
-    public static final int switchBrakeButtonID = 5;
-    public static final int switchOrientationButtonID = 3;
-    public static final int lockPoseButtonID = 4;
-    public static final int autoAlignButtonID = 1;
+    public static final int quickBrakeButtonID = 6; //6
+    public static final int slowModeButtonID = 2; //2
+    public static final int switchBrakeButtonID = 5; //5
+    public static final int switchOrientationButtonID = 3; //3
+    public static final int lockPoseButtonID = 4; //4
+    public static final int autoAlignButtonID = 1; //1
 
     /* Operator */
     // Positions
@@ -62,8 +62,8 @@ public final class Constants {
     public static final int algaeScoreButtonID = 4;
 
     //Climber
-    public static final int unClimbButtonID = 7;
-    public static final int climbButtonID = 8;
+    public static final int unClimbButtonID = 8;
+    public static final int climbButtonID = 7;
 
     public static final int wristOverrideButtonID = 12;
   }
@@ -96,12 +96,12 @@ public final class Constants {
     public static final double defaultPos = lowerLimit;
     public static final double floorPos = lowerLimit;
     public static final double L1Pos = 24;
-    public static final double L2AlgaePos = 101;
+    public static final double L2AlgaePos = 111;
     public static final double L2Pos = 85;
-    public static final double L3AlgaePos = 167;
+    public static final double L3AlgaePos = 177;
     public static final double L3Pos = 208;
     public static final double L4Pos = 208;
-    public static final double HPPos = 0;
+    public static final double HPPos = 120;
   }
 
   public class AffectorConstants {
@@ -109,7 +109,7 @@ public final class Constants {
     public static final int coralAffectorID = 11;
     public static final int coralWristID = 12;
 
-    public static final double startingAngle = 0;
+    public static final double startingAngle = 2;
 
     public static final double coralWristConversionFactor = (360 / 64);
     public static final double wristScoringThreshold = 90;
@@ -127,7 +127,7 @@ public final class Constants {
     public static final double coralWristKD = 0; //0
     public static final double coralWristKTolerance = 1;
 
-    public static final double coralAffectorSpeed = .5;
+    public static final double coralAffectorSpeed = .2;
 
     public static final double maxCoralWristUpSpeed = .25;
     public static final double maxCoralWristDownSpeed = -.05;
@@ -136,7 +136,7 @@ public final class Constants {
     public static final int algaeCollectorOneID = 13;
     public static final int algaeCollectorTwoID = 14;
 
-    public static final double algaeCollectorSpeed = .5;
+    public static final double algaeCollectorSpeed = .9;
   }
 
   public static final class SwerveConstants {
@@ -194,10 +194,10 @@ public final class Constants {
     public static final boolean backLeftAbsReversed = false;
     public static final boolean backRightAbsReversed = false;
 
-    public static final double frontLeftAnalogEncoderOffset = 6.46;  
-    public static final double frontRightAnalogEncoderOffset = 75.30;
-    public static final double backLeftAnalogEncoderOffset = 162.59;
-    public static final double backRightAnalogEncoderOffset = 63.6;
+    public static final double frontLeftAnalogEncoderOffset = 5.64;  
+    public static final double frontRightAnalogEncoderOffset = 76.71;
+    public static final double backLeftAnalogEncoderOffset = 162.52;
+    public static final double backRightAnalogEncoderOffset = 63.74;
 
     // Distance between centers of right and left wheels on robot in meters
     public static final double trackWidth = 0.31623;
@@ -215,8 +215,8 @@ public final class Constants {
     public static final boolean gyroReversed = true;
 
     public static final double speedScaler = 1;
-    public static final double maxDriveSpeed = .6;
-    public static final double minDriveSpeed = .1;
+    public static final double maxDriveSpeed = .85;
+    public static final double minDriveSpeed = .2;
     public static final double maxRotspeed = 1;
     public static final double minRotSpeed = .3;
 
@@ -420,7 +420,7 @@ public final class Constants {
 
   public class ClimberConstants {
     public static final int climberControllerID = 15;
-    public static final double climberspeed = .9;
+    public static final double climberspeed = .99;
   }
 
   public class AutonConstants {

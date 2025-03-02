@@ -83,14 +83,14 @@ public class CoralAffector extends SubsystemBase {
   }
 
   public void collect() {
-    coralAffector.set(AffectorConstants.coralAffectorSpeed);
+    coralAffector.set(.35);
   }
 
   public void eject() {
     if (getWristDegrees() > AffectorConstants.wristScoringThreshold) {
-      coralAffector.set(AffectorConstants.coralAffectorSpeed);
+      coralAffector.set(.8);
     } else {
-      coralAffector.set(-AffectorConstants.coralAffectorSpeed);
+      coralAffector.set(-.8);
     }
   }
 
@@ -112,7 +112,7 @@ public class CoralAffector extends SubsystemBase {
   }
 
   public void lockWrist() {
-    coralWrist.set(.06 - .000006 * Math.pow(getWristDegrees() - 90, 2));
+    coralWrist.set(.06 - .0000045 * Math.pow(getWristDegrees() - 90, 2));
     locked = true;
   }
 

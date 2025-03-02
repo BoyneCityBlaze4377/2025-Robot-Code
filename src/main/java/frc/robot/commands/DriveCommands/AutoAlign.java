@@ -59,6 +59,8 @@ public class AutoAlign extends Command {
     maxRotOutput = Math.PI * 3/2;
 
     orientation = m_driveTrain.isFieldOriented();
+
+    SmartDashboard.putString("ALIGNMENT", alignment.toString());
   }
 
   // Called when the command is initially scheduled.
@@ -88,7 +90,7 @@ public class AutoAlign extends Command {
     // if (distanceController.atSetpoint()) xSpeed = 0;
     if (angleController.atSetpoint()) rot = 0;
 
-    m_driveTrain.autonDrive(-xSpeed, ySpeed, -rot);
+    m_driveTrain.autonDrive(-0, ySpeed, -0);
   }
 
   // Called once the command ends or is interrupted.

@@ -41,10 +41,10 @@ public class AlgaeAffector extends SubsystemBase {
 
   private void configMotorControllerDefaults() {
     algaeCollectorOneConfig.inverted(true);
-    algaeCollectorOneConfig.idleMode(IdleMode.kCoast);
+    algaeCollectorOneConfig.idleMode(IdleMode.kBrake);
 
     algaeCollectorTwoConfig.inverted(true);
-    algaeCollectorTwoConfig.idleMode(IdleMode.kCoast);
+    algaeCollectorTwoConfig.idleMode(IdleMode.kBrake);
 
     configMotorControllers();
   }

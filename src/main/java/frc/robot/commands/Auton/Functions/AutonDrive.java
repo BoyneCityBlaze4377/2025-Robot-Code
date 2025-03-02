@@ -7,14 +7,14 @@ import frc.robot.Constants.AutoAimConstants;
 import frc.robot.subsystems.DriveTrain;
 
 public class AutonDrive extends Command {
-  private double xSpeed, ySpeed, rot, targetHeading, time, desiredDistance, v;
+  private double xSpeed, ySpeed, rot, targetHeading, time, desiredDistance, v, turnError;
   private final DriveTrain m_driveTrain;
   private final Timer m_timer;
   /** Creates a new AutonDrive. */
   public AutonDrive(DriveTrain driveTrain, double desiredDriveAngle, double vMetersPerSecond, 
                     double omegaRadiansPerSecond, double targetDistance, double TargetHeading) {
-    xSpeed = vMetersPerSecond * Math.cos(desiredDriveAngle);
-    ySpeed = vMetersPerSecond * Math.sin(desiredDriveAngle);
+    xSpeed = vMetersPerSecond * Math.sin(desiredDriveAngle);
+    ySpeed = vMetersPerSecond * Math.cos(desiredDriveAngle);
     rot = Math.abs(omegaRadiansPerSecond);
     desiredDistance = targetDistance;
     v = vMetersPerSecond;
@@ -37,6 +37,8 @@ public class AutonDrive extends Command {
     m_driveTrain.brakeAll();
     m_driveTrain.setOrientation(true);
 
+    turnError = targetHeading - m_driveTrain.getHeading();
+
     m_timer.reset();
     m_timer.start();
     m_driveTrain.setInRange(false);
@@ -47,15 +49,25 @@ public class AutonDrive extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    turnError = targetHeading - m_driveTrain.getHeading();
+
+    if (turnError <= -360) {
+      turnError += 360;
+    }
+
+    if (turnError >= 360) {
+      turnError -= 360;
+    }
+    
     if (m_timer.get() >= time) {
       xSpeed = 0;
       ySpeed = 0;
     }
 
     SmartDashboard.putNumber("TIMER", m_timer.get());
-    SmartDashboard.putNumber("TURNERROR", targetHeading - m_driveTrain.getHeading());
+    SmartDashboard.putNumber("TURNERROR", turnError);
 
-    if (Math.abs(targetHeading - m_driveTrain.getHeading()) <= 2) {
+    if (Math.abs(turnError) <= 2) {
       targetHeading = m_driveTrain.getHeading();
       rot = 0;
     }
@@ -81,6 +93,6 @@ public class AutonDrive extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_timer.get() >= time && Math.abs(targetHeading - m_driveTrain.getHeading()) <= 3;
+    return m_timer.get() >= time && Math.abs(turnError) <= 3;
   }
 }

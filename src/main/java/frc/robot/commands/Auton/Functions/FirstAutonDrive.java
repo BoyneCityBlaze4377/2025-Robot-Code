@@ -7,7 +7,7 @@ import frc.robot.Constants.AutoAimConstants;
 import frc.robot.subsystems.DriveTrain;
 
 public class FirstAutonDrive extends Command {
-  private double xSpeed, ySpeed, rot, targetHeading, time, desiredDistance, v, tardriangle;
+  private double xSpeed, ySpeed, rot, targetHeading, time, desiredDistance, v, tardriangle, turnError;
   private final DriveTrain m_driveTrain;
   private final Timer m_timer;
   /** Creates a new AutonDrive. */
@@ -25,6 +25,8 @@ public class FirstAutonDrive extends Command {
     time = Math.abs(targetDistance / vMetersPerSecond);
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_driveTrain);
+
+    turnError = targetHeading - m_driveTrain.getHeading();
 
     SmartDashboard.putNumber("time", time);
     SmartDashboard.putNumber("YSPEED", ySpeed);
@@ -53,10 +55,12 @@ public class FirstAutonDrive extends Command {
       ySpeed = 0;
     }
 
-    SmartDashboard.putNumber("TIMER", m_timer.get());
-    SmartDashboard.putNumber("TURNERROR", targetHeading - m_driveTrain.getHeading());
+    turnError = targetHeading - m_driveTrain.getHeading();
 
-    if (Math.abs(targetHeading - m_driveTrain.getHeading()) <= 2) {
+    SmartDashboard.putNumber("TIMER", m_timer.get());
+    SmartDashboard.putNumber("TURNERROR", turnError);
+
+    if (Math.abs(turnError) <= 2) {
       targetHeading = m_driveTrain.getHeading();
       rot = 0;
 
@@ -85,6 +89,6 @@ public class FirstAutonDrive extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_timer.get() >= time && Math.abs(targetHeading - m_driveTrain.getHeading()) <= 3;
+    return m_timer.get() >= time && Math.abs(turnError) <= 3;
   }
 }

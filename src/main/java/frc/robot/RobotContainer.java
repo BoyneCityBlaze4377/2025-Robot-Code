@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.IOConstants;
 import frc.robot.Constants.AutoAimConstants.Alignment;
 import frc.robot.Constants.AutoAimConstants.Position;
@@ -85,19 +86,20 @@ public class RobotContainer {
   private final Command Score1CoralL4 = new Score1CoralL4(m_driveTrain, m_elevator, m_coralAffector, m_visionSubsystem, alliance);
   private final Command ScoreCoralAndProcessor = new Score1L4AndProcessor(m_driveTrain, m_elevator, m_coralAffector, 
                                                                           m_algaeAffector, m_visionSubsystem, alliance);
+  private final Command Score1L4OppPro = new Score1L4OppProcessor(m_driveTrain, m_elevator, m_coralAffector, m_visionSubsystem);
 
-  private final Command testdrive = new FirstAutonDrive(m_driveTrain, 180, 4, Math.PI * 2, 
-                                                        Units.inchesToMeters(104), 120);
-
+  private final Command testdrive = new AutonDrive(m_driveTrain, 180, .5, Math.PI * 2, 
+                                                   3, 120);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() { 
     m_driveTrain.setDefaultCommand(TeleopDrive);
     configureButtonBindings();
-    m_driveTrain.setGyroOffset(0);
+    m_driveTrain.setGyroOffset(180);
 
     configAutonChooser();
     IOConstants.ConfigTab.add("Auton Chooser", autonChooser);
+    SmartDashboard.putData(autonChooser);
   }
 
   public void setDriveTrainPoseEstimate() {
@@ -112,6 +114,7 @@ public class RobotContainer {
     autonChooser.addOption("Score One on L4", Score1CoralL4);
     autonChooser.addOption("Score one Coral, Process Algae", ScoreCoralAndProcessor);
     autonChooser.addOption("TEST", testdrive);
+    autonChooser.addOption("ScoreOppPro", Score1L4OppPro);
   }
 
   /**
@@ -131,7 +134,9 @@ public class RobotContainer {
     //                                                                                          m_visionSubsystem, 
     //                                                                                          .01, 
     //                                                                                          m_driverStick.getPOV()));
-    // new JoystickButton(m_driverStick, 12).whileTrue(testdrive);
+    // new JoystickButton(m_operatorStick1, IOConstants.L2AlgaePosButtonID).whileTrue(new AutonDrive(m_driveTrain, 
+    //                                                                               45, .5,
+    //                                                                                Math.PI/2, 1, 90));
 
     /* Operator */
     //Set positions
@@ -150,9 +155,9 @@ public class RobotContainer {
     new JoystickButton(m_operatorStick2, IOConstants.algaeCollectButtonID).whileTrue(AlgaeCollect);
     new JoystickButton(m_operatorStick2, IOConstants.algaeScoreButtonID).whileTrue(AlgaeScore);
 
-    //Climber
-    new JoystickButton(m_operatorStick2, IOConstants.unClimbButtonID).whileTrue(UnClimb);
-    new JoystickButton(m_operatorStick2, IOConstants.climbButtonID).whileTrue(Climb);
+    // //Climber
+    // new JoystickButton(m_operatorStick2, IOConstants.unClimbButtonID).whileTrue(UnClimb);
+    // new JoystickButton(m_operatorStick2, IOConstants.climbButtonID).whileTrue(Climb);
 
     //Overrides
     new JoystickButton(m_operatorStick1, IOConstants.elevatorOverrideButtonID).whileTrue(ElevatorOverride);
@@ -196,6 +201,6 @@ public class RobotContainer {
     //     swerveCommand,
     //     m_robotDrive.run(() -> m_robotDrive.drive(0, 0, 0, false))
     // );
-    return autonChooser.getSelected();
+    return DriveOffLine;
   }
 }
