@@ -112,7 +112,7 @@ public class CoralAffector extends SubsystemBase {
   }
 
   public void lockWrist() {
-    coralWrist.set(.06 - .0000045 * Math.pow(getWristDegrees() - 90, 2));
+    coralWrist.set(.06 - .0000052 * Math.pow(getWristDegrees() - 90, 2));
     locked = true;
   }
 

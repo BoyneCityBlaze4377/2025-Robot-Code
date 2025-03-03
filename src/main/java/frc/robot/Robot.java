@@ -55,7 +55,9 @@ public class Robot extends TimedRobot {
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    m_robotContainer.setDriveOrientation(true);
+  }
 
   @Override
   public void disabledPeriodic() {}
@@ -84,11 +86,14 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
     m_robotContainer.setDriveTrainPoseEstimate();
+    m_robotContainer.setDriveOrientation(true);
   }
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    m_robotContainer.setDriveOrientation(true);
+  }
 
   @Override
   public void testInit() {

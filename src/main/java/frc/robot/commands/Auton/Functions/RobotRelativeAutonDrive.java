@@ -11,7 +11,7 @@ public class RobotRelativeAutonDrive extends Command {
   private final Timer m_timer;
   /** Creates a new AutonDrive. */
   public RobotRelativeAutonDrive(DriveTrain driveTrain, double desiredDriveAngle, double vMetersPerSecond, 
-                    double omegaRadiansPerSecond, double targetDistance, double TargetHeading) {
+                                 double omegaRadiansPerSecond, double targetDistance, double TargetHeading) {
     ySpeed = vMetersPerSecond * Math.cos(desiredDriveAngle);
     xSpeed = vMetersPerSecond * Math.sin(desiredDriveAngle);
     rot = Math.abs(omegaRadiansPerSecond);

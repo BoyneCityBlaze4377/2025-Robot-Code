@@ -15,6 +15,7 @@ import frc.robot.commands.AllToSetPosition;
 import frc.robot.commands.Auton.Functions.AutonAutoAlign;
 import frc.robot.commands.Auton.Functions.AutonDrive;
 import frc.robot.commands.Auton.Functions.FirstAutonDrive;
+import frc.robot.commands.Auton.Functions.TEMPORARYDRIVE;
 import frc.robot.commands.Auton.Sequences.*;
 import frc.robot.commands.ClimberCommands.*;
 import frc.robot.commands.DriveCommands.*;
@@ -52,7 +53,7 @@ public class RobotContainer {
   private final Command SwitchOrientation = new SwitchOrientation(m_driveTrain);
   private final Command QuickBrake = new QuickBrake(m_driveTrain);
   private final Command SlowMode = new SlowMode(m_driveTrain);
-  private final Command AutoAlign = new AutoAlign(m_driveTrain, m_visionSubsystem, 0, 0);
+  // private final Command AutoAlign = new AutoAlign(m_driveTrain, m_visionSubsystem, 0, 0);
 
   // private final Command ElevatorOverride = new ElevatorOverride(m_elevator, m_operatorStick);
   // private final Command CoralWristOverride = new CoralWristOverride(m_coralAffector, m_driverStick);
@@ -90,6 +91,13 @@ public class RobotContainer {
 
   private final Command testdrive = new AutonDrive(m_driveTrain, 180, .5, Math.PI * 2, 
                                                    3, 120);
+  private final Command LeftAlign = new AutoAlign(m_driveTrain, m_visionSubsystem, .01, Alignment.left);
+  private final Command RightAlign = new AutoAlign(m_driveTrain, m_visionSubsystem, .01, Alignment.right);
+
+  private final Command TemporaryAuton = new TemporaryAuton(m_driveTrain, m_elevator, m_coralAffector);
+
+  // private final Command TEMPORARY = new TEMPORARYDRIVE(m_driveTrain, -.5);
+
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() { 
@@ -104,6 +112,10 @@ public class RobotContainer {
 
   public void setDriveTrainPoseEstimate() {
     m_driveTrain.setPoseEstimate(m_visionSubsystem.getEstimatedPose2d().get());
+  }
+
+  public void setDriveOrientation(boolean fieldOriented) {
+    m_driveTrain.setOrientation(fieldOriented);
   }
 
   public void configAutonChooser() {
@@ -130,13 +142,11 @@ public class RobotContainer {
     new JoystickButton(m_driverStick, IOConstants.lockPoseButtonID).whileTrue(LockPose);
     new JoystickButton(m_driverStick, IOConstants.switchOrientationButtonID).onTrue(SwitchOrientation);
     new JoystickButton(m_driverStick, IOConstants.switchBrakeButtonID).onTrue(SwitchBrake);
-    // new JoystickButton(m_driverStick, IOConstants.autoAlignButtonID).whileTrue(new AutoAlign(m_driveTrain, 
-    //                                                                                          m_visionSubsystem, 
-    //                                                                                          .01, 
-    //                                                                                          m_driverStick.getPOV()));
-    // new JoystickButton(m_operatorStick1, IOConstants.L2AlgaePosButtonID).whileTrue(new AutonDrive(m_driveTrain, 
-    //                                                                               45, .5,
-    //                                                                                Math.PI/2, 1, 90));
+    // new JoystickButton(m_driverStick, 11).whileTrue(LeftAlign);
+    // // new JoystickButton(m_operatorStick1, IOConstants.L2AlgaePosButtonID).whileTrue(new AutonDrive(m_driveTrain, 
+    // //                                                                               45, .5,
+    // //                                                                                Math.PI/2, 1, 90));
+    // new JoystickButton(m_driverStick, 12).whileTrue(RightAlign);
 
     /* Operator */
     //Set positions

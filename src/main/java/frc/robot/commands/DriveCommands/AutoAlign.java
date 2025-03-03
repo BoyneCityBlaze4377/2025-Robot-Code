@@ -1,7 +1,9 @@
 package frc.robot.commands.DriveCommands;
 
+import edu.wpi.first.math.MathSharedStore;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -13,30 +15,32 @@ import frc.robot.subsystems.VisionSubsystem;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class AutoAlign extends Command {
   private final DriveTrain m_driveTrain;
-  private double xSpeed, ySpeed, rot, targetDistance, targetOffsetDeg, targetAngle, maxHorizOutput, 
+  private double xSpeed, ySpeed, rot, initialTargDis, givenTargDis, targetDistance, targetOffsetDeg, targetAngle, maxHorizOutput, 
                   maxDisOutput, maxRotOutput;
   private final PIDController angleController, horizController, distanceController;
-  private final Alignment alignment;
+  private final Alignment m_alignment;
   private final VisionSubsystem m_visionSubsystem;
   private boolean orientation;
 
   /** Creates a new LimeLightDrive. */
-  public AutoAlign(DriveTrain driveTrain, VisionSubsystem visionSubsystem, double TargetDistance, int pov) {
+  public AutoAlign(DriveTrain driveTrain, VisionSubsystem visionSubsystem, double TargetDistance,
+                   Alignment alignment) {
     m_driveTrain = driveTrain;
     m_visionSubsystem = visionSubsystem;
 
-    targetDistance = TargetDistance;
-    switch (pov) {
-      case 270:
-        alignment = Alignment.left;
-      break;
-      case 90:
-        alignment = Alignment.right;
-      break;
-      default:
-        alignment = Alignment.center;
-      break;
-    }
+    givenTargDis = TargetDistance;
+    // switch (pov) {
+    //   case 270:
+    //     alignment = Alignment.left;
+    //   break;
+    //   case 90:
+    //     alignment = Alignment.right;
+    //   break;
+    //   default:
+    //     alignment = Alignment.center;
+    //   break;
+    // }
+    m_alignment = alignment;
 
     horizController = new PIDController(AutoAimConstants.horizkP, 
                                         AutoAimConstants.horizkI, 
@@ -60,20 +64,24 @@ public class AutoAlign extends Command {
 
     orientation = m_driveTrain.isFieldOriented();
 
-    SmartDashboard.putString("ALIGNMENT", alignment.toString());
+    initialTargDis = Units.inchesToMeters(10);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    targetOffsetDeg = (AutoAimConstants.offsetFromAlignment.get(alignment) == 0 ? 0 : 
-                      1 / Math.atan(AutoAimConstants.offsetFromAlignment.get(alignment) 
-                      / targetDistance)) + AutoAimConstants.LLDefaultOffsetDegrees;
-    targetAngle = m_driveTrain.getEstimatedStation();
+    targetOffsetDeg = (AutoAimConstants.offsetFromAlignment.get(m_alignment) == 0 ? 0 : 
+                      1 / Math.atan(AutoAimConstants.offsetFromAlignment.get(m_alignment) 
+                      / initialTargDis)) + AutoAimConstants.LLDefaultOffsetDegrees;
+    // targetAngle = m_driveTrain.getEstimatedStation();
     // AutoAimConstants.angleFromReefStation.get(AutoAimConstants.reefStationFromAprilTagID.get(
     //                                                         m_visionSubsystem.getTargetID()));
     m_driveTrain.setOrientation(false);
     targetAngle = 0;
+
+    SmartDashboard.putNumber("OFFSET", targetOffsetDeg);
+
+    targetDistance = initialTargDis;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -86,11 +94,12 @@ public class AutoAlign extends Command {
     rot = MathUtil.clamp(angleController.calculate(m_driveTrain.getHeading(), targetAngle), 
                          -maxRotOutput, maxRotOutput);
 
-    // if (horizController.atSetpoint()) ySpeed = 0;
-    // if (distanceController.atSetpoint()) xSpeed = 0;
-    if (angleController.atSetpoint()) rot = 0;
+    if (horizController.atSetpoint()) targetDistance = givenTargDis;
 
-    m_driveTrain.autonDrive(-0, ySpeed, -0);
+    SmartDashboard.putNumber("YSpeed", ySpeed);
+    SmartDashboard.putString("ALIGNMENT", m_alignment.toString());
+
+    m_driveTrain.autonDrive(-0, -ySpeed, -0);
   }
 
   // Called once the command ends or is interrupted.

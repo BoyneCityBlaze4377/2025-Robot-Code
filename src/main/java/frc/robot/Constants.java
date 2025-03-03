@@ -39,8 +39,8 @@ public final class Constants {
     public static final int slowModeButtonID = 2; //2
     public static final int switchBrakeButtonID = 5; //5
     public static final int switchOrientationButtonID = 3; //3
-    public static final int lockPoseButtonID = 4; //4
-    public static final int autoAlignButtonID = 1; //1
+    public static final int lockPoseButtonID = 1; //4
+    public static final int autoAlignButtonID = 0; //1
 
     /* Operator */
     // Positions
@@ -90,7 +90,7 @@ public final class Constants {
     public static final double lockSpeed = .025;
 
     public static final double maxUpSpeed = .99;
-    public static final double maxDownSpeed = -.7;
+    public static final double maxDownSpeed = -.93;
     public static final double correctionSpeed = .2;
 
     public static final double defaultPos = lowerLimit;
@@ -215,8 +215,8 @@ public final class Constants {
     public static final boolean gyroReversed = true;
 
     public static final double speedScaler = 1;
-    public static final double maxDriveSpeed = .85;
-    public static final double minDriveSpeed = .2;
+    public static final double maxDriveSpeed = .92;
+    public static final double minDriveSpeed = .35;
     public static final double maxRotspeed = 1;
     public static final double minRotSpeed = .3;
 
@@ -229,7 +229,7 @@ public final class Constants {
     public static final double maxAccelerationMetersPerSecondSquared = 1;
 
     public static final double xyDeadband = .1;
-    public static final double zDeadband = .35;
+    public static final double zDeadband = .4;
 
     public static final double ksVolts = 5;
     public static final double kvVoltSecondsPerMeter = 4;
@@ -250,9 +250,7 @@ public final class Constants {
       (wheelDiameterMeters * Math.PI) / (double) encoderCPR * driveGearRatio;
 
     public static final double moduleTurningController = .5;
-
     public static final double moduleDriveController = .75;
-
     public static final double moduleDriveSlewRate = 2;
   }
 
@@ -289,11 +287,11 @@ public final class Constants {
             
     public static final double centerOfReefToRobotDistance = Units.inchesToMeters(32.75) + DriveConstants.trackWidth / 2 + 0.01; // 118.475
     public static final double coralAffectorOffsetFromRobotCenter = Units.inchesToMeters(2);
-    public static final double leftCoralReefOffset = Units.inchesToMeters(6.47) + coralAffectorOffsetFromRobotCenter;
-    public static final double rightCoralReefOffset = coralAffectorOffsetFromRobotCenter - Units.inchesToMeters(6.47);
+    public static final double rightCoralReefOffset = Units.inchesToMeters(6.47) + coralAffectorOffsetFromRobotCenter;
+    public static final double leftCoralReefOffset = coralAffectorOffsetFromRobotCenter - Units.inchesToMeters(6.47);
 
-    public static final double LLDefaultOffsetDegrees = 4;
-    public static final double LCToBumperEdgeOffsetMeters = Units.inchesToMeters(6.125);
+    public static final double LLDefaultOffsetDegrees = 2.3;
+    public static final double LCToBumperEdgeOffsetMeters = Units.inchesToMeters(4.85);
     public static final double inRangeThreshold = .5; //Meters
 
     public static final double coralStationToRobotDistance = DriveConstants.trackWidth / 2 + .15;

@@ -1,5 +1,6 @@
 package frc.robot.commands.Auton.Functions;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -13,8 +14,8 @@ public class AutonDrive extends Command {
   /** Creates a new AutonDrive. */
   public AutonDrive(DriveTrain driveTrain, double desiredDriveAngle, double vMetersPerSecond, 
                     double omegaRadiansPerSecond, double targetDistance, double TargetHeading) {
-    xSpeed = vMetersPerSecond * Math.sin(desiredDriveAngle);
-    ySpeed = vMetersPerSecond * Math.cos(desiredDriveAngle);
+    ySpeed = vMetersPerSecond * Math.sin(desiredDriveAngle);
+    xSpeed = vMetersPerSecond * Math.cos(desiredDriveAngle);
     rot = Math.abs(omegaRadiansPerSecond);
     desiredDistance = targetDistance;
     v = vMetersPerSecond;
