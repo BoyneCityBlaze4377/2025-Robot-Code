@@ -2,7 +2,6 @@ package frc.robot.commands.Auton.Functions;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.AutonConstants;
 import frc.robot.subsystems.AlgaeAffector;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */

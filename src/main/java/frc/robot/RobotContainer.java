@@ -1,5 +1,8 @@
 package frc.robot;
 
+import java.util.zip.Adler32;
+
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
@@ -7,6 +10,8 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.Lib.AdvancedPose2D;
+import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.Constants.AutoAimConstants.Alignment;
 import frc.robot.Constants.AutoAimConstants.Position;
@@ -33,6 +38,9 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
  */
 public class RobotContainer {
   private final Alliance alliance = DriverStation.getAlliance().get();
+  private final AdvancedPose2D initialPose = alliance == Alliance.Blue ? 
+                                             AutonConstants.initialPoseBlue : 
+                                             AutonConstants.initialPoseRed;
 
   private final Joystick m_driverStick = new Joystick(IOConstants.driverControllerID); //Driving
   private final Joystick m_operatorStick1 = new Joystick(IOConstants.operatorController1ID); //Set positions and elevatorOverride
@@ -98,20 +106,31 @@ public class RobotContainer {
 
   // private final Command TEMPORARY = new TEMPORARYDRIVE(m_driveTrain, -.5);
 
+  private double counter = 0;
+
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() { 
     m_driveTrain.setDefaultCommand(TeleopDrive);
     configureButtonBindings();
     m_driveTrain.setGyroOffset(180);
+    m_driveTrain.setOdometry(initialPose);
+    m_driveTrain.setOdometry(initialPose);
 
     configAutonChooser();
     IOConstants.ConfigTab.add("Auton Chooser", autonChooser);
     SmartDashboard.putData(autonChooser);
+
+    if (counter > 50) {
+      setDriveTrainPoseEstimate();
+      counter = 0;
+    }
+    
+    counter ++;
   }
 
   public void setDriveTrainPoseEstimate() {
-    m_driveTrain.setPoseEstimate(m_visionSubsystem.getEstimatedPose2d().get());
+    m_driveTrain.setOdometry(m_visionSubsystem.getEstimatedPose2d().get());
   }
 
   public void setDriveOrientation(boolean fieldOriented) {

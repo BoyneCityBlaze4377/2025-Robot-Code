@@ -29,7 +29,9 @@ public class AdvancedPose2D extends Pose2d {
     public AdvancedPose2D verticallyFlip() {
         return new AdvancedPose2D(new Translation2d(this.getTranslation().getX(),
                                                     FieldConstants.fieldWidth - this.getTranslation().getY()),
-                                  this.getRotation());
+                                  Rotation2d.fromDegrees((this.getRotation().getDegrees() > 0) ?
+                                  180 - this.getRotation().getDegrees() :
+                                  -(180 + this.getRotation().getDegrees())));
     }
 
     public AdvancedPose2D flipBoth() {

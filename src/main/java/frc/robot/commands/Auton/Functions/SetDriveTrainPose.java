@@ -19,7 +19,7 @@ public class SetDriveTrainPose extends InstantCommand {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_driveTrain.setPoseEstimate(m_pose);
+    m_driveTrain.setOdometry(m_pose);
     m_driveTrain.setGyroOffset(m_pose.getRotation().getDegrees());
   }
 }

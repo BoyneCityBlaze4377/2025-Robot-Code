@@ -17,6 +17,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants.AutoAimConstants;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IOConstants;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -28,20 +29,16 @@ public class DriveTrain extends SubsystemBase {
 
   // Robot swerve modules
   private final SwerveModule m_frontLeft, m_frontRight, m_backLeft, m_backRight;
-  // private final Sendable swerveSendable;
 
   // The gyro sensor
   public final AHRS m_gyro = new AHRS(NavXComType.kMXP_SPI);
-  private boolean fieldOrientation = true;
-  private boolean isLocked = false, slow = false;
-  private boolean isBrake = true;
-  private boolean autonInRange = false;
+  private boolean fieldOrientation = true, isLocked = false, slow = false, 
+                  isBrake = true, autonInRange = false;
   private double speedScaler, heading, x, y, omega, translationElevatorHeightSpeedScaler, 
                  rotationElevatorHeightSpeedScaler, elevatorHeight;
 
   // Odometry class for tracking robot pose
-  SwerveDriveOdometry m_odometry;
-  SwerveDrivePoseEstimator m_poseEstimator;
+  private final SwerveDriveOdometry m_odometry;
 
   Field2d estimateField;
 
@@ -94,18 +91,13 @@ public class DriveTrain extends SubsystemBase {
                                                new SwerveModulePosition[] {m_frontLeft.getPosition(), m_frontRight.getPosition(),
                                                                            m_backLeft.getPosition(), m_backRight.getPosition()});
 
-    m_poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.driveKinematics, m_gyro.getRotation2d(),
-                      new SwerveModulePosition[] {m_frontLeft.getPosition(), m_frontRight.getPosition(),
-                                                  m_backLeft.getPosition(), m_backRight.getPosition()}, 
-                                                  getPose());
-
     robotHeading = IOConstants.TeleopTab.add("Robot Heading", heading)
                                        .withWidget("Radial Gauge")
                                        .withProperties(Map.of("start_angle", -180, "end_angle", 180,
                                                               "min_value", -180, "max_value", 180,
                                                               "wrap_value", true, "show_pointer", false))
                                        .getEntry();
-    poseEstimate = IOConstants.DiagnosticTab.add("Field", m_poseEstimator.getEstimatedPosition().toString())
+    poseEstimate = IOConstants.DiagnosticTab.add("Field", m_odometry.getPoseMeters())
                                             .withWidget("Field")
                                             .withProperties(Map.of("robot_width", DriveConstants.trackWidth,
                                                                    "robot_length", DriveConstants.wheelBase))
@@ -161,13 +153,12 @@ public class DriveTrain extends SubsystemBase {
 
     isBrake = m_frontLeft.getIdleMode() == IdleMode.kBrake;
 
-    updatePoseEstimator();
-    estimateField.setRobotPose(getPoseEstimate());
+    updateOdometry();
+    estimateField.setRobotPose(m_odometry.getPoseMeters());
     elevatorHeight = m_elevator.getEncoderVal();
 
     /** Dashboard Posting */
     robotHeading.setDouble(getHeading());
-    poseEstimate.setString(getPoseEstimate().toString());
 
     // Update the odometry in the periodic block
     m_odometry.update(m_gyro.getRotation2d(), getSwerveModulePositions());
@@ -175,14 +166,14 @@ public class DriveTrain extends SubsystemBase {
     translationElevatorHeightSpeedScaler = DriveConstants.maxDriveSpeed 
                                            - DriveConstants.elevatorHeightFactorTranslation 
                                            * elevatorHeight;
-    rotationElevatorHeightSpeedScaler = DriveConstants.maxRotspeed 
+    rotationElevatorHeightSpeedScaler = DriveConstants.maxRotSpeed 
                                         - DriveConstants.elevatorHeightFactorRotation 
                                         * elevatorHeight;
 
     //drive
-    instanceDrive(x * translationElevatorHeightSpeedScaler, 
-                  y * translationElevatorHeightSpeedScaler, 
-                  omega * rotationElevatorHeightSpeedScaler, 
+    instanceDrive(x * translationElevatorHeightSpeedScaler,
+                  y * translationElevatorHeightSpeedScaler,
+                  omega * rotationElevatorHeightSpeedScaler,
                   fieldOrientation);
 
     periodicTimer ++;
@@ -223,7 +214,7 @@ public class DriveTrain extends SubsystemBase {
 
     x = xSpeed * DriveConstants.maxSpeedMetersPerSecond * speedScaler;
     y = ySpeed * DriveConstants.maxSpeedMetersPerSecond * speedScaler;
-    omega = rot * Math.PI * 2 * speedScaler;
+    omega = rot * DriveConstants.maxRotationSpeedRadiansPerSecond * speedScaler;
   }
 
   /**
@@ -247,6 +238,10 @@ public class DriveTrain extends SubsystemBase {
     y = speeds.vyMetersPerSecond;
     omega = speeds.omegaRadiansPerSecond;
   }
+
+  public void setPIDSetpoints() {}
+
+  public void PIDDrive() {}
 
   /**
    * Sets the swerve ModuleStates.
@@ -333,7 +328,6 @@ public class DriveTrain extends SubsystemBase {
    */
   public synchronized Pose2d getPose() {
     return m_odometry.getPoseMeters();
-    //m_poseEstimator.getEstimatedPosition();
   }
 
   /**
@@ -341,22 +335,14 @@ public class DriveTrain extends SubsystemBase {
    *
    * @param pose The pose to which to set the odometry.
    */
-  public void resetOdometry(Pose2d pose) {
+  public void setOdometry(Pose2d pose) {
     m_odometry.resetPosition(m_gyro.getRotation2d(),
         new SwerveModulePosition[] {m_frontLeft.getPosition(), m_frontRight.getPosition(),
                                     m_backLeft.getPosition(), m_backRight.getPosition()}, pose);
   }
 
-  public synchronized void updatePoseEstimator() {
-    m_poseEstimator.update(m_gyro.getRotation2d(), getSwerveModulePositions());
-  }
-
-  public synchronized void setPoseEstimate(Pose2d pose) {
-    m_poseEstimator.resetPosition(m_gyro.getRotation2d(), getSwerveModulePositions(), pose);
-  }
-
-  public synchronized Pose2d getPoseEstimate() {
-    return m_poseEstimator.getEstimatedPosition();
+  private void updateOdometry() {
+    m_odometry.update(m_gyro.getRotation2d(), getSwerveModulePositions());
   }
 
    /** Switches the idle modes of all modlues' drive motors */
@@ -402,7 +388,7 @@ public class DriveTrain extends SubsystemBase {
   }
 
   /** Stops drive motors for all modules */
-  public void stop(){
+  public void stop() {
     x = 0;
     y = 0;
     omega = 0;
@@ -478,9 +464,9 @@ public class DriveTrain extends SubsystemBase {
 
   /** @return The average distance of all modules */
   public double getAverageDistance(){
-    double distance = (Math.abs(m_frontLeft.getDistance()) + Math.abs(m_frontRight.getDistance()) +
-                       Math.abs(m_backLeft.getDistance()) + Math.abs(m_backRight.getDistance())) / 4;
-    return distance;
+    return (Math.abs(m_frontLeft.getDistance()) + Math.abs(m_frontRight.getDistance()) +
+            Math.abs(m_backLeft.getDistance()) + Math.abs(m_backRight.getDistance())) / 4;
+    
   }
 
   public double getEstimatedStation() {
@@ -503,5 +489,17 @@ public class DriveTrain extends SubsystemBase {
 
   public void setInRange(boolean isInRange) {
     autonInRange = isInRange;
+  }
+
+  public double calcTransHeightScaler(double height) {
+    return ((DriveConstants.minDriveSpeed - DriveConstants.maxDriveSpeed) / 
+             Math.pow(ElevatorConstants.upperLimit - ElevatorConstants.lowerLimit, 2)) * 
+           Math.pow(height - ElevatorConstants.lowerLimit, 2) + DriveConstants.maxDriveSpeed;
+  }
+
+  public double calcRotHeightScaler(double height) {
+    return ((DriveConstants.minRotSpeed - DriveConstants.maxRotSpeed) / 
+             Math.pow(ElevatorConstants.upperLimit - ElevatorConstants.lowerLimit, 2)) * 
+           Math.pow(height - ElevatorConstants.lowerLimit, 2) + DriveConstants.maxRotSpeed;
   }
 }

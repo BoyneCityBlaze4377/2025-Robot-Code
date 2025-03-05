@@ -217,16 +217,17 @@ public final class Constants {
     public static final double speedScaler = 1;
     public static final double maxDriveSpeed = .92;
     public static final double minDriveSpeed = .35;
-    public static final double maxRotspeed = 1;
+    public static final double maxRotSpeed = 1;
     public static final double minRotSpeed = .3;
 
     public static final double elevatorHeightFactorTranslation = (maxDriveSpeed - minDriveSpeed) / 
                                                                  (ElevatorConstants.upperLimit - ElevatorConstants.lowerLimit);
-    public static final double elevatorHeightFactorRotation = (maxRotspeed - minRotSpeed) / 
+    public static final double elevatorHeightFactorRotation = (maxRotSpeed - minRotSpeed) / 
                                                               (ElevatorConstants.upperLimit - ElevatorConstants.lowerLimit);
 
     public static final double maxSpeedMetersPerSecond = 4;
     public static final double maxAccelerationMetersPerSecondSquared = 1;
+    public static final double maxRotationSpeedRadiansPerSecond = Math.PI * 2;
 
     public static final double xyDeadband = .1;
     public static final double zDeadband = .4;
@@ -426,6 +427,9 @@ public final class Constants {
     public static final double coralScoreTime = .5;
     public static final double algaeCollectTimeout = 5;
     public static final double alageScoreTime = .5;
+
+    public static final AdvancedPose2D initialPoseBlue = new AdvancedPose2D(null);
+    public static final AdvancedPose2D initialPoseRed = initialPoseBlue.flipBoth();
   }
 
   public class SensorConstants {
