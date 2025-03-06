@@ -17,10 +17,7 @@ import frc.robot.Constants.AutoAimConstants.Alignment;
 import frc.robot.Constants.AutoAimConstants.Position;
 import frc.robot.subsystems.*;
 import frc.robot.commands.AllToSetPosition;
-import frc.robot.commands.Auton.Functions.AutonAutoAlign;
 import frc.robot.commands.Auton.Functions.AutonDrive;
-import frc.robot.commands.Auton.Functions.FirstAutonDrive;
-import frc.robot.commands.Auton.Functions.TEMPORARYDRIVE;
 import frc.robot.commands.Auton.Sequences.*;
 import frc.robot.commands.ClimberCommands.*;
 import frc.robot.commands.DriveCommands.*;
@@ -106,9 +103,6 @@ public class RobotContainer {
 
   // private final Command TEMPORARY = new TEMPORARYDRIVE(m_driveTrain, -.5);
 
-  private double counter = 0;
-
-
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() { 
     m_driveTrain.setDefaultCommand(TeleopDrive);
@@ -120,13 +114,6 @@ public class RobotContainer {
     configAutonChooser();
     IOConstants.ConfigTab.add("Auton Chooser", autonChooser);
     SmartDashboard.putData(autonChooser);
-
-    if (counter > 50) {
-      setDriveTrainPoseEstimate();
-      counter = 0;
-    }
-    
-    counter ++;
   }
 
   public void setDriveTrainPoseEstimate() {

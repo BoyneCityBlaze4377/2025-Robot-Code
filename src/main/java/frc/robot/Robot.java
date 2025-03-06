@@ -18,6 +18,7 @@ import au.grapplerobotics.CanBridge;
 public class Robot extends TimedRobot {
 
   private Command m_autonomousCommand;
+  private double periodicCounter = 0;
 
   private RobotContainer m_robotContainer;
 
@@ -56,7 +57,7 @@ public class Robot extends TimedRobot {
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-    m_robotContainer.setDriveOrientation(true);
+    // m_robotContainer.setDriveOrientation(true);
   }
 
   @Override
@@ -92,7 +93,9 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    m_robotContainer.setDriveOrientation(true);
+    // m_robotContainer.setDriveOrientation(true);
+    if (periodicCounter > 20) m_robotContainer.setDriveTrainPoseEstimate(); periodicCounter = 0;
+    periodicCounter++;
   }
 
   @Override

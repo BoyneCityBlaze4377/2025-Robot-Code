@@ -1,5 +1,6 @@
 package frc.Lib;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import edu.wpi.first.math.util.Units;
@@ -30,7 +31,7 @@ public class AutoAimHelpers {
     double distance = 0;
     int intervals = (int) Math.floor(pose1.getDistance(pose2) / AutoAimConstants.inReefCalculationInterval);
     boolean inReef = false;
-    double theta = Math.atan((pose1.getX() - pose2.getX()) / (pose1.getY() - pose2.getY()));
+    double theta = Math.atan((pose2.getX() - pose1.getX()) / (pose2.getY() - pose1.getY()));
     boolean isBlue = alliance == Alliance.Blue;
 
     for (int i = 0; i <= intervals; i++) {
@@ -41,7 +42,7 @@ public class AutoAimHelpers {
         double xMax = isBlue ? AutoAimConstants.blueReefWaypointBoundMaxX : AutoAimConstants.redReefWaypointBoundMaxX;
         double xMin = isBlue ? AutoAimConstants.blueReefWaypointBoundMinX : AutoAimConstants.redReefWaypointBoundMinX;
 
-        if (y <= AutoAimConstants.reefWaypointBoundMaxY || y >= AutoAimConstants.reefWaypointBoundMinY) {
+        if (y <= AutoAimConstants.reefWaypointBoundMaxY && y >= AutoAimConstants.reefWaypointBoundMinY) {
             if (y < AutoAimConstants.reefWaypointStaticDisMinY || y > AutoAimConstants.reefWaypointBoundMaxY) {
                 xMax = (isBlue ? FieldConstants.blueReefCenterPos.getX() : FieldConstants.blueReefCenterPos.horizontallyFlip().getX())
                         + y * Math.tan(Units.degreesToRadians(60));
@@ -118,13 +119,14 @@ public class AutoAimHelpers {
     return distance;
   }
 
-  public AdvancedPose2D[] getOptimalPath(AdvancedPose2D currentPose, AdvancedPose2D desiredPose, Alliance alliance) {
+  public static ArrayList<AdvancedPose2D> getOptimalPath(AdvancedPose2D currentPose, AdvancedPose2D desiredPose, Alliance alliance) {
     HashMap<ReefWaypoint, AdvancedPose2D> reefWaypoints = alliance == Alliance.Blue ? AutoAimConstants.blueReefWaypoints : 
                                                           AutoAimConstants.redReefWaypoints;
     ReefWaypoint option1 = getNearestTwoWaypoints(currentPose, alliance)[0];
     ReefWaypoint option2 = getNearestTwoWaypoints(currentPose, alliance)[1];
     ReefWaypoint selectedWaypoint = currentPose.getDistance(reefWaypoints.get(option2)) < currentPose.getDistance(reefWaypoints.get(option1)) ? option2 : option1;
-    AdvancedPose2D[] optimalPath = {reefWaypoints.get(selectedWaypoint)};
+    ArrayList<AdvancedPose2D> optimalPath = new ArrayList<AdvancedPose2D>();
+    optimalPath.add(reefWaypoints.get(selectedWaypoint));
 
     AdvancedPose2D tempPose = currentPose;
     AdvancedPose2D prevPose = reefWaypoints.get(ReefWaypoint.blank);
@@ -142,10 +144,10 @@ public class AutoAimHelpers {
         }
       }
 
-      optimalPath[optimalPath.length] = nextPose;
+      optimalPath.add(nextPose);
     }
 
-    optimalPath[optimalPath.length] = desiredPose;
+    optimalPath.add(desiredPose);
     return optimalPath;
   }
 }

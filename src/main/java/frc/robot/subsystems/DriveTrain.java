@@ -6,8 +6,9 @@ import com.studica.frc.AHRS.NavXComType;
 import java.util.Map;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-// import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -46,12 +47,16 @@ public class DriveTrain extends SubsystemBase {
 
   private final GenericEntry robotHeading, poseEstimate, xSpeedSender, 
                              ySpeedSender, omegaSender;
-  // private final SendableBuilder swerveBuilder;
 
-  //Choreo stuff
-  // private final PIDController xController = new PIDController(10.0, 0.0, 0.0);
-  // private final PIDController yController = new PIDController(10.0, 0.0, 0.0);
-  // private final PIDController headingController = new PIDController(7.5, 0.0, 0.0);
+  private final PIDController xController = new PIDController(AutoAimConstants.transkP,
+                                                              AutoAimConstants.transkI,
+                                                              AutoAimConstants.transkD);
+  private final PIDController yController = new PIDController(AutoAimConstants.transkP,
+                                                              AutoAimConstants.transkI,
+                                                              AutoAimConstants.transkD);
+  private final PIDController headingController = new PIDController(AutoAimConstants.turnkP,
+                                                                    AutoAimConstants.turnkI,
+                                                                    AutoAimConstants.turnkD);
     
   /** Creates a new DriveTrain. */
   public DriveTrain(Elevator elevator) {
@@ -133,7 +138,10 @@ public class DriveTrain extends SubsystemBase {
 
     m_gyro.reset();
 
-    //headingController.enableContinuousInput(-Math.PI, Math.PI);
+    xController.setTolerance(AutoAimConstants.transkTolerance);
+    yController.setTolerance(AutoAimConstants.transkTolerance);
+    headingController.setTolerance(AutoAimConstants.turnkTolerance);
+    headingController.enableContinuousInput(-Math.PI, Math.PI);
 
     x = 0;
     y = 0;
@@ -163,12 +171,8 @@ public class DriveTrain extends SubsystemBase {
     // Update the odometry in the periodic block
     m_odometry.update(m_gyro.getRotation2d(), getSwerveModulePositions());
 
-    translationElevatorHeightSpeedScaler = DriveConstants.maxDriveSpeed 
-                                           - DriveConstants.elevatorHeightFactorTranslation 
-                                           * elevatorHeight;
-    rotationElevatorHeightSpeedScaler = DriveConstants.maxRotSpeed 
-                                        - DriveConstants.elevatorHeightFactorRotation 
-                                        * elevatorHeight;
+    translationElevatorHeightSpeedScaler = calcTransHeightScaler(elevatorHeight);
+    rotationElevatorHeightSpeedScaler = calcRotHeightScaler(elevatorHeight);
 
     //drive
     instanceDrive(x * translationElevatorHeightSpeedScaler,
@@ -239,9 +243,21 @@ public class DriveTrain extends SubsystemBase {
     omega = speeds.omegaRadiansPerSecond;
   }
 
-  public void setPIDSetpoints() {}
+  public void setPIDSetpoints(double xSetpoint, double ySetpoint, double headingSetpoint) {
+    xController.setSetpoint(xSetpoint);
+    yController.setSetpoint(ySetpoint);
+    headingController.setSetpoint(headingSetpoint);
+  }
 
-  public void PIDDrive() {}
+  public void PIDDrive() {
+    x = MathUtil.clamp(xController.calculate(getPose().getX()), -1, 1);
+    y = MathUtil.clamp(yController.calculate(getPose().getY()), -1, 1);
+    omega = MathUtil.clamp(headingController.calculate(getHeading()), -1, 1);
+  }
+
+  public boolean atSetpoints() {
+    return xController.atSetpoint() && yController.atSetpoint() && headingController.atSetpoint();
+  }
 
   /**
    * Sets the swerve ModuleStates.

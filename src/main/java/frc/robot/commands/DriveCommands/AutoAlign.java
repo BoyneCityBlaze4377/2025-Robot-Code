@@ -23,8 +23,8 @@ public class AutoAlign extends Command {
   private boolean orientation;
 
   /** Creates a new LimeLightDrive. */
-  public AutoAlign(DriveTrain driveTrain, VisionSubsystem visionSubsystem, double TargetDistance,
-                   Alignment alignment) {
+  public AutoAlign(DriveTrain driveTrain, VisionSubsystem visionSubsystem, 
+                   double TargetDistance, Alignment alignment) {
     m_driveTrain = driveTrain;
     m_visionSubsystem = visionSubsystem;
 

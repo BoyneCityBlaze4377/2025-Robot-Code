@@ -215,7 +215,7 @@ public final class Constants {
     public static final boolean gyroReversed = true;
 
     public static final double speedScaler = 1;
-    public static final double maxDriveSpeed = .92;
+    public static final double maxDriveSpeed = .96;
     public static final double minDriveSpeed = .35;
     public static final double maxRotSpeed = 1;
     public static final double minRotSpeed = .3;
@@ -287,9 +287,9 @@ public final class Constants {
       put(Position.HP, new double[] {ElevatorConstants.HPPos, AffectorConstants.coralWristHP});
     }};
             
-    public static final double centerOfReefToRobotDistance = Units.inchesToMeters(32.75) + DriveConstants.trackWidth / 2 + 0.01; // 118.475
-    public static final double centerOfReefToWaypointDistance = (Units.inchesToMeters(centerOfReefToRobotDistance) + 
-                                                                 DriveConstants.trackWidth) * Math.sqrt(2) + 
+    public static final double centerOfReefToRobotDistance = Units.inchesToMeters(32.75) + DriveConstants.trackWidth / 2 + 0.025;
+    public static final double centerOfReefToWaypointDistance = Units.inchesToMeters(centerOfReefToRobotDistance) * 2 + 
+                                                                 DriveConstants.trackWidth * Math.sqrt(2) + 
                                                                  Units.inchesToMeters(2);
 
     public static final double coralAffectorOffsetFromRobotCenter = Units.inchesToMeters(2);
@@ -454,6 +454,11 @@ public final class Constants {
     public static final double turnkI = 0;
     public static final double turnkD = 0;
     public static final double turnkTolerance = .5;
+
+    public static final double transkP = .01;
+    public static final double transkI = 0;
+    public static final double transkD = 0;
+    public static final double transkTolerance = .025;
   }
 
   public class ClimberConstants {
