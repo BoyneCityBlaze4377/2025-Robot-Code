@@ -3,7 +3,9 @@ package frc.Lib;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import frc.robot.Constants.AutoAimConstants;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.AutoAimConstants.Alignment;
 
 public class AdvancedPose2D extends Pose2d {
     public AdvancedPose2D(Translation2d translation, Rotation2d rotation){
@@ -28,10 +30,8 @@ public class AdvancedPose2D extends Pose2d {
 
     public AdvancedPose2D verticallyFlip() {
         return new AdvancedPose2D(new Translation2d(this.getTranslation().getX(),
-                                                    FieldConstants.fieldWidth - this.getTranslation().getY()),
-                                  Rotation2d.fromDegrees((this.getRotation().getDegrees() > 0) ?
-                                  180 - this.getRotation().getDegrees() :
-                                  -(180 + this.getRotation().getDegrees())));
+                                                    FieldConstants.fieldWidth - this.getTranslation().getY()), 
+                                                    this.getRotation());
     }
 
     public AdvancedPose2D flipBoth() {
@@ -56,7 +56,15 @@ public class AdvancedPose2D extends Pose2d {
      * @param transformation Y positive goes front and X positive goes Right
      * @return the transformed {@link AdvancedPose2D} object
      */
-    public AdvancedPose2D withRobotRelativeTransformation(Translation2d transformation){
+    public AdvancedPose2D withRobotRelativeTransformation(Translation2d transformation) {
         return this.withVector(this.getRotation().minus(Rotation2d.fromDegrees(90)), transformation, this.getRotation()); // minus 90 because 0 axis changes to Y
+    }
+
+    public AdvancedPose2D withReefAlignment(Alignment alignment) {
+        return this.withRobotRelativeTransformation(new Translation2d(0, AutoAimConstants.offsetFromAlignment.get(alignment)));
+    }
+
+    public double getDistance(AdvancedPose2D other) {
+        return this.getTranslation().getDistance(other.getTranslation());
     }
 }

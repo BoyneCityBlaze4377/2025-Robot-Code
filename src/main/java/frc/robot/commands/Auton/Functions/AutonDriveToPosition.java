@@ -29,6 +29,11 @@ public class AutonDriveToPosition extends Command {
     addRequirements(m_driveTrain);
   }
 
+  public AutonDriveToPosition(DriveTrain driveTrain, AdvancedPose2D desiredPose, 
+                              double vMetersPerSecond, double omegaRadiansPerSecond) {
+    this(driveTrain, new AdvancedPose2D(driveTrain.getPose()), desiredPose, vMetersPerSecond, omegaRadiansPerSecond);
+  }
+
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {

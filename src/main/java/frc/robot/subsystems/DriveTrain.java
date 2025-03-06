@@ -469,20 +469,6 @@ public class DriveTrain extends SubsystemBase {
     
   }
 
-  public double getEstimatedStation() {
-    double prevError = 180;
-    double selectedAngle = 0;
-
-    for (int i = 0; i < AutoAimConstants.reefStationAngles.length; i++) {
-      double error = Math.abs(heading - AutoAimConstants.reefStationAngles[i]);
-      if (error < prevError){
-        prevError = error;
-        selectedAngle = AutoAimConstants.reefStationAngles[i];
-      }
-    }
-    return selectedAngle;
-  }
-
   public boolean getInRange() {
     return autonInRange;
   }

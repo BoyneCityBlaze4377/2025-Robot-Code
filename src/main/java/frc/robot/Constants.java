@@ -272,7 +272,8 @@ public final class Constants {
 
   public class AutoAimConstants{
     public static enum Position {floor, L1, L2algae, L2, L3algae, L3, L4, HP};
-    public static enum ReefStation {front, frontRight, backRight, back, backLeft, frontLeft}
+    public static enum ReefStation {front, frontRight, backRight, back, backLeft, frontLeft};
+    public static enum ReefWaypoint {frontLeft, frontRight, right, backRight, backLeft, left, blank};
     public static enum Alignment {left, center, right};
 
     public static final HashMap<Position, double[]> positionValues = new HashMap<Position, double[]> () {{
@@ -287,6 +288,10 @@ public final class Constants {
     }};
             
     public static final double centerOfReefToRobotDistance = Units.inchesToMeters(32.75) + DriveConstants.trackWidth / 2 + 0.01; // 118.475
+    public static final double centerOfReefToWaypointDistance = (Units.inchesToMeters(centerOfReefToRobotDistance) + 
+                                                                 DriveConstants.trackWidth) * Math.sqrt(2) + 
+                                                                 Units.inchesToMeters(2);
+
     public static final double coralAffectorOffsetFromRobotCenter = Units.inchesToMeters(2);
     public static final double rightCoralReefOffset = Units.inchesToMeters(6.47) + coralAffectorOffsetFromRobotCenter;
     public static final double leftCoralReefOffset = coralAffectorOffsetFromRobotCenter - Units.inchesToMeters(6.47);
@@ -298,7 +303,6 @@ public final class Constants {
     public static final double coralStationToRobotDistance = DriveConstants.trackWidth / 2 + .15;
     public static final double coralStationSideOffsetDistance = Units.inchesToMeters(76 / 4);
 
-
     public static final HashMap<Alignment, Double> offsetFromAlignment = new HashMap<Alignment, Double> () {{
       put(Alignment.left, leftCoralReefOffset);
       put(Alignment.center, 0.0);
@@ -306,6 +310,9 @@ public final class Constants {
     }};
 
     public static final double[] reefStationAngles = {0, 60, 120, 180, -180, -120, -60};
+    public static final double[] reefWaypointAngles = {30, 90, 150, -150, -90, -30};
+    public static final ReefWaypoint[] waypointArray = {ReefWaypoint.frontLeft, ReefWaypoint.frontRight, ReefWaypoint.right,
+                                                        ReefWaypoint.backRight, ReefWaypoint.backLeft, ReefWaypoint.left};
 
     public static final HashMap<ReefStation, AdvancedPose2D> blueReef = new HashMap<ReefStation, AdvancedPose2D> () {{
       put(ReefStation.front, FieldConstants.blueReefCenterPos.withVector(Rotation2d.fromDegrees(0), new Translation2d(-centerOfReefToRobotDistance, 0), Rotation2d.fromDegrees(0)));
@@ -323,6 +330,26 @@ public final class Constants {
       put(ReefStation.back, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(0), new Translation2d(centerOfReefToRobotDistance, 0), Rotation2d.fromDegrees(180)));
       put(ReefStation.backLeft, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(60), new Translation2d(centerOfReefToRobotDistance, 0), Rotation2d.fromDegrees(-120)));
       put(ReefStation.backRight, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(120), new Translation2d(centerOfReefToRobotDistance, 0), Rotation2d.fromDegrees(-60)));
+    }};
+
+    public static final HashMap<ReefWaypoint, AdvancedPose2D> blueReefWaypoints = new HashMap<ReefWaypoint, AdvancedPose2D> () {{
+      put(ReefWaypoint.frontLeft, FieldConstants.blueReefCenterPos.withVector(Rotation2d.fromDegrees(150), new Translation2d(centerOfReefToWaypointDistance, 0), Rotation2d.fromDegrees(0)));
+      put(ReefWaypoint.frontRight, FieldConstants.blueReefCenterPos.withVector(Rotation2d.fromDegrees(-150), new Translation2d(centerOfReefToWaypointDistance, 0), Rotation2d.fromDegrees(0)));
+      put(ReefWaypoint.right, FieldConstants.blueReefCenterPos.withVector(Rotation2d.fromDegrees(-90), new Translation2d(centerOfReefToWaypointDistance, 0), Rotation2d.fromDegrees(0)));
+      put(ReefWaypoint.backRight, FieldConstants.blueReefCenterPos.withVector(Rotation2d.fromDegrees(-30), new Translation2d(centerOfReefToWaypointDistance, 0), Rotation2d.fromDegrees(0)));
+      put(ReefWaypoint.backLeft, FieldConstants.blueReefCenterPos.withVector(Rotation2d.fromDegrees(30), new Translation2d(centerOfReefToWaypointDistance, 0), Rotation2d.fromDegrees(0)));
+      put(ReefWaypoint.left, FieldConstants.blueReefCenterPos.withVector(Rotation2d.fromDegrees(90), new Translation2d(centerOfReefToWaypointDistance, 0), Rotation2d.fromDegrees(0)));
+      put(ReefWaypoint.blank, new AdvancedPose2D(0, 0, new Rotation2d()));
+    }};
+
+    public static final HashMap<ReefWaypoint, AdvancedPose2D> redReefWaypoints = new HashMap<ReefWaypoint, AdvancedPose2D> () {{
+      put(ReefWaypoint.frontLeft, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(150), new Translation2d(centerOfReefToWaypointDistance, 0), Rotation2d.fromDegrees(0)));
+      put(ReefWaypoint.frontRight, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(-150), new Translation2d(centerOfReefToWaypointDistance, 0), Rotation2d.fromDegrees(0)));
+      put(ReefWaypoint.right, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(-90), new Translation2d(centerOfReefToWaypointDistance, 0), Rotation2d.fromDegrees(0)));
+      put(ReefWaypoint.backRight, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(-30), new Translation2d(centerOfReefToWaypointDistance, 0), Rotation2d.fromDegrees(0)));
+      put(ReefWaypoint.backLeft, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(30), new Translation2d(centerOfReefToWaypointDistance, 0), Rotation2d.fromDegrees(0)));
+      put(ReefWaypoint.left, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(90), new Translation2d(centerOfReefToWaypointDistance, 0), Rotation2d.fromDegrees(0)));
+      put(ReefWaypoint.blank, new AdvancedPose2D(FieldConstants.fieldLength, 0, new Rotation2d()));
     }};
 
     public static final HashMap<Double, ReefStation> reefStationFromAngle = new HashMap<Double, ReefStation> () {{
@@ -395,6 +422,18 @@ public final class Constants {
       put(ReefStation.backLeft, 11.);
       put(ReefStation.frontLeft, 6.);
     }};
+
+    public static final double blueReefWaypointBoundMinX = blueReefWaypoints.get(ReefWaypoint.frontRight).getX();
+    public static final double blueReefWaypointBoundMaxX = blueReefWaypoints.get(ReefWaypoint.backRight).getX();
+    public static final double redReefWaypointBoundMinX = redReefWaypoints.get(ReefWaypoint.backRight).getX();
+    public static final double redReefWaypointBoundMaxX = redReefWaypoints.get(ReefWaypoint.frontRight).getX();
+    public static final double reefWaypointBoundMinY = blueReefWaypoints.get(ReefWaypoint.right).getY();
+    public static final double reefWaypointBoundMaxY = blueReefWaypoints.get(ReefWaypoint.left).getY();
+
+    public static final double reefWaypointStaticDisMinY = blueReefWaypoints.get(ReefWaypoint.frontRight).getY();
+    public static final double reefWaypointStaticDisMaxY = blueReefWaypoints.get(ReefWaypoint.backRight).getY();
+
+    public static final double inReefCalculationInterval = .005;
 
     public static final AdvancedPose2D blueLeftCoralStationPos = new AdvancedPose2D(new Translation2d(0.836168, 0.6334625), null).withVector(Rotation2d.fromDegrees(54), new Translation2d(coralStationToRobotDistance, 0), Rotation2d.fromDegrees(-126));
     public static final AdvancedPose2D blueRightCoralStationPos = new AdvancedPose2D(new Translation2d(0.836168, 7.4185375), null).withVector(Rotation2d.fromDegrees(-54), new Translation2d(coralStationToRobotDistance, 0), Rotation2d.fromDegrees(126));

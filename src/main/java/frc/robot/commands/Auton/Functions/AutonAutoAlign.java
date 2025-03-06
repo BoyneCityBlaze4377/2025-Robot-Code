@@ -3,6 +3,7 @@ package frc.robot.commands.Auton.Functions;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.Lib.AutoAimHelpers;
 import frc.robot.Constants.AutoAimConstants;
 import frc.robot.Constants.AutoAimConstants.Alignment;
 import frc.robot.subsystems.DriveTrain;
@@ -55,7 +56,7 @@ public class AutonAutoAlign extends Command {
     targetOffsetDeg = (AutoAimConstants.offsetFromAlignment.get(alignment) == 0 ? 0 : 
                       1 / Math.atan(AutoAimConstants.offsetFromAlignment.get(alignment) 
                       / targetDistance)) + AutoAimConstants.LLDefaultOffsetDegrees;
-    targetAngle = m_driveTrain.getEstimatedStation();
+    targetAngle = AutoAimHelpers.getEstimatedStationAngle(m_driveTrain.getHeading());
     // AutoAimConstants.angleFromReefStation.get(AutoAimConstants.reefStationFromAprilTagID.get(
     //                                                         m_visionSubsystem.getTargetID()));
     m_driveTrain.setOrientation(false);
