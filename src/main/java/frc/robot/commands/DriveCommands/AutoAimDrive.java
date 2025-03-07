@@ -18,11 +18,14 @@ public class AutoAimDrive extends SequentialCommandGroup {
   public AutoAimDrive(DriveTrain driveTrain, AdvancedPose2D desiredPose, Alliance alliance) {
     ArrayList<AdvancedPose2D> optimalPath = AutoAimHelpers.getOptimalPath(new AdvancedPose2D(driveTrain.getPose()), desiredPose, alliance);
     Command[] pathCommands = new Command[optimalPath.toArray().length];
+
     for (int i = 0; i < pathCommands.length; i++) {
       pathCommands[i] = new DriveToPosition(driveTrain, optimalPath.get(i));
     }
+    
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(pathCommands);
+    System.out.println(pathCommands.toString());
   }
 }

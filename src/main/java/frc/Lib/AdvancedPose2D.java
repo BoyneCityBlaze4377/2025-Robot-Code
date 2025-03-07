@@ -16,6 +16,10 @@ public class AdvancedPose2D extends Pose2d {
         super(new Translation2d(x, y), rotation);
     }
 
+    public AdvancedPose2D(double x, double y, double degrees) {
+        super(new Translation2d(x, y), Rotation2d.fromDegrees(degrees));
+    }
+
     public AdvancedPose2D(Pose2d pose2d) {
         super(pose2d.getTranslation().getX(), pose2d.getTranslation().getY(), pose2d.getRotation());
     }

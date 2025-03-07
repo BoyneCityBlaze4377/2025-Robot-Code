@@ -136,7 +136,7 @@ public final class Constants {
     public static final int algaeCollectorOneID = 13;
     public static final int algaeCollectorTwoID = 14;
 
-    public static final double algaeCollectorSpeed = .9;
+    public static final double algaeCollectorSpeed = .6;
   }
 
   public static final class SwerveConstants {
