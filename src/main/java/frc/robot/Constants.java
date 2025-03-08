@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -164,6 +165,51 @@ public final class Constants {
   }
 
   public static final class DriveConstants {
+    // Distance between centers of right and left wheels on robot in meters
+    public static final double trackWidth = 0.31623;
+    
+    // Distance between front and back wheels on robot in meters
+    public static final double wheelBase = 0.31623;
+    
+    public static final SwerveDriveKinematics driveKinematics =
+        new SwerveDriveKinematics(
+            new Translation2d(wheelBase / 2, trackWidth / 2),
+            new Translation2d(wheelBase / 2, -trackWidth / 2),
+            new Translation2d(-wheelBase / 2, trackWidth / 2),
+            new Translation2d(-wheelBase / 2, -trackWidth / 2));
+
+    public static final boolean gyroReversed = true;
+
+    public static final double speedScaler = 1;
+    public static final double maxDriveSpeed = .96;
+    public static final double minDriveSpeed = .35;
+    public static final double maxRotSpeed = 1;
+    public static final double minRotSpeed = .3;
+
+    public static final double elevatorHeightFactorTranslation = (maxDriveSpeed - minDriveSpeed) / 
+                                                                 (ElevatorConstants.upperLimit - ElevatorConstants.lowerLimit);
+    public static final double elevatorHeightFactorRotation = (maxRotSpeed - minRotSpeed) / 
+                                                              (ElevatorConstants.upperLimit - ElevatorConstants.lowerLimit);
+
+    public static final double maxSpeedMetersPerSecond = 4; //4.5 true max
+    public static final double maxAccelerationMetersPerSecondSquared = 1;
+    public static final double maxRotationSpeedRadiansPerSecond = Math.PI * 2;
+
+    public static final double xyDeadband = .1;
+    public static final double zDeadband = .4;
+
+    public static final double ksVolts = 5;
+    public static final double kvVoltSecondsPerMeter = 4;
+    public static final double kaVoltSecondsSquaredPerMeter = 1;
+
+    public static final double startingHeading = 0;
+  }
+
+  public static final class ModuleConstants {
+    public static final double moduleTurningController = .5;
+    public static final double moduleDriveController = .75;
+    public static final double moduleDriveSlewRate = 2;
+
     public static final int frontLeftDriveMotorPort = 1;
     public static final int frontRightDriveMotorPort = 3;
     public static final int backLeftDriveMotorPort = 7;
@@ -194,52 +240,11 @@ public final class Constants {
     public static final boolean backLeftAbsReversed = false;
     public static final boolean backRightAbsReversed = false;
 
-    public static final double frontLeftAnalogEncoderOffset = 5.64;  
-    public static final double frontRightAnalogEncoderOffset = 76.71;
-    public static final double backLeftAnalogEncoderOffset = 162.52;
-    public static final double backRightAnalogEncoderOffset = 63.74;
+    public static final double frontLeftAnalogEncoderOffset = 4.26;  
+    public static final double frontRightAnalogEncoderOffset = 76.44;
+    public static final double backLeftAnalogEncoderOffset = 162.33;
+    public static final double backRightAnalogEncoderOffset = 61.92;
 
-    // Distance between centers of right and left wheels on robot in meters
-    public static final double trackWidth = 0.31623;
-    
-    // Distance between front and back wheels on robot in meters
-    public static final double wheelBase = 0.31623;
-    
-    public static final SwerveDriveKinematics driveKinematics =
-        new SwerveDriveKinematics(
-            new Translation2d(wheelBase / 2, trackWidth / 2),
-            new Translation2d(wheelBase / 2, -trackWidth / 2),
-            new Translation2d(-wheelBase / 2, trackWidth / 2),
-            new Translation2d(-wheelBase / 2, -trackWidth / 2));
-
-    public static final boolean gyroReversed = true;
-
-    public static final double speedScaler = 1;
-    public static final double maxDriveSpeed = .96;
-    public static final double minDriveSpeed = .35;
-    public static final double maxRotSpeed = 1;
-    public static final double minRotSpeed = .3;
-
-    public static final double elevatorHeightFactorTranslation = (maxDriveSpeed - minDriveSpeed) / 
-                                                                 (ElevatorConstants.upperLimit - ElevatorConstants.lowerLimit);
-    public static final double elevatorHeightFactorRotation = (maxRotSpeed - minRotSpeed) / 
-                                                              (ElevatorConstants.upperLimit - ElevatorConstants.lowerLimit);
-
-    public static final double maxSpeedMetersPerSecond = 4;
-    public static final double maxAccelerationMetersPerSecondSquared = 1;
-    public static final double maxRotationSpeedRadiansPerSecond = Math.PI * 2;
-
-    public static final double xyDeadband = .1;
-    public static final double zDeadband = .4;
-
-    public static final double ksVolts = 5;
-    public static final double kvVoltSecondsPerMeter = 4;
-    public static final double kaVoltSecondsSquaredPerMeter = 1;
-
-    public static final double startingHeading = 0;
-  }
-
-  public static final class ModuleConstants {
     public static final double maxModuleAngularSpeedDegreesPerSecond = 360;
     public static final double maxModuleAngularAccelerationDegreesPerSecondSquared = 360;
 
@@ -249,10 +254,6 @@ public final class Constants {
     public static final double driveEncoderDistancePerPulse = 
       // Assumes the encoders are directly mounted on the wheel shafts
       (wheelDiameterMeters * Math.PI) / (double) encoderCPR * driveGearRatio;
-
-    public static final double moduleTurningController = .5;
-    public static final double moduleDriveController = .75;
-    public static final double moduleDriveSlewRate = 2;
   }
 
   public class FieldConstants {
@@ -450,15 +451,15 @@ public final class Constants {
     public static final double diskD = 0;
     public static final double diskTolerance = 80;
 
-    public static final double turnkP = .1;
-    public static final double turnkI = 0;
-    public static final double turnkD = 0;
-    public static final double turnkTolerance = .5;
+    public static final double turnkP = 4.5; //4.5
+    public static final double turnkI = .355; //.355
+    public static final double turnkD = 0; //0
+    public static final double turnkTolerance = .03;
 
-    public static final double transkP = .01;
-    public static final double transkI = 0;
-    public static final double transkD = 0;
-    public static final double transkTolerance = .025;
+    public static final double transkP = 1.5; //1.5
+    public static final double transkI = .013; //.013
+    public static final double transkD = 0; //0
+    public static final double transkTolerance = .1;
   }
 
   public class ClimberConstants {
@@ -472,7 +473,7 @@ public final class Constants {
     public static final double algaeCollectTimeout = 5;
     public static final double alageScoreTime = .5;
 
-    public static final AdvancedPose2D initialPoseBlue = new AdvancedPose2D(null);
+    public static final AdvancedPose2D initialPoseBlue = new AdvancedPose2D(new Pose2d(2, 3, new Rotation2d()));
     public static final AdvancedPose2D initialPoseRed = initialPoseBlue.flipBoth();
   }
 

@@ -20,6 +20,7 @@ import frc.robot.Constants.AutoAimConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IOConstants;
+import frc.robot.Constants.ModuleConstants;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -60,61 +61,61 @@ public class DriveTrain extends SubsystemBase {
     
   /** Creates a new DriveTrain. */
   public DriveTrain(Elevator elevator) {
-    m_frontLeft = new SwerveModule("frontLeft", DriveConstants.frontLeftDriveMotorPort, 
-                                                     DriveConstants.frontLeftTurningMotorPort,
-                                                     DriveConstants.frontLeftTurningEncoderPort, 
-                                                     DriveConstants.frontLeftDriveMotorReversed,
-                                                     DriveConstants.frontLeftTurningMotorReversed, 
-                                                     DriveConstants.frontLeftAnalogEncoderOffset, 
-                                                     DriveConstants.frontLeftAbsReversed);
+    m_frontLeft = new SwerveModule("frontLeft", ModuleConstants.frontLeftDriveMotorPort, 
+                                                     ModuleConstants.frontLeftTurningMotorPort,
+                                                     ModuleConstants.frontLeftTurningEncoderPort, 
+                                                     ModuleConstants.frontLeftDriveMotorReversed,
+                                                     ModuleConstants.frontLeftTurningMotorReversed, 
+                                                     ModuleConstants.frontLeftAnalogEncoderOffset, 
+                                                     ModuleConstants.frontLeftAbsReversed);
 
-    m_frontRight = new SwerveModule("frontRight", DriveConstants.frontRightDriveMotorPort, 
-                                                       DriveConstants.frontRightTurningMotorPort,
-                                                       DriveConstants.frontRightTurningEncoderPort, 
-                                                       DriveConstants.frontRightDriveMotorReversed,
-                                                       DriveConstants.frontRightTurningMotorReversed, 
-                                                       DriveConstants.frontRightAnalogEncoderOffset, 
-                                                       DriveConstants.frontRightAbsReversed);
+    m_frontRight = new SwerveModule("frontRight", ModuleConstants.frontRightDriveMotorPort, 
+                                                       ModuleConstants.frontRightTurningMotorPort,
+                                                       ModuleConstants.frontRightTurningEncoderPort, 
+                                                       ModuleConstants.frontRightDriveMotorReversed,
+                                                       ModuleConstants.frontRightTurningMotorReversed, 
+                                                       ModuleConstants.frontRightAnalogEncoderOffset, 
+                                                       ModuleConstants.frontRightAbsReversed);
 
-    m_backLeft = new SwerveModule("backLeft", DriveConstants.backLeftDriveMotorPort, 
-                                                   DriveConstants.backLeftTurningMotorPort,
-                                                   DriveConstants.backLeftTurningEncoderPort, 
-                                                   DriveConstants.backLeftDriveMotorReversed,
-                                                   DriveConstants.backLeftTurningMotorReversed, 
-                                                   DriveConstants.backLeftAnalogEncoderOffset, 
-                                                   DriveConstants.backLeftAbsReversed);
+    m_backLeft = new SwerveModule("backLeft", ModuleConstants.backLeftDriveMotorPort, 
+                                                   ModuleConstants.backLeftTurningMotorPort,
+                                                   ModuleConstants.backLeftTurningEncoderPort, 
+                                                   ModuleConstants.backLeftDriveMotorReversed,
+                                                   ModuleConstants.backLeftTurningMotorReversed, 
+                                                   ModuleConstants.backLeftAnalogEncoderOffset, 
+                                                   ModuleConstants.backLeftAbsReversed);
 
-    m_backRight = new SwerveModule("backRight", DriveConstants.backRightDriveMotorPort, 
-                                                   DriveConstants.backRightTurningMotorPort,
-                                                   DriveConstants.backRightTurningEncoderPort, 
-                                                   DriveConstants.backRightDriveMotorReversed,
-                                                   DriveConstants.backRightTurningMotorReversed, 
-                                                   DriveConstants.backRightAnalogEncoderOffset, 
-                                                   DriveConstants.backRightAbsReversed);
+    m_backRight = new SwerveModule("backRight", ModuleConstants.backRightDriveMotorPort, 
+                                                     ModuleConstants.backRightTurningMotorPort,
+                                                     ModuleConstants.backRightTurningEncoderPort, 
+                                                     ModuleConstants.backRightDriveMotorReversed,
+                                                     ModuleConstants.backRightTurningMotorReversed, 
+                                                     ModuleConstants.backRightAnalogEncoderOffset, 
+                                                     ModuleConstants.backRightAbsReversed);
 
     m_odometry = new SwerveDriveOdometry(DriveConstants.driveKinematics, m_gyro.getRotation2d(),
-                                               new SwerveModulePosition[] {m_frontLeft.getPosition(), m_frontRight.getPosition(),
-                                                                           m_backLeft.getPosition(), m_backRight.getPosition()});
+                                         new SwerveModulePosition[] {m_frontLeft.getPosition(), m_frontRight.getPosition(),
+                                                                     m_backLeft.getPosition(), m_backRight.getPosition()});
 
     robotHeading = IOConstants.TeleopTab.add("Robot Heading", heading)
-                                       .withWidget("Radial Gauge")
-                                       .withProperties(Map.of("start_angle", -180, "end_angle", 180,
-                                                              "min_value", -180, "max_value", 180,
-                                                              "wrap_value", true, "show_pointer", false))
-                                       .getEntry();
-    poseEstimate = IOConstants.DiagnosticTab.add("Field", m_odometry.getPoseMeters())
+                                        .withWidget("Radial Gauge")
+                                        .withProperties(Map.of("start_angle", -180, "end_angle", 180,
+                                                               "min_value", -180, "max_value", 180,
+                                                               "wrap_value", true, "show_pointer", false))
+                                        .getEntry();
+    poseEstimate = IOConstants.DiagnosticTab.add("Field", m_odometry.getPoseMeters().toString())
                                             .withWidget("Field")
                                             .withProperties(Map.of("robot_width", DriveConstants.trackWidth,
                                                                    "robot_length", DriveConstants.wheelBase))
                                             .getEntry();
     xSpeedSender = IOConstants.TeleopTab.add("xSpeed", 0)
-                                       .withWidget("Number Slider")
-                                       .withProperties(Map.of("min_value", -1, "max_value", 1))
-                                       .getEntry();
+                                        .withWidget("Number Slider")
+                                        .withProperties(Map.of("min_value", -1, "max_value", 1))
+                                        .getEntry();
     ySpeedSender = IOConstants.TeleopTab.add("ySpeed", 0)
-                                       .withWidget("Number Slider")
-                                       .withProperties(Map.of("min_value", -1, "max_value", 1))
-                                       .getEntry();
+                                        .withWidget("Number Slider")
+                                        .withProperties(Map.of("min_value", -1, "max_value", 1))
+                                        .getEntry();
     omegaSender = IOConstants.TeleopTab.add("rot", 0)
                                        .withWidget("Number Slider")
                                        .withProperties(Map.of("min_value", -1, "max_value", 1))
@@ -170,6 +171,7 @@ public class DriveTrain extends SubsystemBase {
 
     // Update the odometry in the periodic block
     m_odometry.update(m_gyro.getRotation2d(), getSwerveModulePositions());
+    poseEstimate.setString(m_odometry.getPoseMeters().toString());
 
     translationElevatorHeightSpeedScaler = calcTransHeightScaler(elevatorHeight);
     rotationElevatorHeightSpeedScaler = calcRotHeightScaler(elevatorHeight);
@@ -189,8 +191,8 @@ public class DriveTrain extends SubsystemBase {
 
   public void instanceDrive(double xSpeed, double ySpeed, double omega, boolean fieldRelative) {
     var swerveModuleStates = DriveConstants.driveKinematics.toSwerveModuleStates(fieldOrientation
-                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, omega, m_gyro.getRotation2d()) 
-                : new ChassisSpeeds(xSpeed, ySpeed, omega));
+                           ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, omega, m_gyro.getRotation2d()) 
+                           : new ChassisSpeeds(xSpeed, ySpeed, omega));
 
     setModuleStates(swerveModuleStates, (xSpeed == 0 && ySpeed == 0 && omega == 0));
 
@@ -250,9 +252,13 @@ public class DriveTrain extends SubsystemBase {
   }
 
   public void PIDDrive() {
-    x = MathUtil.clamp(xController.calculate(getPose().getX()), -1, 1);
-    y = MathUtil.clamp(yController.calculate(getPose().getY()), -1, 1);
-    omega = MathUtil.clamp(headingController.calculate(getHeading()), -1, 1);
+    // x = -MathUtil.clamp(xController.calculate(getPose().getX()), -DriveConstants.maxSpeedMetersPerSecond, 
+    //                                                               DriveConstants.maxSpeedMetersPerSecond);
+    // y = -MathUtil.clamp(yController.calculate(getPose().getY()), -DriveConstants.maxSpeedMetersPerSecond, 
+    //                                                               DriveConstants.maxSpeedMetersPerSecond);
+    omega = MathUtil.clamp(headingController.calculate(getPose().getRotation().getRadians()), 
+                                                      -DriveConstants.maxRotationSpeedRadiansPerSecond, 
+                                                       DriveConstants.maxRotationSpeedRadiansPerSecond);
   }
 
   public boolean atSetpoints() {
@@ -352,9 +358,7 @@ public class DriveTrain extends SubsystemBase {
    * @param pose The pose to which to set the odometry.
    */
   public void setOdometry(Pose2d pose) {
-    m_odometry.resetPosition(m_gyro.getRotation2d(),
-        new SwerveModulePosition[] {m_frontLeft.getPosition(), m_frontRight.getPosition(),
-                                    m_backLeft.getPosition(), m_backRight.getPosition()}, pose);
+    m_odometry.resetPosition(m_gyro.getRotation2d(), getSwerveModulePositions(), pose);
   }
 
   private void updateOdometry() {
@@ -496,12 +500,12 @@ public class DriveTrain extends SubsystemBase {
   public double calcTransHeightScaler(double height) {
     return ((DriveConstants.minDriveSpeed - DriveConstants.maxDriveSpeed) / 
              Math.pow(ElevatorConstants.upperLimit - ElevatorConstants.lowerLimit, 2)) * 
-           Math.pow(height - ElevatorConstants.lowerLimit, 2) + DriveConstants.maxDriveSpeed;
+             Math.pow(height - ElevatorConstants.lowerLimit, 2) + DriveConstants.maxDriveSpeed;
   }
 
   public double calcRotHeightScaler(double height) {
     return ((DriveConstants.minRotSpeed - DriveConstants.maxRotSpeed) / 
              Math.pow(ElevatorConstants.upperLimit - ElevatorConstants.lowerLimit, 2)) * 
-           Math.pow(height - ElevatorConstants.lowerLimit, 2) + DriveConstants.maxRotSpeed;
+             Math.pow(height - ElevatorConstants.lowerLimit, 2) + DriveConstants.maxRotSpeed;
   }
 }

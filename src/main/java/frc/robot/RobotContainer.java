@@ -3,6 +3,7 @@ package frc.robot;
 import java.util.zip.Adler32;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
@@ -109,11 +110,11 @@ public class RobotContainer {
     configureButtonBindings();
     m_driveTrain.setGyroOffset(180);
     m_driveTrain.setOdometry(initialPose);
-    m_driveTrain.setOdometry(initialPose);
 
     configAutonChooser();
     IOConstants.ConfigTab.add("Auton Chooser", autonChooser);
     SmartDashboard.putData(autonChooser);
+    Command PATH = new AutoAimDrive(m_driveTrain, new AdvancedPose2D(new Pose2d(7, 5, new Rotation2d())), alliance);
   }
 
   public void setDriveTrainPoseEstimate() {
@@ -150,9 +151,11 @@ public class RobotContainer {
     new JoystickButton(m_driverStick, IOConstants.switchBrakeButtonID).onTrue(SwitchBrake);
     // new JoystickButton(m_driverStick, 11).whileTrue(LeftAlign);
     // // new JoystickButton(m_operatorStick1, IOConstants.L2AlgaePosButtonID).whileTrue(new AutonDrive(m_driveTrain, 
-    // //                                                                               45, .5,
+    // //                                                                                45, .5,
     // //                                                                                Math.PI/2, 1, 90));
     // new JoystickButton(m_driverStick, 12).whileTrue(RightAlign);
+    new JoystickButton(m_driverStick, 11).whileTrue(new ResetPose(m_driveTrain));
+    new JoystickButton(m_driverStick, 12).whileTrue(new PIDDRIVE(m_driveTrain));
 
     /* Operator */
     //Set positions
@@ -171,7 +174,7 @@ public class RobotContainer {
     new JoystickButton(m_operatorStick2, IOConstants.algaeCollectButtonID).whileTrue(AlgaeCollect);
     new JoystickButton(m_operatorStick2, IOConstants.algaeScoreButtonID).whileTrue(AlgaeScore);
 
-    // //Climber
+    //Climber
     // new JoystickButton(m_operatorStick2, IOConstants.unClimbButtonID).whileTrue(UnClimb);
     // new JoystickButton(m_operatorStick2, IOConstants.climbButtonID).whileTrue(Climb);
 

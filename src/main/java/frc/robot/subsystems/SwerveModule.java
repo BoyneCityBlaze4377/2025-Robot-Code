@@ -68,7 +68,7 @@ public class SwerveModule {
   public SwerveModule(String name, int driveMotorChannel, int turningMotorChannel, 
                       int turningEncoderChannel, boolean driveMotorReversed, boolean turningMotorReversed, 
                       double encoderOffset, boolean absoluteEncoderReversed) {
-
+  
     AnalogEncoderOffset = encoderOffset;
     absoluteEncoder = new AnalogInput(turningEncoderChannel);
     absReversed = absoluteEncoderReversed;
@@ -151,8 +151,8 @@ public class SwerveModule {
     Rotation2d angle = 
         (Math.abs(desiredState.speedMetersPerSecond) <= (SwerveConstants.maxSpeed * .01)) ? lastAngle : desiredState.angle;
     
-    turningFactor = turningController.calculate(getAbsoluteEncoder(), angle.getDegrees());
-    turningFactor = MathUtil.clamp(turningFactor, -SwerveConstants.kMaxOutput, SwerveConstants.kMaxOutput);
+    turningFactor = MathUtil.clamp(turningController.calculate(getAbsoluteEncoder(), angle.getDegrees()), 
+                                   -SwerveConstants.kMaxOutput, SwerveConstants.kMaxOutput);
     
     m_turningMotor.set(isNeutral || turningController.atSetpoint() ? 0 : -turningFactor);
     lastAngle = angle;

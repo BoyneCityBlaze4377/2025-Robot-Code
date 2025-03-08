@@ -2,8 +2,8 @@ package frc.robot.commands.DriveCommands;
 
 import java.util.ArrayList;
 
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.Lib.AdvancedPose2D;
@@ -18,8 +18,10 @@ public class AutoAimDrive extends SequentialCommandGroup {
   public AutoAimDrive(DriveTrain driveTrain, AdvancedPose2D desiredPose, Alliance alliance) {
     ArrayList<AdvancedPose2D> optimalPath = AutoAimHelpers.getOptimalPath(new AdvancedPose2D(driveTrain.getPose()), desiredPose, alliance);
     Command[] pathCommands = new Command[optimalPath.toArray().length];
+
     for (int i = 0; i < pathCommands.length; i++) {
       pathCommands[i] = new DriveToPosition(driveTrain, optimalPath.get(i));
+      SmartDashboard.putString("PATH " + i, optimalPath.get(i).toString());
     }
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());

@@ -82,7 +82,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    Shuffleboard.selectTab(IOConstants.TeleopTab.getTitle());
+    Shuffleboard.selectTab(IOConstants.DiagnosticTab.getTitle());
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
