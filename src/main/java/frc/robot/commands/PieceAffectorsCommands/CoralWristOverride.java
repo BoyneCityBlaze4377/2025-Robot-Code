@@ -36,7 +36,6 @@ public class CoralWristOverride extends Command {
     } else {
       m_coralAffector.moveWrist(-input);
     }
-    
   }
 
   // Called once the command ends or is interrupted.

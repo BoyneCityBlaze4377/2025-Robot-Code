@@ -39,7 +39,7 @@ public class CoralWristToPos extends Command {
   @Override
   public void execute() {
     output = MathUtil.clamp(wristController.calculate(m_affector.getWristDegrees(), desiredPos), 
-                                   AffectorConstants.maxCoralWristDownSpeed, AffectorConstants.maxCoralWristUpSpeed);
+                            AffectorConstants.maxCoralWristDownSpeed, AffectorConstants.maxCoralWristUpSpeed);
 
     m_affector.moveWrist(output);
   }

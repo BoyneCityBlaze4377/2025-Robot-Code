@@ -55,13 +55,13 @@ public class AlgaeAffector extends SubsystemBase {
   }
 
   public void collect() {
-    algaeCollectorOne.set(-.2);
-    algaeCollectorTwo.set(.2);
+    algaeCollectorOne.set(-AffectorConstants.algaeCollectorSpeed);
+    algaeCollectorTwo.set(AffectorConstants.algaeCollectorSpeed);
   }
 
   public void eject() {
-    algaeCollectorOne.set(.2);
-    algaeCollectorTwo.set(-.2);
+    algaeCollectorOne.set(AffectorConstants.algaeCollectorSpeed);
+    algaeCollectorTwo.set(-AffectorConstants.algaeCollectorSpeed);
   }
 
   public void stopAffector() {

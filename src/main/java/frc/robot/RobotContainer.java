@@ -101,6 +101,7 @@ public class RobotContainer {
   private final Command RightAlign = new AutoAlign(m_driveTrain, m_visionSubsystem, .01, Alignment.right);
 
   private final Command TemporaryAuton = new TemporaryAuton(m_driveTrain, m_elevator, m_coralAffector);
+  Command TestAutoAimDrive = new AutoAimDrive(m_driveTrain, new AdvancedPose2D(1, 1, 90), alliance);
 
   // private final Command TEMPORARY = new TEMPORARYDRIVE(m_driveTrain, -.5);
 

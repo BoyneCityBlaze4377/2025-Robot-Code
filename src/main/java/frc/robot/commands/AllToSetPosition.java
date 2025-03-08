@@ -53,11 +53,11 @@ public class AllToSetPosition extends Command {
   @Override
   public void execute() {
     elevatorOutput = MathUtil.clamp(elevatorController.calculate(m_elevator.getEncoderVal(), elevatorTarget), 
-                                   ElevatorConstants.maxDownSpeed, ElevatorConstants.maxUpSpeed);
+                                    ElevatorConstants.maxDownSpeed, ElevatorConstants.maxUpSpeed);
     m_elevator.set(elevatorOutput);
 
     coralWristOutput = MathUtil.clamp(wristController.calculate(m_coralAffector.getWristDegrees(), coralWristTarget), 
-                                   AffectorConstants.maxCoralWristDownSpeed, AffectorConstants.maxCoralWristUpSpeed);
+                                      AffectorConstants.maxCoralWristDownSpeed, AffectorConstants.maxCoralWristUpSpeed);
     m_coralAffector.moveWrist(coralWristOutput);
   }
 

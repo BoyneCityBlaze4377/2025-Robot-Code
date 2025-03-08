@@ -23,8 +23,10 @@ public class AutoAimDrive extends SequentialCommandGroup {
       pathCommands[i] = new DriveToPosition(driveTrain, optimalPath.get(i));
       SmartDashboard.putString("PATH " + i, optimalPath.get(i).toString());
     }
+    
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(pathCommands);
+    SmartDashboard.putString(pathCommands.toString());
   }
 }
