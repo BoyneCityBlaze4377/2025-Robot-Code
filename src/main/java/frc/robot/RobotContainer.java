@@ -1,10 +1,7 @@
 package frc.robot;
 
-import java.util.zip.Adler32;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -18,8 +15,6 @@ import frc.robot.Constants.AutoAimConstants.Alignment;
 import frc.robot.Constants.AutoAimConstants.Position;
 import frc.robot.subsystems.*;
 import frc.robot.commands.AllToSetPosition;
-import frc.robot.commands.Auton.Functions.AutonDrive;
-import frc.robot.commands.Auton.Sequences.*;
 import frc.robot.commands.ClimberCommands.*;
 import frc.robot.commands.DriveCommands.*;
 import frc.robot.commands.ElevatorCommands.*;
@@ -85,22 +80,9 @@ public class RobotContainer {
   private final Command WristOverride = new CoralWristOverride(m_coralAffector, m_operatorStick2);
 
   /* Auton */
-  private final Command MainAutonEndCoral = new MainAutonEndAlgae(m_driveTrain, m_elevator, m_coralAffector, 
-                                                                  m_algaeAffector, m_visionSubsystem, alliance);
-  private final Command MainAutonEndAlgae = new MainAutonEndCoral(m_driveTrain, m_elevator, m_coralAffector, 
-                                                                  m_visionSubsystem, alliance);
-  private final Command DriveOffLine = new DriveOffLine(m_driveTrain);
-  private final Command Score1CoralL4 = new Score1CoralL4(m_driveTrain, m_elevator, m_coralAffector, m_visionSubsystem, alliance);
-  private final Command ScoreCoralAndProcessor = new Score1L4AndProcessor(m_driveTrain, m_elevator, m_coralAffector, 
-                                                                          m_algaeAffector, m_visionSubsystem, alliance);
-  private final Command Score1L4OppPro = new Score1L4OppProcessor(m_driveTrain, m_elevator, m_coralAffector, m_visionSubsystem);
-
-  private final Command testdrive = new AutonDrive(m_driveTrain, 180, .5, Math.PI * 2, 
-                                                   3, 120);
   private final Command LeftAlign = new AutoAlign(m_driveTrain, m_visionSubsystem, .01, Alignment.left);
   private final Command RightAlign = new AutoAlign(m_driveTrain, m_visionSubsystem, .01, Alignment.right);
 
-  private final Command TemporaryAuton = new TemporaryAuton(m_driveTrain, m_elevator, m_coralAffector);
   Command TestAutoAimDrive = new AutoAimDrive(m_driveTrain, new AdvancedPose2D(1, 1, 90), alliance);
 
   // private final Command TEMPORARY = new TEMPORARYDRIVE(m_driveTrain, -.5);
@@ -128,13 +110,6 @@ public class RobotContainer {
 
   public void configAutonChooser() {
     autonChooser.setDefaultOption("No Auton", null);
-    autonChooser.addOption("Main Auton - Coral Ending", MainAutonEndCoral);
-    autonChooser.addOption("Main Auton - Algae Ending", MainAutonEndAlgae);
-    autonChooser.addOption("Drive Off Line", DriveOffLine);
-    autonChooser.addOption("Score One on L4", Score1CoralL4);
-    autonChooser.addOption("Score one Coral, Process Algae", ScoreCoralAndProcessor);
-    autonChooser.addOption("TEST", testdrive);
-    autonChooser.addOption("ScoreOppPro", Score1L4OppPro);
   }
 
   /**
@@ -156,7 +131,7 @@ public class RobotContainer {
     // //                                                                                Math.PI/2, 1, 90));
     // new JoystickButton(m_driverStick, 12).whileTrue(RightAlign);
     new JoystickButton(m_driverStick, 11).whileTrue(new ResetPose(m_driveTrain));
-    new JoystickButton(m_driverStick, 12).whileTrue(new PIDDRIVE(m_driveTrain));
+    new JoystickButton(m_driverStick, 12).whileTrue(new DriveToPosition(m_driveTrain, new AdvancedPose2D()));
 
     /* Operator */
     //Set positions
@@ -221,6 +196,6 @@ public class RobotContainer {
     //     swerveCommand,
     //     m_robotDrive.run(() -> m_robotDrive.drive(0, 0, 0, false))
     // );
-    return DriveOffLine;
+    return autonChooser.getSelected();
   }
 }

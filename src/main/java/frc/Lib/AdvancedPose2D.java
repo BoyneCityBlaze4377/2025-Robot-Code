@@ -8,6 +8,10 @@ import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.AutoAimConstants.Alignment;
 
 public class AdvancedPose2D extends Pose2d {
+    public AdvancedPose2D() {
+        super();
+    }
+
     public AdvancedPose2D(Translation2d translation, Rotation2d rotation){
         super(translation, rotation);
     }

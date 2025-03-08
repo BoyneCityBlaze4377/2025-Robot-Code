@@ -7,11 +7,11 @@ import frc.robot.subsystems.DriveTrain;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class DriveToPosition extends Command {
   private final DriveTrain m_driveTrain;
-  private final AdvancedPose2D finalPose;
+  private final AdvancedPose2D m_desiredPose;
   /** Creates a new DriveToPosition. */
   public DriveToPosition(DriveTrain driveTrain, AdvancedPose2D desiredPose) {
     m_driveTrain = driveTrain;
-    finalPose = desiredPose;
+    m_desiredPose = desiredPose;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_driveTrain);
   }
@@ -19,7 +19,7 @@ public class DriveToPosition extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_driveTrain.setPIDSetpoints(finalPose.getX(), finalPose.getY(), finalPose.getRotation().getDegrees());
+    m_driveTrain.setPIDSetpoints(m_desiredPose.getX(), m_desiredPose.getY(), m_desiredPose.getRotation().getRadians());
   }
 
   // Called every time the scheduler runs while the command is scheduled.
