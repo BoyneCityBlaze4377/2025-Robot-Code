@@ -5,6 +5,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.Lib.AutoAimHelpers;
 import frc.robot.Constants.AutoAimConstants;
+import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.AutoAimConstants.Alignment;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.VisionSubsystem;
@@ -74,7 +75,7 @@ public class AutonAutoAlign extends Command {
     rot = MathUtil.clamp(angleController.calculate(m_driveTrain.getHeading(), targetAngle), 
                          -maxRotOutput, maxRotOutput);
 
-    if (distanceController.getError() < AutoAimConstants.inRangeThreshold) m_driveTrain.setInRange(true); else m_driveTrain.setInRange(false);
+    if (distanceController.getError() < AutonConstants.inRangeThreshold) m_driveTrain.setInRange(true); else m_driveTrain.setInRange(false);
 
     // if (horizController.atSetpoint()) ySpeed = 0;
     // if (distanceController.atSetpoint()) xSpeed = 0;

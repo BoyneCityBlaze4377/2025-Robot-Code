@@ -299,7 +299,6 @@ public final class Constants {
 
     public static final double LLDefaultOffsetDegrees = 2.3;
     public static final double LCToBumperEdgeOffsetMeters = Units.inchesToMeters(4.85);
-    public static final double inRangeThreshold = .5; //Meters
 
     public static final double coralStationToRobotDistance = DriveConstants.trackWidth / 2 + .15;
     public static final double coralStationSideOffsetDistance = Units.inchesToMeters(76 / 4);
@@ -472,6 +471,8 @@ public final class Constants {
     public static final double coralScoreTime = .5;
     public static final double algaeCollectTimeout = 5;
     public static final double alageScoreTime = .5;
+
+    public static final double inRangeThreshold = 1.2; //Meters
 
     public static final AdvancedPose2D initialPoseBlue = new AdvancedPose2D(new Pose2d(2, 3, new Rotation2d()));
     public static final AdvancedPose2D initialPoseRed = initialPoseBlue.flipBoth();

@@ -69,7 +69,7 @@ public class AdvancedPose2D extends Pose2d {
     }
 
     public AdvancedPose2D withReefAlignment(Alignment alignment) {
-        return this.withRobotRelativeTransformation(new Translation2d(0, AutoAimConstants.offsetFromAlignment.get(alignment)));
+        return this.withRobotRelativeTransformation(new Translation2d(AutoAimConstants.offsetFromAlignment.get(alignment), 0));
     }
 
     public double getDistance(AdvancedPose2D other) {

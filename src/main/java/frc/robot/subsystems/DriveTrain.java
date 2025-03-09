@@ -17,6 +17,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants.AutoAimConstants;
+import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IOConstants;
@@ -187,6 +188,8 @@ public class DriveTrain extends SubsystemBase {
     SmartDashboard.putBoolean("INRANGE", autonInRange);
 
     heading = m_gyro.getYaw();
+
+    autonInRange = Math.hypot(xController.getError(), yController.getError()) <= AutonConstants.inRangeThreshold;
   }
 
   public void instanceDrive(double xSpeed, double ySpeed, double omega, boolean fieldRelative) {
@@ -196,8 +199,8 @@ public class DriveTrain extends SubsystemBase {
 
     setModuleStates(swerveModuleStates, (xSpeed == 0 && ySpeed == 0 && omega == 0));
 
-    xSpeedSender.setDouble(x);
-    ySpeedSender.setDouble(y);
+    xSpeedSender.setDouble(xSpeed);
+    ySpeedSender.setDouble(ySpeed);
     omegaSender.setDouble(omega);
   }
 
@@ -252,10 +255,10 @@ public class DriveTrain extends SubsystemBase {
   }
 
   public void PIDDrive() {
-    // x = -MathUtil.clamp(xController.calculate(getPose().getX()), -DriveConstants.maxSpeedMetersPerSecond, 
-    //                                                               DriveConstants.maxSpeedMetersPerSecond);
-    // y = -MathUtil.clamp(yController.calculate(getPose().getY()), -DriveConstants.maxSpeedMetersPerSecond, 
-    //                                                               DriveConstants.maxSpeedMetersPerSecond);
+    x = -MathUtil.clamp(xController.calculate(getPose().getX()), -DriveConstants.maxSpeedMetersPerSecond, 
+                                                                  DriveConstants.maxSpeedMetersPerSecond);
+    y = -MathUtil.clamp(yController.calculate(getPose().getY()), -DriveConstants.maxSpeedMetersPerSecond, 
+                                                                  DriveConstants.maxSpeedMetersPerSecond);
     omega = MathUtil.clamp(headingController.calculate(getPose().getRotation().getRadians()), 
                                                       -DriveConstants.maxRotationSpeedRadiansPerSecond, 
                                                        DriveConstants.maxRotationSpeedRadiansPerSecond);
