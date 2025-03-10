@@ -152,7 +152,7 @@ public class DriveTrain extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if (periodicTimer > 10) {
+    if (periodicTimer >= 10) {
       m_frontLeft.update();
       m_frontRight.update();
       m_backLeft.update();

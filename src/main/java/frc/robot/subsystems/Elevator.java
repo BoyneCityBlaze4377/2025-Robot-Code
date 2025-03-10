@@ -10,6 +10,8 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ElevatorConstants;
@@ -17,6 +19,7 @@ import frc.robot.Constants.IOConstants;
 
 public class Elevator extends SubsystemBase {
   private final SparkMax elevatorMotor;
+  private final PIDController elevatorController;
   private final SparkMaxConfig elevatorMotorConfig;
   private final RelativeEncoder elevatorEncoder;
   private boolean locked, atPos;
@@ -34,6 +37,9 @@ public class Elevator extends SubsystemBase {
     elevatorMotorConfig = new SparkMaxConfig();
 
     elevatorEncoder = elevatorMotor.getEncoder();
+    elevatorController = new PIDController(ElevatorConstants.kP, ElevatorConstants.kI, ElevatorConstants.kD);
+    elevatorController.setTolerance(ElevatorConstants.kTolerance);
+
     elevatorSpeed = 0;
     dH = ElevatorConstants.startingHeight - elevatorEncoder.getPosition();
 
@@ -140,5 +146,18 @@ public class Elevator extends SubsystemBase {
 
   public void setAtPos(boolean atPosition) {
     atPos = atPosition;
+  }
+
+  public void setSetpoint(double setPoint) {
+    elevatorController.setSetpoint(setPoint);
+  }
+
+  public void PIDMove() {
+    elevatorSpeed = MathUtil.clamp(elevatorController.calculate(getEncoderVal()), 
+                    ElevatorConstants.maxDownSpeed, ElevatorConstants.maxUpSpeed);
+  }
+
+  public boolean atSetpoint() {
+    return elevatorController.atSetpoint();
   }
 }

@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.commands.Auton.Sequences;
 
 import java.util.HashMap;
@@ -24,8 +20,8 @@ import frc.robot.commands.Auton.Functions.AutonAlgaeCollect;
 import frc.robot.commands.Auton.Functions.AutonAlgaeScore;
 import frc.robot.commands.Auton.Functions.AutonCoralCollect;
 import frc.robot.commands.Auton.Functions.AutonCoralScore;
+import frc.robot.commands.Auton.Functions.AutonDriveToPosition;
 import frc.robot.commands.Auton.Functions.InRangeAllToPosition;
-import frc.robot.commands.DriveCommands.DriveToPosition;
 import frc.robot.subsystems.AlgaeAffector;
 import frc.robot.subsystems.CoralAffector;
 import frc.robot.subsystems.DriveTrain;
@@ -43,31 +39,31 @@ public class TwoL4AndProcessor extends SequentialCommandGroup {
     AdvancedPose2D processor = alliance == Alliance.Blue ? FieldConstants.blueProcessor : FieldConstants.redprocessor;
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addCommands(new ParallelCommandGroup(new DriveToPosition(driveTrain, reef.get(ReefStation.backRight).withReefAlignment(Alignment.right)),
+    addCommands(new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, reef.get(ReefStation.backRight).withReefAlignment(Alignment.right)),
                                          new InRangeAllToPosition(elevator, coralAffector, driveTrain, Position.L4)),
                 new AutonCoralScore(coralAffector),
-                new ParallelCommandGroup(new DriveToPosition(driveTrain, coralStation.withRobotRelativeTransformation(new Translation2d(-Units.inchesToMeters(24), 0))),
+                new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, coralStation.withRobotRelativeTransformation(new Translation2d(-Units.inchesToMeters(24), 0))),
                                          new SequentialCommandGroup(new AllToSetPosition(elevator, coralAffector, Position.floor),
                                                                     new InRangeAllToPosition(elevator, coralAffector, driveTrain, Position.HP))),
                 new AutonCoralCollect(coralAffector), 
-                new ParallelCommandGroup(new DriveToPosition(driveTrain, reef.get(ReefStation.frontRight).withReefAlignment(Alignment.right)),
+                new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, reef.get(ReefStation.frontRight).withReefAlignment(Alignment.right)),
                                          new InRangeAllToPosition(elevator, coralAffector, driveTrain, Position.L4)),
                 new AutonCoralScore(coralAffector),
-                new ParallelCommandGroup(new DriveToPosition(driveTrain, reef.get(ReefStation.frontRight).withReefAlignment(Alignment.center)
+                new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, reef.get(ReefStation.frontRight).withReefAlignment(Alignment.center)
                                                              .withVector(Rotation2d.fromDegrees(-120), new Translation2d(0, -1), Rotation2d.fromDegrees(-120))),
                                          new AllToSetPosition(elevator, coralAffector, Position.L2algae)),
                 new ParallelDeadlineGroup(new AutonAlgaeCollect(algaeAffector),
-                                          new DriveToPosition(driveTrain, reef.get(ReefStation.frontRight).withReefAlignment(Alignment.center)
+                                          new AutonDriveToPosition(driveTrain, reef.get(ReefStation.frontRight).withReefAlignment(Alignment.center)
                                                               .withVector(Rotation2d.fromDegrees(-120), new Translation2d(0, .2), Rotation2d.fromDegrees(-120)))),
                 new ParallelCommandGroup(new AllToSetPosition(elevator, coralAffector, Position.L1),
-                                         new SequentialCommandGroup(new DriveToPosition(driveTrain, reef.get(ReefStation.frontRight).withReefAlignment(Alignment.center)
+                                         new SequentialCommandGroup(new AutonDriveToPosition(driveTrain, reef.get(ReefStation.frontRight).withReefAlignment(Alignment.center)
                                                                     .withVector(Rotation2d.fromDegrees(-120), new Translation2d(0, -1), Rotation2d.fromDegrees(-120))),
-                                                                    new DriveToPosition(driveTrain, processor.withVector(Rotation2d.fromDegrees(90), new Translation2d(0, 1), processor.getRotation())),
-                                                                    new DriveToPosition(driveTrain, processor)),
+                                                                    new AutonDriveToPosition(driveTrain, processor.withVector(Rotation2d.fromDegrees(90), new Translation2d(0, 1), processor.getRotation())),
+                                                                    new AutonDriveToPosition(driveTrain, processor)),
                 new AutonAlgaeScore(algaeAffector),
-                new ParallelCommandGroup(new DriveToPosition(driveTrain, coralStation.withRobotRelativeTransformation(new Translation2d(-Units.inchesToMeters(24), 0))),
+                new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, coralStation.withRobotRelativeTransformation(new Translation2d(-Units.inchesToMeters(24), 0))),
                                          new InRangeAllToPosition(elevator, coralAffector, driveTrain, Position.HP)),
-                new ParallelCommandGroup(new DriveToPosition(driveTrain, reef.get(ReefStation.frontRight).withReefAlignment(Alignment.left)),
+                new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, reef.get(ReefStation.frontRight).withReefAlignment(Alignment.left)),
                                          new SequentialCommandGroup(new AllToSetPosition(elevator, coralAffector, Position.L1),
                                                                     new InRangeAllToPosition(elevator, coralAffector, driveTrain, Position.L4))),
                 new AutonCoralScore(coralAffector)));

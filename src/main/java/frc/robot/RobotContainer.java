@@ -130,8 +130,6 @@ public class RobotContainer {
     // //                                                                                45, .5,
     // //                                                                                Math.PI/2, 1, 90));
     // new JoystickButton(m_driverStick, 12).whileTrue(RightAlign);
-    new JoystickButton(m_driverStick, 11).whileTrue(new ResetPose(m_driveTrain));
-    new JoystickButton(m_driverStick, 12).whileTrue(new DriveToPosition(m_driveTrain, new AdvancedPose2D()));
 
     /* Operator */
     //Set positions

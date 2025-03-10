@@ -13,17 +13,12 @@ import frc.robot.subsystems.CoralAffector;
 public class CoralWristToPos extends Command {
   private final CoralAffector m_affector;
   private final double desiredPos;
-  private double output;
-  private final PIDController wristController;
 
   /** Creates a new ElevatorToPosition. */
   public CoralWristToPos(CoralAffector affector, Position DesiredPos) {
     m_affector = affector;
     desiredPos = AutoAimConstants.positionValues.get(DesiredPos)[0];
-    wristController = new PIDController(AffectorConstants.coralWristKP, 
-                                        AffectorConstants.coralWristKI, 
-                                        AffectorConstants.coralWristKD);
-    wristController.setTolerance(AffectorConstants.coralWristKTolerance);
+  
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_affector);
   }
@@ -31,30 +26,24 @@ public class CoralWristToPos extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    output = 0;
-    SmartDashboard.putBoolean("TRYING TO RUN", true);
+    m_affector.setSetpoint(desiredPos);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    output = MathUtil.clamp(wristController.calculate(m_affector.getWristDegrees(), desiredPos), 
-                            AffectorConstants.maxCoralWristDownSpeed, AffectorConstants.maxCoralWristUpSpeed);
-
-    m_affector.moveWrist(output);
+    m_affector.PIDMoveWrist();
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_affector.lockWrist();
-    output = 0;
-    SmartDashboard.putBoolean("TRYING TO RUN", false);  
+    m_affector.lockWrist(); 
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return wristController.atSetpoint();
+    return m_affector.atSetpoint();
   }
 }

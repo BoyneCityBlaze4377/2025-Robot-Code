@@ -123,10 +123,10 @@ public final class Constants {
 
     public static final double wristOverrideSpeed = .3;
 
-    public static final double coralWristKP = .02; //.05
-    public static final double coralWristKI = 0; //0
-    public static final double coralWristKD = 0; //0
-    public static final double coralWristKTolerance = 1;
+    public static final double coralWristKP = .01; //.01
+    public static final double coralWristKI = .0001; //.0001
+    public static final double coralWristKD = .0002; //.0002
+    public static final double coralWristKTolerance = .5;
 
     public static final double coralAffectorSpeed = .2;
 
@@ -458,7 +458,7 @@ public final class Constants {
     public static final double transkP = 1.5; //1.5
     public static final double transkI = .013; //.013
     public static final double transkD = 0; //0
-    public static final double transkTolerance = .1;
+    public static final double transkTolerance = .025;
   }
 
   public class ClimberConstants {

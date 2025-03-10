@@ -10,6 +10,8 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -25,6 +27,7 @@ public class CoralAffector extends SubsystemBase {
   private final GenericEntry wristValSender, hasCoralSender, lockedSender;
   private boolean locked;
   private final double dA;
+  private final PIDController wristController;
 
   /** Creates a new PieceAffector. */
   public CoralAffector() {
@@ -35,6 +38,11 @@ public class CoralAffector extends SubsystemBase {
     coralWristConfig = new SparkMaxConfig();
 
     wristEncoder = coralWrist.getEncoder();
+
+    wristController = new PIDController(AffectorConstants.coralWristKP, 
+                                        AffectorConstants.coralWristKI, 
+                                        AffectorConstants.coralWristKD);
+    wristController.setTolerance(AffectorConstants.coralWristKTolerance);
 
     dA = AffectorConstants.startingAngle - wristEncoder.getPosition() * AffectorConstants.coralWristConversionFactor;
 
@@ -126,5 +134,18 @@ public class CoralAffector extends SubsystemBase {
 
   public void zeroWristEncoder() {
     wristEncoder.setPosition(0);
+  }
+
+  public void setSetpoint(double setPoint) {
+    wristController.setSetpoint(setPoint);
+  }
+
+  public void PIDMoveWrist() {
+    coralWrist.set(MathUtil.clamp(wristController.calculate(getWristDegrees()), 
+                   AffectorConstants.maxCoralWristDownSpeed, AffectorConstants.maxCoralWristUpSpeed));
+  }
+
+  public boolean atSetpoint() {
+    return wristController.atSetpoint();
   }
 }
