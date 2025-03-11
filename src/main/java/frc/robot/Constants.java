@@ -289,9 +289,10 @@ public final class Constants {
     }};
             
     public static final double centerOfReefToRobotDistance = Units.inchesToMeters(32.75) + DriveConstants.trackWidth / 2 + 0.025;
-    public static final double centerOfReefToWaypointDistance = Units.inchesToMeters(centerOfReefToRobotDistance) * 2 + 
-                                                                 DriveConstants.trackWidth * Math.sqrt(2) + 
-                                                                 Units.inchesToMeters(2);
+    public static final double centerOfReefToWaypointDistance = 1;
+                                                                //  Units.inchesToMeters(centerOfReefToRobotDistance) * 2 + 
+                                                                //  DriveConstants.trackWidth * Math.sqrt(2) + 
+                                                                //  Units.inchesToMeters(2);
 
     public static final double coralAffectorOffsetFromRobotCenter = Units.inchesToMeters(2);
     public static final double rightCoralReefOffset = Units.inchesToMeters(6.47) + coralAffectorOffsetFromRobotCenter;
@@ -427,11 +428,12 @@ public final class Constants {
     public static final double blueReefWaypointBoundMaxX = blueReefWaypoints.get(ReefWaypoint.backRight).getX();
     public static final double redReefWaypointBoundMinX = redReefWaypoints.get(ReefWaypoint.backRight).getX();
     public static final double redReefWaypointBoundMaxX = redReefWaypoints.get(ReefWaypoint.frontRight).getX();
+
     public static final double reefWaypointBoundMinY = blueReefWaypoints.get(ReefWaypoint.right).getY();
     public static final double reefWaypointBoundMaxY = blueReefWaypoints.get(ReefWaypoint.left).getY();
 
     public static final double reefWaypointStaticDisMinY = blueReefWaypoints.get(ReefWaypoint.frontRight).getY();
-    public static final double reefWaypointStaticDisMaxY = blueReefWaypoints.get(ReefWaypoint.backRight).getY();
+    public static final double reefWaypointStaticDisMaxY = blueReefWaypoints.get(ReefWaypoint.frontLeft).getY();
 
     public static final double inReefCalculationInterval = .005;
 
@@ -474,7 +476,7 @@ public final class Constants {
 
     public static final double inRangeThreshold = 1.2; //Meters
 
-    public static final AdvancedPose2D initialPoseBlue = new AdvancedPose2D(new Pose2d(2, 3, new Rotation2d()));
+    public static final AdvancedPose2D initialPoseBlue = new AdvancedPose2D(new Pose2d());
     public static final AdvancedPose2D initialPoseRed = initialPoseBlue.flipBoth();
   }
 

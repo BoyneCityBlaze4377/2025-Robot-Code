@@ -1,5 +1,7 @@
 package frc.robot;
 
+import java.util.ArrayList;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -9,10 +11,14 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.Lib.AdvancedPose2D;
+import frc.Lib.AutoAimHelpers;
+import frc.robot.Constants.AutoAimConstants;
 import frc.robot.Constants.AutonConstants;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.Constants.AutoAimConstants.Alignment;
 import frc.robot.Constants.AutoAimConstants.Position;
+import frc.robot.Constants.AutoAimConstants.ReefWaypoint;
 import frc.robot.subsystems.*;
 import frc.robot.commands.AllToSetPosition;
 import frc.robot.commands.ClimberCommands.*;
@@ -83,8 +89,6 @@ public class RobotContainer {
   private final Command LeftAlign = new AutoAlign(m_driveTrain, m_visionSubsystem, .01, Alignment.left);
   private final Command RightAlign = new AutoAlign(m_driveTrain, m_visionSubsystem, .01, Alignment.right);
 
-  Command TestAutoAimDrive = new AutoAimDrive(m_driveTrain, new AdvancedPose2D(1, 1, 90), alliance);
-
   // private final Command TEMPORARY = new TEMPORARYDRIVE(m_driveTrain, -.5);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -97,7 +101,14 @@ public class RobotContainer {
     configAutonChooser();
     IOConstants.ConfigTab.add("Auton Chooser", autonChooser);
     SmartDashboard.putData(autonChooser);
-    Command PATH = new AutoAimDrive(m_driveTrain, new AdvancedPose2D(new Pose2d(7, 5, new Rotation2d())), alliance);
+    // Command PATH = new AutoAimDrive(m_driveTrain, new AdvancedPose2D(new Pose2d(7, 5, new Rotation2d())), alliance);
+    // ArrayList<AdvancedPose2D> optimalPath = AutoAimHelpers.getOptimalPath(initialPose, FieldConstants.blueReefCenterPos, alliance);
+    double dis = AutoAimHelpers.calcPathAroundReefDistance(initialPose, new AdvancedPose2D(7, 5.5, new Rotation2d()), ReefWaypoint.right, ReefWaypoint.frontRight, alliance);
+    SmartDashboard.putNumber("Dis", dis);
+    SmartDashboard.putNumber("RealDis", initialPose.getDistance(AutoAimConstants.blueReefWaypoints.get(ReefWaypoint.right)) +
+                                            AutoAimConstants.blueReefWaypoints.get(ReefWaypoint.right).getDistance(AutoAimConstants.blueReefWaypoints.get(ReefWaypoint.backRight)) +
+                                            AutoAimConstants.blueReefWaypoints.get(ReefWaypoint.backRight).getDistance(new AdvancedPose2D(7, 5.5, new Rotation2d())));
+    SmartDashboard.putBoolean("INREEF", AutoAimHelpers.pathIsInReef(AutoAimConstants.blueReefWaypoints.get(ReefWaypoint.right), AutoAimConstants.blueReefWaypoints.get(ReefWaypoint.backRight), Alliance.Blue));
   }
 
   public void setDriveTrainPoseEstimate() {

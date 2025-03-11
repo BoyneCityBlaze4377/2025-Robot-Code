@@ -16,18 +16,18 @@ import frc.robot.subsystems.DriveTrain;
 public class AutoAimDrive extends SequentialCommandGroup {
   /** Creates a new AutoAimDrive. */
   public AutoAimDrive(DriveTrain driveTrain, AdvancedPose2D desiredPose, Alliance alliance) {
-    ArrayList<AdvancedPose2D> optimalPath = AutoAimHelpers.getOptimalPath(new AdvancedPose2D(driveTrain.getPose()), desiredPose, alliance);
-    Command[] pathCommands = new Command[optimalPath.toArray().length + 1];
+    // ArrayList<AdvancedPose2D> optimalPath = AutoAimHelpers.getOptimalPath(new AdvancedPose2D(driveTrain.getPose()), desiredPose, alliance);
+    // Command[] pathCommands = new Command[optimalPath.toArray().length + 1];
 
-    for (int i = 0; i < pathCommands.length; i++) {
-      pathCommands[i] = new DriveToPosition(driveTrain, optimalPath.get(i));
-      SmartDashboard.putString("PATH " + i, optimalPath.get(i).toString());
-    }
+    // for (int i = 0; i < pathCommands.length; i++) {
+    //   pathCommands[i] = new DriveToPosition(driveTrain, optimalPath.get(i));
+    //   SmartDashboard.putString("PATH " + i, optimalPath.get(i).toString());
+    // }
 
-    pathCommands[pathCommands.length] = new StopDriveTrain(driveTrain);
+    // pathCommands[pathCommands.length] = new StopDriveTrain(driveTrain);
     
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addCommands(pathCommands);
+    addCommands(new StopDriveTrain(driveTrain));
   }
 }
