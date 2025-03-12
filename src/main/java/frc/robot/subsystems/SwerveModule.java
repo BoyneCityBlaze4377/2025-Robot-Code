@@ -236,8 +236,8 @@ public class SwerveModule {
   private void configDriveMotorDefault() {
     // Set the distance per pulse for the drive encoder. We can simply use the
     // distance traveled for one rotation of the wheel divided by the encoder resolution.
-    m_driveConfig.encoder.velocityConversionFactor(ModuleConstants.driveEncoderDistancePerPulse/60);
-    m_driveConfig.encoder.positionConversionFactor(ModuleConstants.driveEncoderDistancePerPulse);
+    m_driveConfig.encoder.velocityConversionFactor(ModuleConstants.driveMotorConversionFactor/60);
+    m_driveConfig.encoder.positionConversionFactor(ModuleConstants.driveMotorConversionFactor);
 
     m_driveConfig.idleMode(IdleMode.kBrake);
     m_driveConfig.inverted(driveInverted);

@@ -119,8 +119,13 @@ public class CoralAffector extends SubsystemBase {
     return wristEncoder.getPosition() * AffectorConstants.coralWristConversionFactor + dA;
   }
 
-  public void lockWrist() {
+  public void overrideLockWrist() {
     coralWrist.set(.06 - .0000052 * Math.pow(getWristDegrees() - 90, 2));
+    locked = true;
+  }
+
+  public void PIDLockWrist() {
+    coralWrist.set(.06 - .0000052 * Math.pow(wristController.getSetpoint() - 90, 2));
     locked = true;
   }
 

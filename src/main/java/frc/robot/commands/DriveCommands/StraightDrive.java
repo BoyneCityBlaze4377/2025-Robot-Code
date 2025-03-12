@@ -1,17 +1,25 @@
+// Copyright (c) FIRST and other WPILib contributors.
+// Open Source Software; you can modify and/or share it under the terms of
+// the WPILib BSD license file in the root directory of this project.
+
 package frc.robot.commands.DriveCommands;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.Lib.AdvancedPose2D;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.DriveTrain;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class DriveToPosition extends Command {
+public class StraightDrive extends Command {
   private final DriveTrain m_driveTrain;
-  private final AdvancedPose2D m_desiredPose;
-  /** Creates a new DriveToPosition. */
-  public DriveToPosition(DriveTrain driveTrain, AdvancedPose2D desiredPose) {
+  private final Joystick m_joystick;
+  private boolean orientation;
+  /** Creates a new StraightDrive. */
+  public StraightDrive(DriveTrain driveTrain, Joystick joystick) {
     m_driveTrain = driveTrain;
-    m_desiredPose = desiredPose;
+    m_joystick = joystick;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_driveTrain);
   }
@@ -19,24 +27,25 @@ public class DriveToPosition extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_driveTrain.setPIDSetpoints(m_desiredPose.getX(), m_desiredPose.getY(), m_desiredPose.getRotation().getRadians());
+    orientation = m_driveTrain.isFieldOriented();
+    m_driveTrain.setOrientation(false);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_driveTrain.PIDDrive();
+    m_driveTrain.teleopDrive(MathUtil.applyDeadband(m_joystick.getY(), DriveConstants.xyDeadband), 0, 0);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    if (!interrupted) m_driveTrain.stop();
+    m_driveTrain.setOrientation(orientation);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_driveTrain.atSetpoints();
+    return false;
   }
 }

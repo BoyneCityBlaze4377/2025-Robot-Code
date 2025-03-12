@@ -32,7 +32,7 @@ public class CoralWristOverride extends Command {
   public void execute() {
     input = m_stick.getRawAxis(0) * AffectorConstants.wristOverrideSpeed;
     if (Math.abs(input) < .2) {
-      m_coralAffector.lockWrist();
+      m_coralAffector.overrideLockWrist();
     } else {
       m_coralAffector.moveWrist(-input);
     }
@@ -41,7 +41,7 @@ public class CoralWristOverride extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_coralAffector.lockWrist();
+    m_coralAffector.overrideLockWrist();
   }
 
   // Returns true when the command should end.

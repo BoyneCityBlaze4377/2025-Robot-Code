@@ -65,7 +65,7 @@ public class AutonAllToPosition extends Command {
   @Override
   public void end(boolean interrupted) {
     m_elevator.lockElevator();
-    m_coralAffector.lockWrist();
+    m_coralAffector.PIDLockWrist();
 
     elevatorOutput = 0;
     coralWristOutput = 0;

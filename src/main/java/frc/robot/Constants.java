@@ -9,7 +9,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.Unit;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.Lib.AdvancedPose2D;
@@ -31,17 +30,18 @@ public final class Constants {
 
     /* CONTROLLER IDS */
     public static final int driverControllerID = 0;
+    // public static final int drivePositionControllerID = 1;
     public static final int operatorController1ID = 2;
     public static final int operatorController2ID = 1;
 
     /* BUTTON IDS */
     /* Driver */
     public static final int quickBrakeButtonID = 6; //6
-    public static final int slowModeButtonID = 2; //2
+    public static final int slowModeButtonID = 3; //2
     public static final int switchBrakeButtonID = 5; //5
-    public static final int switchOrientationButtonID = 3; //3
+    public static final int switchOrientationButtonID = 4; //3
     public static final int lockPoseButtonID = 1; //4
-    public static final int autoAlignButtonID = 0; //1
+    public static final int StraightDriveButtonID = 2;
 
     /* Operator */
     // Positions
@@ -137,7 +137,7 @@ public final class Constants {
     public static final int algaeCollectorOneID = 13;
     public static final int algaeCollectorTwoID = 14;
 
-    public static final double algaeCollectorSpeed = .6;
+    public static final double algaeCollectorSpeed = .3;
   }
 
   public static final class SwerveConstants {
@@ -166,10 +166,10 @@ public final class Constants {
 
   public static final class DriveConstants {
     // Distance between centers of right and left wheels on robot in meters
-    public static final double trackWidth = 0.31623;
+    public static final double trackWidth = Units.inchesToMeters(36);
     
     // Distance between front and back wheels on robot in meters
-    public static final double wheelBase = 0.31623;
+    public static final double wheelBase = Units.inchesToMeters(36);
     
     public static final SwerveDriveKinematics driveKinematics =
         new SwerveDriveKinematics(
@@ -185,11 +185,6 @@ public final class Constants {
     public static final double minDriveSpeed = .35;
     public static final double maxRotSpeed = 1;
     public static final double minRotSpeed = .3;
-
-    public static final double elevatorHeightFactorTranslation = (maxDriveSpeed - minDriveSpeed) / 
-                                                                 (ElevatorConstants.upperLimit - ElevatorConstants.lowerLimit);
-    public static final double elevatorHeightFactorRotation = (maxRotSpeed - minRotSpeed) / 
-                                                              (ElevatorConstants.upperLimit - ElevatorConstants.lowerLimit);
 
     public static final double maxSpeedMetersPerSecond = 4; //4.5 true max
     public static final double maxAccelerationMetersPerSecondSquared = 1;
@@ -248,10 +243,10 @@ public final class Constants {
     public static final double maxModuleAngularSpeedDegreesPerSecond = 360;
     public static final double maxModuleAngularAccelerationDegreesPerSecondSquared = 360;
 
-    public static final double encoderCPR = 1;
-    public static final double wheelDiameterMeters = Units.inchesToMeters(4);
+    public static final double encoderCPR = 1; //1.052
+    public static final double wheelDiameterMeters = Units.inchesToMeters(3.8125);
     public static final double driveGearRatio = 1 / 6.75;
-    public static final double driveEncoderDistancePerPulse = 
+    public static final double driveMotorConversionFactor = 
       // Assumes the encoders are directly mounted on the wheel shafts
       (wheelDiameterMeters * Math.PI) / (double) encoderCPR * driveGearRatio;
   }
@@ -267,14 +262,13 @@ public final class Constants {
     public static final AdvancedPose2D blueCenterStartAlgae = new AdvancedPose2D(new Translation2d(1.220, 4.026), new Rotation2d());
     public static final AdvancedPose2D blueRightStartAlgae = new AdvancedPose2D(new Translation2d(1.220, 2.189), new Rotation2d());
 
-    public static final AdvancedPose2D blueProcessor = new AdvancedPose2D(new Translation2d(6.348, .459), new Rotation2d(-Math.PI/2));
+    public static final AdvancedPose2D blueProcessor = new AdvancedPose2D(new Translation2d(6.348, .459), new Rotation2d(Math.PI/2));
     public static final AdvancedPose2D redprocessor = blueProcessor.flipBoth();
   }
 
   public class AutoAimConstants{
     public static enum Position {floor, L1, L2algae, L2, L3algae, L3, L4, HP};
     public static enum ReefStation {front, frontRight, backRight, back, backLeft, frontLeft};
-    public static enum ReefWaypoint {frontLeft, frontRight, right, backRight, backLeft, left, blank};
     public static enum Alignment {left, center, right};
 
     public static final HashMap<Position, double[]> positionValues = new HashMap<Position, double[]> () {{
@@ -289,20 +283,17 @@ public final class Constants {
     }};
             
     public static final double centerOfReefToRobotDistance = Units.inchesToMeters(32.75) + DriveConstants.trackWidth / 2 + 0.025;
-    public static final double centerOfReefToWaypointDistance = 1;
-                                                                //  Units.inchesToMeters(centerOfReefToRobotDistance) * 2 + 
-                                                                //  DriveConstants.trackWidth * Math.sqrt(2) + 
-                                                                //  Units.inchesToMeters(2);
 
     public static final double coralAffectorOffsetFromRobotCenter = Units.inchesToMeters(2);
-    public static final double rightCoralReefOffset = Units.inchesToMeters(6.47) + coralAffectorOffsetFromRobotCenter;
-    public static final double leftCoralReefOffset = coralAffectorOffsetFromRobotCenter - Units.inchesToMeters(6.47);
+    public static final double leftCoralReefOffset = -(Units.inchesToMeters(6.47) + coralAffectorOffsetFromRobotCenter);
+    public static final double rightCoralReefOffset = Units.inchesToMeters(6.47) - coralAffectorOffsetFromRobotCenter;
+    public static final double algaePosBackset = Units.inchesToMeters(12);
 
     public static final double LLDefaultOffsetDegrees = 2.3;
     public static final double LCToBumperEdgeOffsetMeters = Units.inchesToMeters(4.85);
 
     public static final double coralStationToRobotDistance = DriveConstants.trackWidth / 2 + .15;
-    public static final double coralStationSideOffsetDistance = Units.inchesToMeters(76 / 4);
+    public static final double coralStationSideOffsetDistance = Units.inchesToMeters(76) / 4 - coralAffectorOffsetFromRobotCenter;
 
     public static final HashMap<Alignment, Double> offsetFromAlignment = new HashMap<Alignment, Double> () {{
       put(Alignment.left, leftCoralReefOffset);
@@ -311,9 +302,6 @@ public final class Constants {
     }};
 
     public static final double[] reefStationAngles = {0, 60, 120, 180, -180, -120, -60};
-    public static final double[] reefWaypointAngles = {30, 90, 150, -150, -90, -30};
-    public static final ReefWaypoint[] waypointArray = {ReefWaypoint.frontLeft, ReefWaypoint.frontRight, ReefWaypoint.right,
-                                                        ReefWaypoint.backRight, ReefWaypoint.backLeft, ReefWaypoint.left};
 
     public static final HashMap<ReefStation, AdvancedPose2D> blueReef = new HashMap<ReefStation, AdvancedPose2D> () {{
       put(ReefStation.front, FieldConstants.blueReefCenterPos.withVector(Rotation2d.fromDegrees(0), new Translation2d(-centerOfReefToRobotDistance, 0), Rotation2d.fromDegrees(0)));
@@ -333,25 +321,6 @@ public final class Constants {
       put(ReefStation.backRight, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(120), new Translation2d(centerOfReefToRobotDistance, 0), Rotation2d.fromDegrees(-60)));
     }};
 
-    public static final HashMap<ReefWaypoint, AdvancedPose2D> blueReefWaypoints = new HashMap<ReefWaypoint, AdvancedPose2D> () {{
-      put(ReefWaypoint.frontLeft, FieldConstants.blueReefCenterPos.withVector(Rotation2d.fromDegrees(150), new Translation2d(centerOfReefToWaypointDistance, 0), Rotation2d.fromDegrees(0)));
-      put(ReefWaypoint.frontRight, FieldConstants.blueReefCenterPos.withVector(Rotation2d.fromDegrees(-150), new Translation2d(centerOfReefToWaypointDistance, 0), Rotation2d.fromDegrees(0)));
-      put(ReefWaypoint.right, FieldConstants.blueReefCenterPos.withVector(Rotation2d.fromDegrees(-90), new Translation2d(centerOfReefToWaypointDistance, 0), Rotation2d.fromDegrees(0)));
-      put(ReefWaypoint.backRight, FieldConstants.blueReefCenterPos.withVector(Rotation2d.fromDegrees(-30), new Translation2d(centerOfReefToWaypointDistance, 0), Rotation2d.fromDegrees(0)));
-      put(ReefWaypoint.backLeft, FieldConstants.blueReefCenterPos.withVector(Rotation2d.fromDegrees(30), new Translation2d(centerOfReefToWaypointDistance, 0), Rotation2d.fromDegrees(0)));
-      put(ReefWaypoint.left, FieldConstants.blueReefCenterPos.withVector(Rotation2d.fromDegrees(90), new Translation2d(centerOfReefToWaypointDistance, 0), Rotation2d.fromDegrees(0)));
-      put(ReefWaypoint.blank, new AdvancedPose2D(0, 0, new Rotation2d()));
-    }};
-
-    public static final HashMap<ReefWaypoint, AdvancedPose2D> redReefWaypoints = new HashMap<ReefWaypoint, AdvancedPose2D> () {{
-      put(ReefWaypoint.frontLeft, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(150), new Translation2d(centerOfReefToWaypointDistance, 0), Rotation2d.fromDegrees(0)));
-      put(ReefWaypoint.frontRight, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(-150), new Translation2d(centerOfReefToWaypointDistance, 0), Rotation2d.fromDegrees(0)));
-      put(ReefWaypoint.right, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(-90), new Translation2d(centerOfReefToWaypointDistance, 0), Rotation2d.fromDegrees(0)));
-      put(ReefWaypoint.backRight, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(-30), new Translation2d(centerOfReefToWaypointDistance, 0), Rotation2d.fromDegrees(0)));
-      put(ReefWaypoint.backLeft, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(30), new Translation2d(centerOfReefToWaypointDistance, 0), Rotation2d.fromDegrees(0)));
-      put(ReefWaypoint.left, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(90), new Translation2d(centerOfReefToWaypointDistance, 0), Rotation2d.fromDegrees(0)));
-      put(ReefWaypoint.blank, new AdvancedPose2D(FieldConstants.fieldLength, 0, new Rotation2d()));
-    }};
 
     public static final HashMap<Double, ReefStation> reefStationFromAngle = new HashMap<Double, ReefStation> () {{
       put(0.0, ReefStation.front);
@@ -424,19 +393,6 @@ public final class Constants {
       put(ReefStation.frontLeft, 6.);
     }};
 
-    public static final double blueReefWaypointBoundMinX = blueReefWaypoints.get(ReefWaypoint.frontRight).getX();
-    public static final double blueReefWaypointBoundMaxX = blueReefWaypoints.get(ReefWaypoint.backRight).getX();
-    public static final double redReefWaypointBoundMinX = redReefWaypoints.get(ReefWaypoint.backRight).getX();
-    public static final double redReefWaypointBoundMaxX = redReefWaypoints.get(ReefWaypoint.frontRight).getX();
-
-    public static final double reefWaypointBoundMinY = blueReefWaypoints.get(ReefWaypoint.right).getY();
-    public static final double reefWaypointBoundMaxY = blueReefWaypoints.get(ReefWaypoint.left).getY();
-
-    public static final double reefWaypointStaticDisMinY = blueReefWaypoints.get(ReefWaypoint.frontRight).getY();
-    public static final double reefWaypointStaticDisMaxY = blueReefWaypoints.get(ReefWaypoint.frontLeft).getY();
-
-    public static final double inReefCalculationInterval = .005;
-
     public static final AdvancedPose2D blueLeftCoralStationPos = new AdvancedPose2D(new Translation2d(0.836168, 0.6334625), null).withVector(Rotation2d.fromDegrees(54), new Translation2d(coralStationToRobotDistance, 0), Rotation2d.fromDegrees(-126));
     public static final AdvancedPose2D blueRightCoralStationPos = new AdvancedPose2D(new Translation2d(0.836168, 7.4185375), null).withVector(Rotation2d.fromDegrees(-54), new Translation2d(coralStationToRobotDistance, 0), Rotation2d.fromDegrees(126));
     public static final AdvancedPose2D redLeftCoralStationPos = blueLeftCoralStationPos.flipBoth();
@@ -476,7 +432,7 @@ public final class Constants {
 
     public static final double inRangeThreshold = 1.2; //Meters
 
-    public static final AdvancedPose2D initialPoseBlue = new AdvancedPose2D(new Pose2d());
+    public static final AdvancedPose2D initialPoseBlue = new AdvancedPose2D(7.588, .426, Math.PI/2);
     public static final AdvancedPose2D initialPoseRed = initialPoseBlue.flipBoth();
   }
 

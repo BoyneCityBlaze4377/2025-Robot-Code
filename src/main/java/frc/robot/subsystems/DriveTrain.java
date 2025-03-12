@@ -204,13 +204,6 @@ public class DriveTrain extends SubsystemBase {
     omegaSender.setDouble(omega);
   }
 
-  public void autoAlignDrive(double xSpeed, double ySpeed, double rotSpeed) {
-    instanceDrive(xSpeed * translationElevatorHeightSpeedScaler * 2,
-                  ySpeed * translationElevatorHeightSpeedScaler,
-                  rotSpeed * rotationElevatorHeightSpeedScaler, 
-                  false);
-  }
-
   /**
    * Method to drive the robot using joystick info.
    *
@@ -510,5 +503,19 @@ public class DriveTrain extends SubsystemBase {
     return ((DriveConstants.minRotSpeed - DriveConstants.maxRotSpeed) / 
              Math.pow(ElevatorConstants.upperLimit - ElevatorConstants.lowerLimit, 2)) * 
              Math.pow(height - ElevatorConstants.lowerLimit, 2) + DriveConstants.maxRotSpeed;
+  }
+
+  public double getEstimatedStationAngle() {
+    double prevError = 180;
+    double selectedAngle = 0;
+
+    for (int i = 0; i < AutoAimConstants.reefStationAngles.length; i++) {
+      double error = Math.abs(getHeading() - AutoAimConstants.reefStationAngles[i]);
+      if (error < prevError){
+        prevError = error;
+        selectedAngle = AutoAimConstants.reefStationAngles[i];
+      }
+    }
+    return selectedAngle;
   }
 }

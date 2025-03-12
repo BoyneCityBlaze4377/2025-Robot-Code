@@ -65,7 +65,7 @@ public class InRangeAllToPosition extends Command {
       m_coralAffector.moveWrist(coralWristOutput);
     } else {
       m_elevator.lockElevator();
-      m_coralAffector.lockWrist();
+      m_coralAffector.PIDLockWrist();
     }
   }
 
@@ -73,7 +73,7 @@ public class InRangeAllToPosition extends Command {
   @Override
   public void end(boolean interrupted) {
     m_elevator.lockElevator();
-    m_coralAffector.lockWrist();
+    m_coralAffector.PIDLockWrist();
 
     elevatorOutput = 0;
     coralWristOutput = 0;

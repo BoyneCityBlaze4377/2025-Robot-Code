@@ -46,7 +46,7 @@ public class AllToSetPosition extends Command {
   @Override
   public void end(boolean interrupted) {
     m_elevator.lockElevator();
-    m_coralAffector.lockWrist();
+    m_coralAffector.PIDLockWrist();
 
     m_elevator.setPositionString("At " + position.toString());
     m_elevator.setAtPos(false);

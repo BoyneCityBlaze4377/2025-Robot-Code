@@ -1,9 +1,5 @@
 package frc.robot;
 
-import java.util.ArrayList;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -11,14 +7,10 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.Lib.AdvancedPose2D;
-import frc.Lib.AutoAimHelpers;
-import frc.robot.Constants.AutoAimConstants;
 import frc.robot.Constants.AutonConstants;
-import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.Constants.AutoAimConstants.Alignment;
 import frc.robot.Constants.AutoAimConstants.Position;
-import frc.robot.Constants.AutoAimConstants.ReefWaypoint;
 import frc.robot.subsystems.*;
 import frc.robot.commands.AllToSetPosition;
 import frc.robot.commands.ClimberCommands.*;
@@ -54,17 +46,16 @@ public class RobotContainer {
 
   private SendableChooser<Command> autonChooser = new SendableChooser<>();
 
+  /* COMMANDS */
+  // DriveTrain
   private final Command TeleopDrive = new TeleopDrive(m_driverStick, m_driveTrain);
   private final Command LockPose = new LockPose(m_driveTrain); 
   private final Command SwitchBrake = new SwitchBrake(m_driveTrain);
   private final Command SwitchOrientation = new SwitchOrientation(m_driveTrain);
   private final Command QuickBrake = new QuickBrake(m_driveTrain);
   private final Command SlowMode = new SlowMode(m_driveTrain);
-  // private final Command AutoAlign = new AutoAlign(m_driveTrain, m_visionSubsystem, 0, 0);
 
-  // private final Command ElevatorOverride = new ElevatorOverride(m_elevator, m_operatorStick);
-  // private final Command CoralWristOverride = new CoralWristOverride(m_coralAffector, m_driverStick);
-
+  //Positions
   private final Command AllToFloor = new AllToSetPosition(m_elevator, m_coralAffector, Position.floor);
   private final Command AllToL1 = new AllToSetPosition(m_elevator, m_coralAffector, Position.L1);
   private final Command AllToL2Algae = new AllToSetPosition(m_elevator, m_coralAffector, Position.L2algae);
@@ -74,22 +65,24 @@ public class RobotContainer {
   private final Command AllToL4 = new AllToSetPosition(m_elevator, m_coralAffector, Position.L4);
   private final Command AllToHP = new AllToSetPosition(m_elevator, m_coralAffector, Position.HP);
 
+  //Overrides
+  private final Command ElevatorOverride = new ElevatorOverride(m_elevator, m_operatorStick1);
+  private final Command WristOverride = new CoralWristOverride(m_coralAffector, m_operatorStick2);
+
+  // Affectors
   private final Command CoralCollect = new CoralCollect(m_coralAffector);
   private final Command CoralScore = new CoralScore(m_coralAffector);
   private final Command AlgaeCollect = new AlgaeCollect(m_algaeAffector);
   private final Command AlgaeScore = new AlgaeScore(m_algaeAffector);
 
+  // Climber
   private final Command Climb = new Climb(m_climber, m_algaeAffector);
   private final Command UnClimb = new UnClimb(m_climber);
 
-  private final Command ElevatorOverride = new ElevatorOverride(m_elevator, m_operatorStick1);
-  private final Command WristOverride = new CoralWristOverride(m_coralAffector, m_operatorStick2);
+  // Auton
 
-  /* Auton */
-  private final Command LeftAlign = new AutoAlign(m_driveTrain, m_visionSubsystem, .01, Alignment.left);
-  private final Command RightAlign = new AutoAlign(m_driveTrain, m_visionSubsystem, .01, Alignment.right);
-
-  // private final Command TEMPORARY = new TEMPORARYDRIVE(m_driveTrain, -.5);
+  // Testing
+  private final Command StraightDrive = new StraightDrive(m_driveTrain, m_driverStick);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() { 
@@ -100,19 +93,10 @@ public class RobotContainer {
 
     configAutonChooser();
     IOConstants.ConfigTab.add("Auton Chooser", autonChooser);
-    SmartDashboard.putData(autonChooser);
-    // Command PATH = new AutoAimDrive(m_driveTrain, new AdvancedPose2D(new Pose2d(7, 5, new Rotation2d())), alliance);
-    // ArrayList<AdvancedPose2D> optimalPath = AutoAimHelpers.getOptimalPath(initialPose, FieldConstants.blueReefCenterPos, alliance);
-    double dis = AutoAimHelpers.calcPathAroundReefDistance(initialPose, new AdvancedPose2D(7, 5.5, new Rotation2d()), ReefWaypoint.right, ReefWaypoint.frontRight, alliance);
-    SmartDashboard.putNumber("Dis", dis);
-    SmartDashboard.putNumber("RealDis", initialPose.getDistance(AutoAimConstants.blueReefWaypoints.get(ReefWaypoint.right)) +
-                                            AutoAimConstants.blueReefWaypoints.get(ReefWaypoint.right).getDistance(AutoAimConstants.blueReefWaypoints.get(ReefWaypoint.backRight)) +
-                                            AutoAimConstants.blueReefWaypoints.get(ReefWaypoint.backRight).getDistance(new AdvancedPose2D(7, 5.5, new Rotation2d())));
-    SmartDashboard.putBoolean("INREEF", AutoAimHelpers.pathIsInReef(AutoAimConstants.blueReefWaypoints.get(ReefWaypoint.right), AutoAimConstants.blueReefWaypoints.get(ReefWaypoint.backRight), Alliance.Blue));
   }
 
   public void setDriveTrainPoseEstimate() {
-    m_driveTrain.setOdometry(m_visionSubsystem.getEstimatedPose2d().get());
+    if (m_visionSubsystem.getEstimatedGlobalPose().isPresent()) m_driveTrain.setOdometry(m_visionSubsystem.getEstimatedPose2d().get());
   }
 
   public void setDriveOrientation(boolean fieldOriented) {
@@ -136,11 +120,7 @@ public class RobotContainer {
     new JoystickButton(m_driverStick, IOConstants.lockPoseButtonID).whileTrue(LockPose);
     new JoystickButton(m_driverStick, IOConstants.switchOrientationButtonID).onTrue(SwitchOrientation);
     new JoystickButton(m_driverStick, IOConstants.switchBrakeButtonID).onTrue(SwitchBrake);
-    // new JoystickButton(m_driverStick, 11).whileTrue(LeftAlign);
-    // // new JoystickButton(m_operatorStick1, IOConstants.L2AlgaePosButtonID).whileTrue(new AutonDrive(m_driveTrain, 
-    // //                                                                                45, .5,
-    // //                                                                                Math.PI/2, 1, 90));
-    // new JoystickButton(m_driverStick, 12).whileTrue(RightAlign);
+    new JoystickButton(m_driverStick, IOConstants.StraightDriveButtonID).whileTrue(StraightDrive);
 
     /* Operator */
     //Set positions
@@ -153,6 +133,10 @@ public class RobotContainer {
     new JoystickButton(m_operatorStick1, IOConstants.L4PosButtonID).whileTrue(AllToL4);
     new JoystickButton(m_operatorStick1, IOConstants.HPPosButtonID).whileTrue(AllToHP);
 
+    //Overrides
+    new JoystickButton(m_operatorStick1, IOConstants.elevatorOverrideButtonID).whileTrue(ElevatorOverride);
+    new JoystickButton(m_operatorStick2, IOConstants.wristOverrideButtonID).whileTrue(WristOverride);
+
     //Affectors
     new JoystickButton(m_operatorStick2, IOConstants.coralCollectButtonID).whileTrue(CoralCollect);
     new JoystickButton(m_operatorStick2, IOConstants.coralScoreButtonID).whileTrue(CoralScore);
@@ -163,9 +147,9 @@ public class RobotContainer {
     // new JoystickButton(m_operatorStick2, IOConstants.unClimbButtonID).whileTrue(UnClimb);
     // new JoystickButton(m_operatorStick2, IOConstants.climbButtonID).whileTrue(Climb);
 
-    //Overrides
-    new JoystickButton(m_operatorStick1, IOConstants.elevatorOverrideButtonID).whileTrue(ElevatorOverride);
-    new JoystickButton(m_operatorStick2, IOConstants.wristOverrideButtonID).whileTrue(WristOverride);
+    //Testing
+    new JoystickButton(m_driverStick, 12).whileTrue(new DriveToPosition(m_driveTrain, new AdvancedPose2D(1.04, 0, 0)));
+    new JoystickButton(m_driverStick, 11).onTrue(new ResetPose(m_driveTrain));
   }
 
   /**
@@ -174,37 +158,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // var thetaController = new PIDController(AutoConstants.kPThetaController, 0, 0);
-    // thetaController.enableContinuousInput(-Math.PI, Math.PI);
-
-    // m_robotDrive.resetOdometry(traj.getInitialPose());
-
-    // Command swerveCommand = Choreo.choreoSwerveCommand(
-    //     traj, // Choreo trajectory from above
-    //     m_robotDrive::getPose, // A function that returns the current field-relative pose of the robot: your
-    //                            // wheel or vision odometry
-    //     new PIDController(Constants.AutoConstants.kPXController, 0.0, 0.0), // PIDController for field-relative X
-    //                                                                                // translation (input: X error in meters,
-    //                                                                                // output: m/s).
-    //     new PIDController(Constants.AutoConstants.kPYController, 0.0, 0.0), // PIDController for field-relative Y
-    //                                                                                // translation (input: Y error in meters,
-    //                                                                                // output: m/s).
-    //     thetaController, // PID constants to correct for rotation
-    //                      // error
-    //     (ChassisSpeeds speeds) -> m_robotDrive.drive( // needs to be robot-relative
-    //         speeds.vxMetersPerSecond,
-    //         speeds.vyMetersPerSecond,
-    //         speeds.omegaRadiansPerSecond,
-    //         false),
-    //     true, // Whether or not to mirror the path based on alliance (this assumes the path is created for the blue alliance)
-    //     m_driveTrain // The subsystem(s) to require, typically your drive subsystem only
-    // );
-
-    // return Commands.sequence(
-    //     Commands.runOnce(() -> m_driveTrain.resetOdometry(traj.getInitialPose())),
-    //     swerveCommand,
-    //     m_robotDrive.run(() -> m_robotDrive.drive(0, 0, 0, false))
-    // );
     return autonChooser.getSelected();
   }
 }
