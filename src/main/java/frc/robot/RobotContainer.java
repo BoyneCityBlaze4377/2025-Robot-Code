@@ -52,6 +52,7 @@ public class RobotContainer {
 
   /* COMMANDS */
   // DriveTrain
+  //Main Commands
   private final Command TeleopDrive = new TeleopDrive(m_driverStick, m_driveTrain);
   private final Command LockPose = new LockPose(m_driveTrain); 
   private final Command SwitchBrake = new SwitchBrake(m_driveTrain);
@@ -136,6 +137,7 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     /* DRIVER */
+    //Main Commands
     new JoystickButton(m_driverStick, IOConstants.quickBrakeButtonID).whileTrue(QuickBrake);
     new JoystickButton(m_driverStick, IOConstants.slowModeButtonID).whileTrue(SlowMode);
     new JoystickButton(m_driverStick, IOConstants.lockPoseButtonID).whileTrue(LockPose);
@@ -143,7 +145,9 @@ public class RobotContainer {
     new JoystickButton(m_driverStick, IOConstants.switchBrakeButtonID).onTrue(SwitchBrake);
     new JoystickButton(m_driverStick, IOConstants.StraightDriveButtonID).whileTrue(StraightDrive);
 
-    /* Operator */
+    //Poses
+
+    /* OPERATOR */
     //Set positions
     new JoystickButton(m_operatorStick1, IOConstants.floorPosButtonID).whileTrue(AllToFloor);
     new JoystickButton(m_operatorStick1, IOConstants.L1PosButtonID).whileTrue(AllToL1);

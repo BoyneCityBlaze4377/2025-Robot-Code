@@ -15,6 +15,7 @@ import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.AutoAimConstants.Alignment;
 import frc.robot.Constants.AutoAimConstants.Position;
 import frc.robot.Constants.AutoAimConstants.ReefStation;
+import frc.robot.Constants.AutonConstants;
 import frc.robot.commands.AllToSetPosition;
 import frc.robot.commands.Auton.Functions.AutonAlgaeCollect;
 import frc.robot.commands.Auton.Functions.AutonAlgaeScore;
@@ -22,6 +23,7 @@ import frc.robot.commands.Auton.Functions.AutonCoralCollect;
 import frc.robot.commands.Auton.Functions.AutonCoralScore;
 import frc.robot.commands.Auton.Functions.AutonDriveToPosition;
 import frc.robot.commands.Auton.Functions.InRangeAllToPosition;
+import frc.robot.commands.Auton.Functions.SetDriveTrainPose;
 import frc.robot.subsystems.AlgaeAffector;
 import frc.robot.subsystems.CoralAffector;
 import frc.robot.subsystems.DriveTrain;
@@ -39,7 +41,8 @@ public class TwoL4AndProcessor extends SequentialCommandGroup {
     AdvancedPose2D processor = alliance == Alliance.Blue ? FieldConstants.blueProcessor : FieldConstants.redprocessor;
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addCommands(new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, reef.get(ReefStation.backRight).withReefAlignment(Alignment.right)),
+    addCommands(new SetDriveTrainPose(driveTrain, alliance == Alliance.Blue ? AutonConstants.initialPoseBlueRight : AutonConstants.initialPoseRedRight),
+                new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, reef.get(ReefStation.backRight).withReefAlignment(Alignment.right)),
                                          new InRangeAllToPosition(elevator, coralAffector, driveTrain, Position.L4)),
                 new AutonCoralScore(coralAffector),
                 new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, coralStation.withRobotRelativeTransformation(new Translation2d(-Units.inchesToMeters(24), 0))),

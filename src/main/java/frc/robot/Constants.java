@@ -243,7 +243,7 @@ public final class Constants {
     public static final double maxModuleAngularSpeedDegreesPerSecond = 360;
     public static final double maxModuleAngularAccelerationDegreesPerSecondSquared = 360;
 
-    public static final double encoderCPR = 1; //1.052
+    public static final double encoderCPR = 1;
     public static final double wheelDiameterMeters = Units.inchesToMeters(3.8125);
     public static final double driveGearRatio = 1 / 6.75;
     public static final double driveMotorConversionFactor = 
@@ -425,7 +425,7 @@ public final class Constants {
   }
 
   public class AutonConstants {
-    public static final double coralCollectTimeout = 3;
+    public static final double coralCollectTimeout = 5;
     public static final double coralScoreTime = .5;
     public static final double algaeCollectTimeout = 5;
     public static final double alageScoreTime = .5;
