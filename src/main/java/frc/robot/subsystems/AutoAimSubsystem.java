@@ -13,24 +13,28 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.Lib.AdvancedPose2D;
 import frc.Lib.LimelightHelpers;
 import frc.robot.Constants.AutoAimConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.Constants.SensorConstants;
+import frc.robot.Constants.AutoAimConstants.Alignment;
 import au.grapplerobotics.ConfigurationFailedException;
 import au.grapplerobotics.LaserCan;
 import au.grapplerobotics.interfaces.LaserCanInterface;
 import au.grapplerobotics.interfaces.LaserCanInterface.RangingMode;
 
-public class VisionSubsystem extends SubsystemBase {
+public class AutoAimSubsystem extends SubsystemBase {
   private double tx, ty, ta, tID, dis;
   private final String name;
   private final LaserCan laserCan;
   private LaserCanInterface.Measurement lcMeasurement;
   private final GenericEntry txSender, targetIDSender, LCMeasurementSender, LCHasMeasurement;
+  private AdvancedPose2D desiredPose;
+  private Alignment desiredAlignment;
 
   /** Creates a new Vision. */
-  public VisionSubsystem(String cameraName) {
+  public AutoAimSubsystem(String cameraName) {
     name = cameraName;
     laserCan = new LaserCan(17);
     try {
@@ -47,6 +51,9 @@ public class VisionSubsystem extends SubsystemBase {
                                                    .withWidget("Text Display").getEntry();
     LCHasMeasurement = IOConstants.DiagnosticTab.add("LCHasMeasurement", false)
                                                 .withWidget("Boolean Box").getEntry();
+
+    desiredPose = new AdvancedPose2D();
+    desiredAlignment = Alignment.left;
   }
 
   @Override
@@ -107,5 +114,21 @@ public class VisionSubsystem extends SubsystemBase {
 
   public double getTargetID() {
     return tID;
+  }
+
+  public void setDesiredPose(AdvancedPose2D pose) {
+    desiredPose = pose;
+  }
+
+  public void setDesiredAlignment(Alignment alignment) {
+    desiredAlignment = alignment;
+  }
+
+  public AdvancedPose2D getDesiredPose() {
+    return desiredPose;
+  }
+
+  public Alignment getDesiredAlignment() {
+    return desiredAlignment;
   }
 }

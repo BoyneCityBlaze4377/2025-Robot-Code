@@ -1,5 +1,8 @@
 package frc.robot;
 
+import java.util.HashMap;
+
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -7,10 +10,13 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.Lib.AdvancedPose2D;
+import frc.robot.Constants.AutoAimConstants;
 import frc.robot.Constants.AutonConstants;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.Constants.AutoAimConstants.Alignment;
 import frc.robot.Constants.AutoAimConstants.Position;
+import frc.robot.Constants.AutoAimConstants.ReefStation;
 import frc.robot.subsystems.*;
 import frc.robot.commands.AllToSetPosition;
 import frc.robot.commands.ClimberCommands.*;
@@ -29,19 +35,17 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
  */
 public class RobotContainer {
   private final Alliance alliance = DriverStation.getAlliance().get();
-  private final AdvancedPose2D initialPose = alliance == Alliance.Blue ? 
-                                             AutonConstants.initialPoseBlue : 
-                                             AutonConstants.initialPoseRed;
+  private final HashMap<ReefStation, AdvancedPose2D> reef = alliance == Alliance.Blue ? AutoAimConstants.blueReef : AutoAimConstants.redReef;
 
   private final Joystick m_driverStick = new Joystick(IOConstants.driverControllerID); //Driving
   private final Joystick m_operatorStick1 = new Joystick(IOConstants.operatorController1ID); //Set positions and elevatorOverride
-  private final Joystick m_operatorStick2 = new Joystick(IOConstants.operatorController2ID); //Affectors, climber, and wristOverride
+  private final Joystick m_operatorStick2 = new Joystick(IOConstants.operatorController2ID); //Affectors, climber, alignments, and wristOverride
   
   private final CoralAffector m_coralAffector = new CoralAffector();
   private final AlgaeAffector m_algaeAffector = new AlgaeAffector();
   private final Climber m_climber = new Climber();
   private final Elevator m_elevator = new Elevator();
-  private final VisionSubsystem m_visionSubsystem = new VisionSubsystem(Constants.SensorConstants.limeLightName);
+  private final AutoAimSubsystem m_autoAimSubsystem = new AutoAimSubsystem(Constants.SensorConstants.limeLightName);
   private final DriveTrain m_driveTrain = new DriveTrain(m_elevator);
 
   private SendableChooser<Command> autonChooser = new SendableChooser<>();
@@ -54,6 +58,25 @@ public class RobotContainer {
   private final Command SwitchOrientation = new SwitchOrientation(m_driveTrain);
   private final Command QuickBrake = new QuickBrake(m_driveTrain);
   private final Command SlowMode = new SlowMode(m_driveTrain);
+  private final Command StraightDrive = new StraightDrive(m_driveTrain, m_driverStick);
+  private final Command AutoAimDrive = new AutoAimDrive(m_driveTrain, m_autoAimSubsystem);
+
+  //Poses
+  private final Command SelectAlignmentLeft = new SelectDesiredAlignment(m_autoAimSubsystem, Alignment.left);
+  private final Command SelectAlignmentCenter = new SelectDesiredAlignment(m_autoAimSubsystem, Alignment.center);
+  private final Command SelectAlignmentRight = new SelectDesiredAlignment(m_autoAimSubsystem, Alignment.right);
+
+  private final Command SelectReefStationFront = new SelectDesiredPose(m_autoAimSubsystem, reef.get(ReefStation.front));
+  private final Command SelectReefStationFrontRight = new SelectDesiredPose(m_autoAimSubsystem, reef.get(ReefStation.frontRight));
+  private final Command SelectReefStationBackRight = new SelectDesiredPose(m_autoAimSubsystem, reef.get(ReefStation.backRight));
+  private final Command SelectReefStationBack = new SelectDesiredPose(m_autoAimSubsystem, reef.get(ReefStation.back));
+  private final Command SelectReefStationBackLeft = new SelectDesiredPose(m_autoAimSubsystem, reef.get(ReefStation.backLeft));
+  private final Command SelectReefStationFrontLeft = new SelectDesiredPose(m_autoAimSubsystem, reef.get(ReefStation.frontLeft));
+  private final Command SelectProcessorPose = new SelectDesiredPose(m_autoAimSubsystem, alliance == Alliance.Blue ?
+                                                                      FieldConstants.blueProcessor.withRobotRelativeTransformation(
+                                                                        new Translation2d(0, -AutoAimConstants.algaePosBackset)) :
+                                                                      FieldConstants.redprocessor.withRobotRelativeTransformation(
+                                                                        new Translation2d(0, -AutoAimConstants.algaePosBackset)));
 
   //Positions
   private final Command AllToFloor = new AllToSetPosition(m_elevator, m_coralAffector, Position.floor);
@@ -69,34 +92,32 @@ public class RobotContainer {
   private final Command ElevatorOverride = new ElevatorOverride(m_elevator, m_operatorStick1);
   private final Command WristOverride = new CoralWristOverride(m_coralAffector, m_operatorStick2);
 
-  // Affectors
+  //Affectors
   private final Command CoralCollect = new CoralCollect(m_coralAffector);
   private final Command CoralScore = new CoralScore(m_coralAffector);
   private final Command AlgaeCollect = new AlgaeCollect(m_algaeAffector);
   private final Command AlgaeScore = new AlgaeScore(m_algaeAffector);
 
-  // Climber
+  //Climber
   private final Command Climb = new Climb(m_climber, m_algaeAffector);
   private final Command UnClimb = new UnClimb(m_climber);
 
-  // Auton
+  //Auton
 
-  // Testing
-  private final Command StraightDrive = new StraightDrive(m_driveTrain, m_driverStick);
+  //Testing
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
-  public RobotContainer() { 
+  public RobotContainer() {
     m_driveTrain.setDefaultCommand(TeleopDrive);
     configureButtonBindings();
     m_driveTrain.setGyroOffset(180);
-    m_driveTrain.setOdometry(initialPose);
 
     configAutonChooser();
     IOConstants.ConfigTab.add("Auton Chooser", autonChooser);
   }
 
   public void setDriveTrainPoseEstimate() {
-    if (m_visionSubsystem.getEstimatedGlobalPose().isPresent()) m_driveTrain.setOdometry(m_visionSubsystem.getEstimatedPose2d().get());
+    if (m_autoAimSubsystem.getEstimatedGlobalPose().isPresent()) m_driveTrain.setOdometry(m_autoAimSubsystem.getEstimatedPose2d().get());
   }
 
   public void setDriveOrientation(boolean fieldOriented) {

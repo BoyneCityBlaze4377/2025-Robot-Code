@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.AutoAimConstants;
 import frc.robot.Constants.AutoAimConstants.Alignment;
 import frc.robot.subsystems.DriveTrain;
-import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.subsystems.AutoAimSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class AutoAlign extends Command {
@@ -19,14 +19,14 @@ public class AutoAlign extends Command {
                   maxDisOutput, maxRotOutput;
   private final PIDController angleController, horizController, distanceController;
   private final Alignment m_alignment;
-  private final VisionSubsystem m_visionSubsystem;
+  private final AutoAimSubsystem m_autoAimSubsystem;
   private boolean orientation;
 
   /** Creates a new LimeLightDrive. */
-  public AutoAlign(DriveTrain driveTrain, VisionSubsystem visionSubsystem, 
+  public AutoAlign(DriveTrain driveTrain, AutoAimSubsystem visionSubsystem, 
                    double TargetDistance, Alignment alignment) {
     m_driveTrain = driveTrain;
-    m_visionSubsystem = visionSubsystem;
+    m_autoAimSubsystem = visionSubsystem;
 
     givenTargDis = TargetDistance;
     // switch (pov) {
@@ -75,7 +75,7 @@ public class AutoAlign extends Command {
                       / initialTargDis)) + AutoAimConstants.LLDefaultOffsetDegrees;
     // targetAngle = m_driveTrain.getEstimatedStation();
     // AutoAimConstants.angleFromReefStation.get(AutoAimConstants.reefStationFromAprilTagID.get(
-    //                                                         m_visionSubsystem.getTargetID()));
+    //                                                         m_autoAimSubsystem.getTargetID()));
     m_driveTrain.setOrientation(false);
     targetAngle = 0;
 
@@ -87,9 +87,9 @@ public class AutoAlign extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    ySpeed = MathUtil.clamp(horizController.calculate(m_visionSubsystem.getTX(), targetOffsetDeg), 
+    ySpeed = MathUtil.clamp(horizController.calculate(m_autoAimSubsystem.getTX(), targetOffsetDeg), 
                             -maxHorizOutput, maxHorizOutput);
-    xSpeed = MathUtil.clamp(distanceController.calculate(m_visionSubsystem.getDistanceMeasurementmm(), targetDistance * 1000), 
+    xSpeed = MathUtil.clamp(distanceController.calculate(m_autoAimSubsystem.getDistanceMeasurementmm(), targetDistance * 1000), 
                             -maxDisOutput, maxDisOutput);
     rot = MathUtil.clamp(angleController.calculate(m_driveTrain.getHeading(), targetAngle), 
                          -maxRotOutput, maxRotOutput);
@@ -119,7 +119,7 @@ public class AutoAlign extends Command {
     return (horizController.atSetpoint() && 
             distanceController.atSetpoint()
             && angleController.atSetpoint())
-            // || m_visionSubsystem.getTargetID() == 0
-            || m_visionSubsystem.getDistanceMeasurementmm() == -1;
+            // || m_autoAimSubsystem.getTargetID() == 0
+            || m_autoAimSubsystem.getDistanceMeasurementmm() == -1;
   }
 }

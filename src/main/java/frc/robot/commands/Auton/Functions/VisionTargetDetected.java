@@ -5,14 +5,14 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.AutoAimConstants;
 import frc.robot.Constants.AutoAimConstants.ReefStation;
-import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.subsystems.AutoAimSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class VisionTargetDetected extends Command {
-  private final VisionSubsystem m_subsystem;
+  private final AutoAimSubsystem m_subsystem;
   private final double targetID;
   /** Creates a new VisionTargetDetected. */
-  public VisionTargetDetected(VisionSubsystem subsystem, ReefStation targetStation) {
+  public VisionTargetDetected(AutoAimSubsystem subsystem, ReefStation targetStation) {
     m_subsystem = subsystem;
     targetID = DriverStation.getAlliance().get() == Alliance.Blue ? AutoAimConstants.blueReefIDsFromStation.get(targetStation)
                                                                   : AutoAimConstants.redReefIDsFromStation.get(targetStation);

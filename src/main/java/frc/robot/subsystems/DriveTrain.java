@@ -178,7 +178,7 @@ public class DriveTrain extends SubsystemBase {
     rotationElevatorHeightSpeedScaler = calcRotHeightScaler(elevatorHeight);
 
     //drive
-    instanceDrive(x * translationElevatorHeightSpeedScaler,
+    rawDrive(x * translationElevatorHeightSpeedScaler,
                   y * translationElevatorHeightSpeedScaler,
                   omega * rotationElevatorHeightSpeedScaler,
                   fieldOrientation);
@@ -192,7 +192,7 @@ public class DriveTrain extends SubsystemBase {
     autonInRange = Math.hypot(xController.getError(), yController.getError()) <= AutonConstants.inRangeThreshold;
   }
 
-  public void instanceDrive(double xSpeed, double ySpeed, double omega, boolean fieldRelative) {
+  private void rawDrive(double xSpeed, double ySpeed, double omega, boolean fieldRelative) {
     var swerveModuleStates = DriveConstants.driveKinematics.toSwerveModuleStates(fieldOrientation
                            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, omega, m_gyro.getRotation2d()) 
                            : new ChassisSpeeds(xSpeed, ySpeed, omega));

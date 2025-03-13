@@ -288,6 +288,7 @@ public final class Constants {
     public static final double leftCoralReefOffset = -(Units.inchesToMeters(6.47) + coralAffectorOffsetFromRobotCenter);
     public static final double rightCoralReefOffset = Units.inchesToMeters(6.47) - coralAffectorOffsetFromRobotCenter;
     public static final double algaePosBackset = Units.inchesToMeters(12);
+    public static final double coralPosBackset = Units.inchesToMeters(8);
 
     public static final double LLDefaultOffsetDegrees = 2.3;
     public static final double LCToBumperEdgeOffsetMeters = Units.inchesToMeters(4.85);
@@ -320,7 +321,6 @@ public final class Constants {
       put(ReefStation.backLeft, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(60), new Translation2d(centerOfReefToRobotDistance, 0), Rotation2d.fromDegrees(-120)));
       put(ReefStation.backRight, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(120), new Translation2d(centerOfReefToRobotDistance, 0), Rotation2d.fromDegrees(-60)));
     }};
-
 
     public static final HashMap<Double, ReefStation> reefStationFromAngle = new HashMap<Double, ReefStation> () {{
       put(0.0, ReefStation.front);
@@ -432,8 +432,10 @@ public final class Constants {
 
     public static final double inRangeThreshold = 1.2; //Meters
 
-    public static final AdvancedPose2D initialPoseBlue = new AdvancedPose2D(7.588, .426, Math.PI/2);
-    public static final AdvancedPose2D initialPoseRed = initialPoseBlue.flipBoth();
+    public static final AdvancedPose2D initialPoseBlueRight = new AdvancedPose2D(7.588, .426, Math.PI/2);
+    public static final AdvancedPose2D initialPoseRedRight = initialPoseBlueRight.flipBoth();
+    public static final AdvancedPose2D initialPoseBlueLeft = new AdvancedPose2D(7.588, 7.64, -Math.PI/2);
+    public static final AdvancedPose2D initialPoseRedLeft = initialPoseBlueLeft.flipBoth();
   }
 
   public class SensorConstants {

@@ -17,13 +17,13 @@
 //                   maxDisOutput, maxRotOutput;
 //   private final PIDController angleController, horizController, distanceController;
 //   private final Alignment alignment;
-//   private final VisionSubsystem m_visionSubsystem;
+//   private final VisionSubsystem m_autoAimSubsystem;
 //   private boolean orientation;
 
 //   /** Creates a new LimeLightDrive. */
 //   public AutonAutoAlign(DriveTrain driveTrain, VisionSubsystem visionSubsystem, double TargetDistance, Alignment a) {
 //     m_driveTrain = driveTrain;
-//     m_visionSubsystem = visionSubsystem;
+//     m_autoAimSubsystem = visionSubsystem;
 
 //     targetDistance = TargetDistance;
 //     alignment = a;
@@ -59,7 +59,7 @@
 //                       / targetDistance)) + AutoAimConstants.LLDefaultOffsetDegrees;
 //     targetAngle = AutoAimHelpers.getEstimatedStationAngle(m_driveTrain.getHeading());
 //     // AutoAimConstants.angleFromReefStation.get(AutoAimConstants.reefStationFromAprilTagID.get(
-//     //                                                         m_visionSubsystem.getTargetID()));
+//     //                                                         m_autoAimSubsystem.getTargetID()));
 //     m_driveTrain.setOrientation(false);
 //     targetAngle = 0;
 //     m_driveTrain.setInRange(false);
@@ -68,9 +68,9 @@
 //   // Called every time the scheduler runs while the command is scheduled.
 //   @Override
 //   public void execute() {
-//     ySpeed = MathUtil.clamp(horizController.calculate(m_visionSubsystem.getTX(), targetOffsetDeg), 
+//     ySpeed = MathUtil.clamp(horizController.calculate(m_autoAimSubsystem.getTX(), targetOffsetDeg), 
 //                             -maxHorizOutput, maxHorizOutput);
-//     xSpeed = MathUtil.clamp(distanceController.calculate(m_visionSubsystem.getDistanceMeasurementmm(), targetDistance * 1000), 
+//     xSpeed = MathUtil.clamp(distanceController.calculate(m_autoAimSubsystem.getDistanceMeasurementmm(), targetDistance * 1000), 
 //                             -maxDisOutput, maxDisOutput);
 //     rot = MathUtil.clamp(angleController.calculate(m_driveTrain.getHeading(), targetAngle), 
 //                          -maxRotOutput, maxRotOutput);
@@ -101,7 +101,7 @@
 //     return (horizController.atSetpoint() && 
 //             distanceController.atSetpoint()
 //             && angleController.atSetpoint())
-//             // || m_visionSubsystem.getTargetID() == 0
-//             || m_visionSubsystem.getDistanceMeasurementmm() == -1;
+//             // || m_autoAimSubsystem.getTargetID() == 0
+//             || m_autoAimSubsystem.getDistanceMeasurementmm() == -1;
 //   }
 // }
