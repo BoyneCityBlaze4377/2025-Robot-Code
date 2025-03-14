@@ -5,6 +5,8 @@ import com.studica.frc.AHRS.NavXComType;
 
 import java.util.Map;
 
+import javax.lang.model.element.ModuleElement.UsesDirective;
+
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.MathUtil;
@@ -36,7 +38,7 @@ public class DriveTrain extends SubsystemBase {
   // The gyro sensor
   public final AHRS m_gyro = new AHRS(NavXComType.kMXP_SPI);
   private boolean fieldOrientation = true, isLocked = false, slow = false, 
-                  isBrake = true, autonInRange = false;
+                  isBrake = true, autonInRange = false, useScalers = false;
   private double speedScaler, heading, x, y, omega, translationElevatorHeightSpeedScaler, 
                  rotationElevatorHeightSpeedScaler, elevatorHeight;
 
@@ -127,6 +129,7 @@ public class DriveTrain extends SubsystemBase {
     brakeAll();
     fieldOrientation = true;
     isLocked = false;
+    useScalers = false;
     speedScaler = DriveConstants.speedScaler;
     slow = false;
     resetEncoders();
@@ -178,10 +181,7 @@ public class DriveTrain extends SubsystemBase {
     rotationElevatorHeightSpeedScaler = calcRotHeightScaler(elevatorHeight);
 
     //drive
-    rawDrive(x * translationElevatorHeightSpeedScaler,
-                  y * translationElevatorHeightSpeedScaler,
-                  omega * rotationElevatorHeightSpeedScaler,
-                  fieldOrientation);
+    rawDrive(x , y, omega, fieldOrientation, useScalers);
 
     periodicTimer ++;
 
@@ -192,7 +192,13 @@ public class DriveTrain extends SubsystemBase {
     autonInRange = Math.hypot(xController.getError(), yController.getError()) <= AutonConstants.inRangeThreshold;
   }
 
-  private void rawDrive(double xSpeed, double ySpeed, double omega, boolean fieldRelative) {
+  private void rawDrive(double xSpeed, double ySpeed, double omega, boolean fieldRelative, boolean isPID) {
+    if (isPID) {
+      xSpeed *= calcTransHeightScaler(elevatorHeight);
+      ySpeed *= calcTransHeightScaler(elevatorHeight);
+      omega *= calcRotHeightScaler(elevatorHeight);
+    }
+
     var swerveModuleStates = DriveConstants.driveKinematics.toSwerveModuleStates(fieldOrientation
                            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, omega, m_gyro.getRotation2d()) 
                            : new ChassisSpeeds(xSpeed, ySpeed, omega));
@@ -217,6 +223,8 @@ public class DriveTrain extends SubsystemBase {
     x = xSpeed * DriveConstants.maxSpeedMetersPerSecond * speedScaler;
     y = ySpeed * DriveConstants.maxSpeedMetersPerSecond * speedScaler;
     omega = rot * DriveConstants.maxRotationSpeedRadiansPerSecond * speedScaler;
+
+    useScalers = true;
   }
 
   /**
@@ -232,6 +240,7 @@ public class DriveTrain extends SubsystemBase {
     y = ySpeed;
     omega = rot;
     fieldOrientation = true;
+    useScalers = true;
   }
 
   public void chassisSpeedDrive(ChassisSpeeds speeds) {
@@ -239,6 +248,7 @@ public class DriveTrain extends SubsystemBase {
     x = speeds.vxMetersPerSecond;
     y = speeds.vyMetersPerSecond;
     omega = speeds.omegaRadiansPerSecond;
+    useScalers = true;
   }
 
   public void setPIDSetpoints(double xSetpoint, double ySetpoint, double headingSetpoint) {
@@ -248,13 +258,15 @@ public class DriveTrain extends SubsystemBase {
   }
 
   public void PIDDrive() {
-    x = -MathUtil.clamp(xController.calculate(getPose().getX()), -DriveConstants.maxSpeedMetersPerSecond, 
-                                                                  DriveConstants.maxSpeedMetersPerSecond);
-    y = -MathUtil.clamp(yController.calculate(getPose().getY()), -DriveConstants.maxSpeedMetersPerSecond, 
-                                                                  DriveConstants.maxSpeedMetersPerSecond);
+    x = MathUtil.clamp(xController.calculate(getPose().getX()), -AutoAimConstants.maxPIDDriveSpeed, 
+                                                                 AutoAimConstants.maxPIDDriveSpeed);
+    y = MathUtil.clamp(yController.calculate(getPose().getY()), -AutoAimConstants.maxPIDDriveSpeed, 
+                                                                 AutoAimConstants.maxPIDDriveSpeed);
     omega = MathUtil.clamp(headingController.calculate(getPose().getRotation().getRadians()), 
                                                       -DriveConstants.maxRotationSpeedRadiansPerSecond, 
                                                        DriveConstants.maxRotationSpeedRadiansPerSecond);
+
+    useScalers = false;
   }
 
   public boolean atSetpoints() {

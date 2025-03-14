@@ -68,7 +68,7 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     Shuffleboard.selectTab(IOConstants.AutonTab.getTitle());
-    m_robotContainer.setDriveTrainPoseEstimate();
+    // m_robotContainer.setDriveTrainPoseEstimate();
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
@@ -86,6 +86,7 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+
     m_robotContainer.setDriveTrainPoseEstimate();
     m_robotContainer.setDriveOrientation(true);
   }

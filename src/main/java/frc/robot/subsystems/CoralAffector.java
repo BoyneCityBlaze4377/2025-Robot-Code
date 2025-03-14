@@ -91,14 +91,14 @@ public class CoralAffector extends SubsystemBase {
   }
 
   public void collect() {
-    coralAffector.set(.35);
+    coralAffector.set(AffectorConstants.coralAffectorSpeed);
   }
 
   public void eject() {
     if (getWristDegrees() > AffectorConstants.wristScoringThreshold) {
-      coralAffector.set(.8);
+      coralAffector.set(AffectorConstants.coralAffectorSpeed);
     } else {
-      coralAffector.set(-.8);
+      coralAffector.set(-AffectorConstants.coralAffectorSpeed);
     }
   }
 

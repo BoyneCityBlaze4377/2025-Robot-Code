@@ -128,7 +128,7 @@ public final class Constants {
     public static final double coralWristKD = .0002; //.0002
     public static final double coralWristKTolerance = .5;
 
-    public static final double coralAffectorSpeed = .2;
+    public static final double coralAffectorSpeed = .5;
 
     public static final double maxCoralWristUpSpeed = .25;
     public static final double maxCoralWristDownSpeed = -.05;
@@ -183,7 +183,7 @@ public final class Constants {
     public static final double speedScaler = 1;
     public static final double maxDriveSpeed = .96;
     public static final double minDriveSpeed = .35;
-    public static final double maxRotSpeed = 1;
+    public static final double maxRotSpeed = .8;
     public static final double minRotSpeed = .3;
 
     public static final double maxSpeedMetersPerSecond = 4; //4.5 true max
@@ -287,8 +287,8 @@ public final class Constants {
     public static final double coralAffectorOffsetFromRobotCenter = Units.inchesToMeters(2);
     public static final double leftCoralReefOffset = -(Units.inchesToMeters(6.47) + coralAffectorOffsetFromRobotCenter);
     public static final double rightCoralReefOffset = Units.inchesToMeters(6.47) - coralAffectorOffsetFromRobotCenter;
-    public static final double algaePosBackset = Units.inchesToMeters(12);
-    public static final double coralPosBackset = Units.inchesToMeters(8);
+    public static final double algaePosBackset = Units.inchesToMeters(6);
+    public static final double coralPosBackset = Units.inchesToMeters(4);
 
     public static final double LLDefaultOffsetDegrees = 2.3;
     public static final double LCToBumperEdgeOffsetMeters = Units.inchesToMeters(4.85);
@@ -417,6 +417,8 @@ public final class Constants {
     public static final double transkI = .013; //.013
     public static final double transkD = 0; //0
     public static final double transkTolerance = .025;
+
+    public static final double maxPIDDriveSpeed = 3.1; //3.1
   }
 
   public class ClimberConstants {
@@ -430,7 +432,7 @@ public final class Constants {
     public static final double algaeCollectTimeout = 5;
     public static final double alageScoreTime = .5;
 
-    public static final double inRangeThreshold = 1.2; //Meters
+    public static final double inRangeThreshold = 2.15; //2.15
 
     public static final AdvancedPose2D initialPoseBlueRight = new AdvancedPose2D(7.588, .426, Math.PI/2);
     public static final AdvancedPose2D initialPoseRedRight = initialPoseBlueRight.flipBoth();

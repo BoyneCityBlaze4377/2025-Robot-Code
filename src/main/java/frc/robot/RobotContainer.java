@@ -2,6 +2,7 @@ package frc.robot;
 
 import java.util.HashMap;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
@@ -19,12 +20,15 @@ import frc.robot.Constants.AutoAimConstants.Position;
 import frc.robot.Constants.AutoAimConstants.ReefStation;
 import frc.robot.subsystems.*;
 import frc.robot.commands.AllToSetPosition;
+import frc.robot.commands.Auton.Functions.InRangeAllToPosition;
+import frc.robot.commands.Auton.Functions.SetDriveTrainPose;
 import frc.robot.commands.ClimberCommands.*;
 import frc.robot.commands.DriveCommands.*;
 import frc.robot.commands.ElevatorCommands.*;
 import frc.robot.commands.PieceAffectorsCommands.*;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /*
@@ -111,7 +115,8 @@ public class RobotContainer {
   public RobotContainer() {
     m_driveTrain.setDefaultCommand(TeleopDrive);
     configureButtonBindings();
-    m_driveTrain.setGyroOffset(180);
+    m_driveTrain.setGyroOffset(0);
+    m_driveTrain.setOdometry(new Pose2d());
 
     configAutonChooser();
     IOConstants.ConfigTab.add("Auton Chooser", autonChooser);
@@ -173,7 +178,8 @@ public class RobotContainer {
     // new JoystickButton(m_operatorStick2, IOConstants.climbButtonID).whileTrue(Climb);
 
     //Testing
-    new JoystickButton(m_driverStick, 12).whileTrue(new DriveToPosition(m_driveTrain, new AdvancedPose2D(1.04, 0, 0)));
+    // new JoystickButton(m_driverStick, 12).whileTrue(new ParallelCommandGroup(new DriveToPosition(m_driveTrain, new AdvancedPose2D(2.5, 0, 0))),
+    //                                                              new InRangeAllToPosition(m_elevator, m_coralAffector, m_driveTrain, Position.L4));
     new JoystickButton(m_driverStick, 11).onTrue(new ResetPose(m_driveTrain));
   }
 
@@ -183,6 +189,9 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autonChooser.getSelected();
+    return new ParallelCommandGroup(new DriveToPosition(m_driveTrain, new AdvancedPose2D(2, 0, 0))
+                                    ,new InRangeAllToPosition(m_elevator, m_coralAffector, m_driveTrain, Position.L4)
+                                    );
+    //autonChooser.getSelected();
   }
 }
