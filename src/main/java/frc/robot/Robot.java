@@ -87,7 +87,7 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
 
-    m_robotContainer.setDriveTrainPoseEstimate();
+    // m_robotContainer.setDriveTrainPoseEstimate();
     m_robotContainer.setDriveOrientation(true);
   }
 
@@ -95,8 +95,8 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     // m_robotContainer.setDriveOrientation(true);
-    if (periodicCounter > 20) m_robotContainer.setDriveTrainPoseEstimate(); periodicCounter = 0;
-    periodicCounter++;
+    // if (periodicCounter > 20) m_robotContainer.setDriveTrainPoseEstimate(); periodicCounter = 0;
+    // periodicCounter++;
   }
 
   @Override

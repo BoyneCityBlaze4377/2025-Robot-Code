@@ -15,7 +15,7 @@ public class SelectDesiredPose extends InstantCommand {
     m_desiredPose = desiredPose;
     m_autoAimSubsystem = autoAimSubsystem;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(m_autoAimSubsystem);
+    addRequirements();
   }
 
   // Called when the command is initially scheduled.

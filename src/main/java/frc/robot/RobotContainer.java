@@ -20,6 +20,8 @@ import frc.robot.Constants.AutoAimConstants.Position;
 import frc.robot.Constants.AutoAimConstants.ReefStation;
 import frc.robot.subsystems.*;
 import frc.robot.commands.AllToSetPosition;
+import frc.robot.commands.Auton.Functions.AutonAlgaeScore;
+import frc.robot.commands.Auton.Functions.AutonCoralScore;
 import frc.robot.commands.Auton.Functions.InRangeAllToPosition;
 import frc.robot.commands.Auton.Functions.SetDriveTrainPose;
 import frc.robot.commands.ClimberCommands.*;
@@ -79,9 +81,9 @@ public class RobotContainer {
   private final Command SelectReefStationFrontLeft = new SelectDesiredPose(m_autoAimSubsystem, reef.get(ReefStation.frontLeft));
   private final Command SelectProcessorPose = new SelectDesiredPose(m_autoAimSubsystem, alliance == Alliance.Blue ?
                                                                       FieldConstants.blueProcessor.withRobotRelativeTransformation(
-                                                                        new Translation2d(0, -AutoAimConstants.algaePosBackset)) :
+                                                                        new Translation2d(0, AutoAimConstants.algaePosBackset)) :
                                                                       FieldConstants.redprocessor.withRobotRelativeTransformation(
-                                                                        new Translation2d(0, -AutoAimConstants.algaePosBackset)));
+                                                                        new Translation2d(0, AutoAimConstants.algaePosBackset)));
 
   //Positions
   private final Command AllToFloor = new AllToSetPosition(m_elevator, m_coralAffector, Position.floor);
@@ -174,13 +176,12 @@ public class RobotContainer {
     new JoystickButton(m_operatorStick2, IOConstants.algaeScoreButtonID).whileTrue(AlgaeScore);
 
     //Climber
-    // new JoystickButton(m_operatorStick2, IOConstants.unClimbButtonID).whileTrue(UnClimb);
-    // new JoystickButton(m_operatorStick2, IOConstants.climbButtonID).whileTrue(Climb);
+    new JoystickButton(m_operatorStick2, IOConstants.unClimbButtonID).whileTrue(UnClimb);
+    new JoystickButton(m_operatorStick2, IOConstants.climbButtonID).whileTrue(Climb);
 
     //Testing
-    // new JoystickButton(m_driverStick, 12).whileTrue(new ParallelCommandGroup(new DriveToPosition(m_driveTrain, new AdvancedPose2D(2.5, 0, 0))),
-    //                                                              new InRangeAllToPosition(m_elevator, m_coralAffector, m_driveTrain, Position.L4));
-    new JoystickButton(m_driverStick, 11).onTrue(new ResetPose(m_driveTrain));
+    new JoystickButton(m_driverStick, 12).whileTrue(new AutonAlgaeScore(m_algaeAffector));
+    new JoystickButton(m_driverStick, 11).whileTrue(new AutonCoralScore(m_coralAffector));
   }
 
   /**
@@ -189,9 +190,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return new ParallelCommandGroup(new DriveToPosition(m_driveTrain, new AdvancedPose2D(2, 0, 0))
-                                    ,new InRangeAllToPosition(m_elevator, m_coralAffector, m_driveTrain, Position.L4)
-                                    );
+    return autonChooser.getSelected();
     //autonChooser.getSelected();
   }
 }

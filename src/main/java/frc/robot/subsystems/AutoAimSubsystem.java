@@ -27,7 +27,7 @@ import au.grapplerobotics.interfaces.LaserCanInterface.RangingMode;
 public class AutoAimSubsystem extends SubsystemBase {
   private double tx, ty, ta, tID, dis;
   private final String name;
-  private final LaserCan laserCan;
+  //private final LaserCan laserCan;
   private LaserCanInterface.Measurement lcMeasurement;
   private final GenericEntry txSender, targetIDSender, LCMeasurementSender, LCHasMeasurement;
   private AdvancedPose2D desiredPose;
@@ -36,12 +36,12 @@ public class AutoAimSubsystem extends SubsystemBase {
   /** Creates a new Vision. */
   public AutoAimSubsystem(String cameraName) {
     name = cameraName;
-    laserCan = new LaserCan(17);
-    try {
-      laserCan.setRangingMode(RangingMode.SHORT);
-    } catch (ConfigurationFailedException e) {}
-    lcMeasurement = laserCan.getMeasurement();
-    dis = -1;
+    // laserCan = new LaserCan(17);
+
+    // try {laserCan.setRangingMode(RangingMode.SHORT);} catch (ConfigurationFailedException e) {}
+
+    // lcMeasurement = laserCan.getMeasurement();
+    // dis = -1;
 
     txSender = IOConstants.DiagnosticTab.add("tx", tx)
                                         .withWidget("Text Display").getEntry();
@@ -66,18 +66,18 @@ public class AutoAimSubsystem extends SubsystemBase {
     tID = table.getEntry("fID").getDouble(0);
 
     /* LaserCAN */
-    lcMeasurement = laserCan.getMeasurement();
-    dis = lcMeasurement != null && lcMeasurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT 
-          ? lcMeasurement.distance_mm : -1;
+    // lcMeasurement = laserCan.getMeasurement();
+    // dis = lcMeasurement != null && lcMeasurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT 
+    //       ? lcMeasurement.distance_mm : -1;
 
     /* Value Posting */
     txSender.setDouble(getTX());
     targetIDSender.setDouble(getTargetID());
-    LCMeasurementSender.setDouble(getDistanceMeasurementmm());
-    LCHasMeasurement.setBoolean(lcMeasurement != null && lcMeasurement.status == 
-                                                         LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT);
+    // LCMeasurementSender.setDouble(getDistanceMeasurementmm());
+    // LCHasMeasurement.setBoolean(lcMeasurement != null && lcMeasurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT);
 
-    SmartDashboard.putNumber("TempMeasure", (dis / 1000) - AutoAimConstants.LCToBumperEdgeOffsetMeters);
+    SmartDashboard.putString("DesiredPose", desiredPose.toString());
+    SmartDashboard.putString("DesiredAlignment", desiredAlignment.toString());
   }
 
   public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
@@ -94,11 +94,11 @@ public class AutoAimSubsystem extends SubsystemBase {
     return Optional.of(new Pose3d(new Translation3d(mt2.pose.getTranslation()), new Rotation3d(mt2.pose.getRotation())).toPose2d());
   }
 
-  public double getDistanceMeasurementmm() {
-    return lcMeasurement != null && lcMeasurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT 
-                                    ? (((dis / 1000) - AutoAimConstants.LCToBumperEdgeOffsetMeters) * 1000) 
-                                    : -1;
-  }
+  // public double getDistanceMeasurementmm() {
+  //   return lcMeasurement != null && lcMeasurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT 
+  //                                   ? (((dis / 1000) - AutoAimConstants.LCToBumperEdgeOffsetMeters) * 1000) 
+  //                                   : -1;
+  // }
 
   public double getTX() {
     return tx;
@@ -116,19 +116,19 @@ public class AutoAimSubsystem extends SubsystemBase {
     return tID;
   }
 
-  public void setDesiredPose(AdvancedPose2D pose) {
+  public synchronized void setDesiredPose(AdvancedPose2D pose) {
     desiredPose = pose;
   }
 
-  public void setDesiredAlignment(Alignment alignment) {
+  public synchronized void setDesiredAlignment(Alignment alignment) {
     desiredAlignment = alignment;
   }
 
-  public AdvancedPose2D getDesiredPose() {
+  public synchronized AdvancedPose2D getDesiredPose() {
     return desiredPose;
   }
 
-  public Alignment getDesiredAlignment() {
+  public synchronized Alignment getDesiredAlignment() {
     return desiredAlignment;
   }
 }

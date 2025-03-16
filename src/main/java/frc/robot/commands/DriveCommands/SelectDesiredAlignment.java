@@ -16,7 +16,7 @@ public class SelectDesiredAlignment extends InstantCommand {
     m_alignment = alignment;
 
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(m_autoAimSubsystem);
+    addRequirements();
   }
 
   // Called when the command is initially scheduled.

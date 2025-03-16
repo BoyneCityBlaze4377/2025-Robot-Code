@@ -36,7 +36,7 @@ public class DriveTrain extends SubsystemBase {
   private final SwerveModule m_frontLeft, m_frontRight, m_backLeft, m_backRight;
 
   // The gyro sensor
-  public final AHRS m_gyro = new AHRS(NavXComType.kMXP_SPI);
+  public final AHRS m_gyro;
   private boolean fieldOrientation = true, isLocked = false, slow = false, 
                   isBrake = true, autonInRange = false, useScalers = false;
   private double speedScaler, heading, x, y, omega, translationElevatorHeightSpeedScaler, 
@@ -95,6 +95,8 @@ public class DriveTrain extends SubsystemBase {
                                                      ModuleConstants.backRightTurningMotorReversed, 
                                                      ModuleConstants.backRightAnalogEncoderOffset, 
                                                      ModuleConstants.backRightAbsReversed);
+
+    m_gyro  = new AHRS(NavXComType.kMXP_SPI);
 
     m_odometry = new SwerveDriveOdometry(DriveConstants.driveKinematics, m_gyro.getRotation2d(),
                                          new SwerveModulePosition[] {m_frontLeft.getPosition(), m_frontRight.getPosition(),
@@ -171,7 +173,7 @@ public class DriveTrain extends SubsystemBase {
     elevatorHeight = m_elevator.getEncoderVal();
 
     /** Dashboard Posting */
-    robotHeading.setDouble(getHeading());
+    robotHeading.setDouble(m_gyro.getYaw());
 
     // Update the odometry in the periodic block
     m_odometry.update(m_gyro.getRotation2d(), getSwerveModulePositions());
@@ -186,6 +188,9 @@ public class DriveTrain extends SubsystemBase {
     periodicTimer ++;
 
     SmartDashboard.putBoolean("INRANGE", autonInRange);
+    SmartDashboard.putBoolean("Orientation", fieldOrientation);
+    SmartDashboard.putBoolean("NAVX", m_gyro.isConnected());
+    SmartDashboard.putBoolean("CAlib", m_gyro.isCalibrating());
 
     heading = m_gyro.getYaw();
 
@@ -432,7 +437,11 @@ public class DriveTrain extends SubsystemBase {
 
   /** Switches whether or not the robot drives field oriented */
   public synchronized void switchOrientation() {
-    fieldOrientation = !fieldOrientation;
+    if (fieldOrientation) {
+      fieldOrientation = false;
+    } else {
+      fieldOrientation = true;
+    }
   }
 
   /**

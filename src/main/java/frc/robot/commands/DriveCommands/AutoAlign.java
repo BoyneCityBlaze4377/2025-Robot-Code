@@ -89,8 +89,8 @@ public class AutoAlign extends Command {
   public void execute() {
     ySpeed = MathUtil.clamp(horizController.calculate(m_autoAimSubsystem.getTX(), targetOffsetDeg), 
                             -maxHorizOutput, maxHorizOutput);
-    xSpeed = MathUtil.clamp(distanceController.calculate(m_autoAimSubsystem.getDistanceMeasurementmm(), targetDistance * 1000), 
-                            -maxDisOutput, maxDisOutput);
+    // xSpeed = MathUtil.clamp(distanceController.calculate(m_autoAimSubsystem.getDistanceMeasurementmm(), targetDistance * 1000), 
+    //                         -maxDisOutput, maxDisOutput);
     rot = MathUtil.clamp(angleController.calculate(m_driveTrain.getHeading(), targetAngle), 
                          -maxRotOutput, maxRotOutput);
 
@@ -120,6 +120,7 @@ public class AutoAlign extends Command {
             distanceController.atSetpoint()
             && angleController.atSetpoint())
             // || m_autoAimSubsystem.getTargetID() == 0
-            || m_autoAimSubsystem.getDistanceMeasurementmm() == -1;
+            // || m_autoAimSubsystem.getDistanceMeasurementmm() == -1;
+            ;
   }
 }

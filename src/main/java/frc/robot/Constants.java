@@ -128,7 +128,8 @@ public final class Constants {
     public static final double coralWristKD = .0002; //.0002
     public static final double coralWristKTolerance = .5;
 
-    public static final double coralAffectorSpeed = .5;
+    public static final double coralAffectorInSpeed = .25;
+    public static final double coralAffectorOutSpeed = .75;
 
     public static final double maxCoralWristUpSpeed = .25;
     public static final double maxCoralWristDownSpeed = -.05;
@@ -427,10 +428,8 @@ public final class Constants {
   }
 
   public class AutonConstants {
-    public static final double coralCollectTimeout = 5;
     public static final double coralScoreTime = .5;
-    public static final double algaeCollectTimeout = 5;
-    public static final double alageScoreTime = .5;
+    public static final double alageScoreTime = .3;
 
     public static final double inRangeThreshold = 2.15; //2.15
 
