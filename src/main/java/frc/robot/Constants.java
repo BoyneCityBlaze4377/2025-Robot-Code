@@ -117,7 +117,7 @@ public final class Constants {
 
     public static final double coralWristDefaultPos = 0;
     public static final double coralWristL1 = 22;
-    public static final double coralWristL3 = 21;
+    public static final double coralWristL23 = 21;
     public static final double coralWristL4 = 104;
     public static final double coralWristHP = 30;
 
@@ -187,7 +187,7 @@ public final class Constants {
     public static final double maxRotSpeed = .8;
     public static final double minRotSpeed = .3;
 
-    public static final double maxSpeedMetersPerSecond = 4; //4.5 true max
+    public static final double maxSpeedMetersPerSecond = 4.25; //4.5 true max
     public static final double maxAccelerationMetersPerSecondSquared = 1;
     public static final double maxRotationSpeedRadiansPerSecond = Math.PI * 2;
 
@@ -276,9 +276,9 @@ public final class Constants {
       put(Position.floor, new double[] {ElevatorConstants.floorPos, AffectorConstants.coralWristDefaultPos});
       put(Position.L1, new double[] {ElevatorConstants.L1Pos, AffectorConstants.coralWristL1});
       put(Position.L2algae, new double[] {ElevatorConstants.L2AlgaePos, AffectorConstants.coralWristDefaultPos});
-      put(Position.L2, new double[] {ElevatorConstants.L2Pos, AffectorConstants.coralWristL3});
+      put(Position.L2, new double[] {ElevatorConstants.L2Pos, AffectorConstants.coralWristL23});
       put(Position.L3algae, new double[] {ElevatorConstants.L3AlgaePos, AffectorConstants.coralWristDefaultPos});
-      put(Position.L3, new double[] {ElevatorConstants.L3Pos, AffectorConstants.coralWristL3});
+      put(Position.L3, new double[] {ElevatorConstants.L3Pos, AffectorConstants.coralWristL23});
       put(Position.L4, new double[] {ElevatorConstants.L4Pos, AffectorConstants.coralWristL4});
       put(Position.HP, new double[] {ElevatorConstants.HPPos, AffectorConstants.coralWristHP});
     }};
