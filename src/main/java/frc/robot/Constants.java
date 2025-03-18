@@ -4,10 +4,12 @@ import java.util.HashMap;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -42,6 +44,7 @@ public final class Constants {
     public static final int switchOrientationButtonID = 4; //3
     public static final int lockPoseButtonID = 1; //4
     public static final int StraightDriveButtonID = 2;
+    public static final int autoDriveButtonID = 1;
 
     /* Operator */
     // Positions
@@ -121,18 +124,18 @@ public final class Constants {
     public static final double coralWristL4 = 104;
     public static final double coralWristHP = 30;
 
-    public static final double wristOverrideSpeed = .3;
+    public static final double wristOverrideSpeed = .4;
 
-    public static final double coralWristKP = .01; //.01
-    public static final double coralWristKI = .0001; //.0001
-    public static final double coralWristKD = .0002; //.0002
+    public static final double coralWristKP = .042; //.01
+    public static final double coralWristKI = .000; //.0001
+    public static final double coralWristKD = .000; //.0002
     public static final double coralWristKTolerance = .5;
 
     public static final double coralAffectorInSpeed = .25;
     public static final double coralAffectorOutSpeed = .75;
 
-    public static final double maxCoralWristUpSpeed = .25;
-    public static final double maxCoralWristDownSpeed = -.05;
+    public static final double maxCoralWristUpSpeed = .52;
+    public static final double maxCoralWristDownSpeed = -.175;
 
     /** ALGAE */
     public static final int algaeCollectorOneID = 13;
@@ -323,7 +326,7 @@ public final class Constants {
       put(ReefStation.backRight, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(120), new Translation2d(centerOfReefToRobotDistance, 0), Rotation2d.fromDegrees(-60)));
     }};
 
-    public static final HashMap<Double, ReefStation> reefStationFromAngle = new HashMap<Double, ReefStation> () {{
+    public static final HashMap<Double, ReefStation> blueReefStationFromAngle = new HashMap<Double, ReefStation> () {{
       put(0.0, ReefStation.front);
       put(60.0, ReefStation.frontRight);
       put(120.0, ReefStation.backRight);
@@ -331,6 +334,16 @@ public final class Constants {
       put(-180.0, ReefStation.back);
       put(-120.0, ReefStation.backLeft);
       put(-60.0, ReefStation.frontLeft);
+    }};
+
+    public static final HashMap<Double, ReefStation> redReefStationFromAngle = new HashMap<Double, ReefStation>() {{
+      put(0.0, ReefStation.back);
+      put(60.0, ReefStation.backLeft);
+      put(120.0, ReefStation.frontLeft);
+      put(180.0, ReefStation.front);
+      put(-180.0, ReefStation.front);
+      put(-120.0, ReefStation.frontRight);
+      put(-60.0, ReefStation.backRight);
     }};
 
     public static final HashMap<ReefStation, Double> angleFromReefStation = new HashMap<ReefStation, Double> () {{
@@ -419,6 +432,9 @@ public final class Constants {
     public static final double transkD = 0; //0
     public static final double transkTolerance = .025;
 
+    public static final Vector<N3> poseEstimateOdometryStdDev = VecBuilder.fill(.08, .08, Units.degreesToRadians(.025));
+    public static final Vector<N3> poseEstimateVisionStdDev = VecBuilder.fill(.02, .02, Units.degreesToRadians(1));
+
     public static final double maxPIDDriveSpeed = 3.1; //3.1
   }
 
@@ -437,11 +453,13 @@ public final class Constants {
     public static final AdvancedPose2D initialPoseRedRight = initialPoseBlueRight.flipBoth();
     public static final AdvancedPose2D initialPoseBlueLeft = new AdvancedPose2D(7.588, 7.64, -Math.PI/2);
     public static final AdvancedPose2D initialPoseRedLeft = initialPoseBlueLeft.flipBoth();
+    public static final AdvancedPose2D customInitialPose = new AdvancedPose2D();
   }
 
   public class SensorConstants {
     /**LIMELIGHT */
     public static final String limeLightName = "limelight";
+    public static final double[] limelightRobotSpacePose = {0, 0, 0, 0, 0, 0};
 
     /** LASERCAN */
     public static final int laserCANID = 17;
@@ -449,5 +467,9 @@ public final class Constants {
     /** BEAM BREAKS */
     public static final int coralBreakID = 0;
     public static final int algaeBreakID = 1;
+
+    /** Drive Gyro */
+    public static final int gyroID = 16;
+    public static final double yawOffset = 14.3;
   }
 }

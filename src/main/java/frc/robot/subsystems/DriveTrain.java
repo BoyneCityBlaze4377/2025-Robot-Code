@@ -3,31 +3,51 @@ package frc.robot.subsystems;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
+import au.grapplerobotics.interfaces.LaserCanInterface;
+
+import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 
-import javax.lang.model.element.ModuleElement.UsesDirective;
+import org.photonvision.EstimatedRobotPose;
 
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import frc.Lib.AdvancedPose2D;
+import frc.Lib.LimelightHelpers;
+import frc.Lib.LimelightHelpers.PoseEstimate;
 import frc.robot.Constants.AutoAimConstants;
+import frc.robot.Constants.AutoAimConstants.Alignment;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.Constants.ModuleConstants;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.networktables.GenericEntry;
+import frc.robot.Constants.SensorConstants;
 
 public class DriveTrain extends SubsystemBase {
   private int periodicTimer = 1;
@@ -36,14 +56,19 @@ public class DriveTrain extends SubsystemBase {
   private final SwerveModule m_frontLeft, m_frontRight, m_backLeft, m_backRight;
 
   // The gyro sensor
-  public final AHRS m_gyro;
+  //private final AHRS m_gyro;
+  private final Pigeon2 m_gyro;
   private boolean fieldOrientation = true, isLocked = false, slow = false, 
                   isBrake = true, autonInRange = false, useScalers = false;
-  private double speedScaler, heading, x, y, omega, translationElevatorHeightSpeedScaler, 
-                 rotationElevatorHeightSpeedScaler, elevatorHeight;
+  private double speedScaler, heading, x, y, omega,  elevatorHeight;
+
+  private AprilTagFieldLayout fieldLayout;
+
+  private final AutoAimSubsystem m_autoAimSubsystem;
 
   // Odometry class for tracking robot pose
   private final SwerveDriveOdometry m_odometry;
+  private final SwerveDrivePoseEstimator poseEstimator;
 
   Field2d estimateField;
 
@@ -61,9 +86,23 @@ public class DriveTrain extends SubsystemBase {
   private final PIDController headingController = new PIDController(AutoAimConstants.turnkP,
                                                                     AutoAimConstants.turnkI,
                                                                     AutoAimConstants.turnkD);
+
+  // From AAS
+  private double tx, ty, ta, tID, dis;
+  private final String cameraName;
+  private final Alliance m_alliance;
+  private final Joystick stick;
+  //private final LaserCan laserCan;
+  private LaserCanInterface.Measurement lcMeasurement;
+  private final GenericEntry txSender, targetIDSender, LCMeasurementSender, LCHasMeasurement;
+  private AdvancedPose2D desiredPose;
+  private Alignment desiredAlignment;
+
+  private AdvancedPose2D initialPose = new AdvancedPose2D();
     
   /** Creates a new DriveTrain. */
-  public DriveTrain(Elevator elevator) {
+  public DriveTrain(Elevator elevator, AutoAimSubsystem autoAimSubsystem, 
+                    String limelightName, Alliance alliance, Joystick driverStick) {
     m_frontLeft = new SwerveModule("frontLeft", ModuleConstants.frontLeftDriveMotorPort, 
                                                      ModuleConstants.frontLeftTurningMotorPort,
                                                      ModuleConstants.frontLeftTurningEncoderPort, 
@@ -96,11 +135,21 @@ public class DriveTrain extends SubsystemBase {
                                                      ModuleConstants.backRightAnalogEncoderOffset, 
                                                      ModuleConstants.backRightAbsReversed);
 
-    m_gyro  = new AHRS(NavXComType.kMXP_SPI);
+    m_gyro = new Pigeon2(SensorConstants.gyroID);
+
+    m_autoAimSubsystem = autoAimSubsystem;
 
     m_odometry = new SwerveDriveOdometry(DriveConstants.driveKinematics, m_gyro.getRotation2d(),
-                                         new SwerveModulePosition[] {m_frontLeft.getPosition(), m_frontRight.getPosition(),
-                                                                     m_backLeft.getPosition(), m_backRight.getPosition()});
+                                         getSwerveModulePositions());
+    poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.driveKinematics, m_gyro.getRotation2d(), 
+                                                 getSwerveModulePositions(), initialPose,
+                                                 AutoAimConstants.poseEstimateOdometryStdDev,
+                                                 AutoAimConstants.poseEstimateVisionStdDev);    
+
+    try {
+      fieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2025Reefscape.m_resourceFile);
+      fieldLayout.setOrigin(new Pose3d(initialPose));
+    } catch (IOException e) {}
 
     robotHeading = IOConstants.TeleopTab.add("Robot Heading", heading)
                                         .withWidget("Radial Gauge")
@@ -108,7 +157,7 @@ public class DriveTrain extends SubsystemBase {
                                                                "min_value", -180, "max_value", 180,
                                                                "wrap_value", true, "show_pointer", false))
                                         .getEntry();
-    poseEstimate = IOConstants.DiagnosticTab.add("Field", m_odometry.getPoseMeters().toString())
+    poseEstimate = IOConstants.DiagnosticTab.add("Field", poseEstimator.getEstimatedPosition())
                                             .withWidget("Field")
                                             .withProperties(Map.of("robot_width", DriveConstants.trackWidth,
                                                                    "robot_length", DriveConstants.wheelBase))
@@ -136,8 +185,6 @@ public class DriveTrain extends SubsystemBase {
     slow = false;
     resetEncoders();
 
-    translationElevatorHeightSpeedScaler = 1;
-    rotationElevatorHeightSpeedScaler = 1;
     m_elevator = elevator;
     elevatorHeight = m_elevator.getEncoderVal();
 
@@ -153,6 +200,34 @@ public class DriveTrain extends SubsystemBase {
     x = 0;
     y = 0;
     omega = 0;
+
+    //From AAS
+    cameraName = limelightName;
+    m_alliance = alliance;
+    stick = driverStick;
+    // laserCan = new LaserCan(17);
+
+    // try {laserCan.setRangingMode(RangingMode.SHORT);} catch (ConfigurationFailedException e) {}
+
+    // lcMeasurement = laserCan.getMeasurement();
+    // dis = -1;
+
+    LimelightHelpers.SetRobotOrientation(cameraName, initialPose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
+
+    NetworkTableInstance.getDefault().getTable("limelight").getEntry("camera_robotspace_set")
+                    .setDoubleArray(SensorConstants.limelightRobotSpacePose);
+
+    txSender = IOConstants.DiagnosticTab.add("tx", tx)
+                                        .withWidget("Text Display").getEntry();
+    targetIDSender = IOConstants.DiagnosticTab.add("target ID", tID)
+                                              .withWidget("Text Display").getEntry();
+    LCMeasurementSender = IOConstants.DiagnosticTab.add("LaserCAN measured distance", -1)
+                                                   .withWidget("Text Display").getEntry();
+    LCHasMeasurement = IOConstants.DiagnosticTab.add("LCHasMeasurement", false)
+                                                .withWidget("Boolean Box").getEntry();
+
+    desiredPose = new AdvancedPose2D();
+    desiredAlignment = Alignment.left;
   }
 
   @Override
@@ -173,14 +248,18 @@ public class DriveTrain extends SubsystemBase {
     elevatorHeight = m_elevator.getEncoderVal();
 
     /** Dashboard Posting */
-    robotHeading.setDouble(m_gyro.getYaw());
+    robotHeading.setDouble(m_gyro.getYaw().getValueAsDouble());
 
     // Update the odometry in the periodic block
     m_odometry.update(m_gyro.getRotation2d(), getSwerveModulePositions());
-    poseEstimate.setString(m_odometry.getPoseMeters().toString());
 
-    translationElevatorHeightSpeedScaler = calcTransHeightScaler(elevatorHeight);
-    rotationElevatorHeightSpeedScaler = calcRotHeightScaler(elevatorHeight);
+    poseEstimator.update(m_gyro.getRotation2d(), getSwerveModulePositions());
+    if (getPoseEstimate().isPresent()) {
+      poseEstimator.addVisionMeasurement(getPoseEstimate().get().pose, 
+                                         getPoseEstimate().get().timestampSeconds);
+    }
+
+    poseEstimate.setValue(poseEstimator.getEstimatedPosition());
 
     //drive
     rawDrive(x , y, omega, fieldOrientation, useScalers);
@@ -190,11 +269,56 @@ public class DriveTrain extends SubsystemBase {
     SmartDashboard.putBoolean("INRANGE", autonInRange);
     SmartDashboard.putBoolean("Orientation", fieldOrientation);
     SmartDashboard.putBoolean("NAVX", m_gyro.isConnected());
-    SmartDashboard.putBoolean("CAlib", m_gyro.isCalibrating());
+    // SmartDashboard.putBoolean("CAlib", m_gyro.isCalibrating());
 
-    heading = m_gyro.getYaw();
+    heading = m_gyro.getYaw().getValueAsDouble();
+    if (heading > 180) {
+      m_gyro.setYaw(heading - 360);
+    } else if (heading <= -180) {
+      m_gyro.setYaw(heading + 360);
+    }
 
     autonInRange = Math.hypot(xController.getError(), yController.getError()) <= AutonConstants.inRangeThreshold;
+
+    //From AAS
+    /* LIMELIGHT */
+    NetworkTable table = NetworkTableInstance.getDefault().getTable(SensorConstants.limeLightName);
+    tx = table.getEntry("tx").getDouble(0);
+    ty = table.getEntry("ty").getDouble(0);
+    ta = table.getEntry("ta").getDouble(0);
+    tID = table.getEntry("fID").getDouble(0);
+
+    /* LaserCAN */
+    // lcMeasurement = laserCan.getMeasurement();
+    // dis = lcMeasurement != null && lcMeasurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT 
+    //       ? lcMeasurement.distance_mm : -1;
+
+    /* Value Posting */
+    txSender.setDouble(getTX());
+    targetIDSender.setDouble(getTargetID());
+    // LCMeasurementSender.setDouble(getDistanceMeasurementmm());
+    // LCHasMeasurement.setBoolean(lcMeasurement != null && lcMeasurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT);
+
+    SmartDashboard.putString("DesiredPose", desiredPose.toString());
+    SmartDashboard.putString("DesiredAlignment", desiredAlignment.toString());
+
+    switch (stick.getPOV()) {
+      case 90:
+        desiredAlignment = Alignment.right;
+        break;
+      case 270:
+        desiredAlignment = Alignment.left;
+        break;
+      case -1:
+        desiredAlignment = Alignment.center;
+        break;
+      default:
+        desiredAlignment = Alignment.center;
+        break;
+    }
+
+    desiredPose = m_alliance == Alliance.Blue ? AutoAimConstants.blueReef.get(AutoAimConstants.blueReefStationFromAngle.get(getEstimatedStationAngle()))
+                                              : AutoAimConstants.redReef.get(AutoAimConstants.redReefStationFromAngle.get(getEstimatedStationAngle()));
   }
 
   private void rawDrive(double xSpeed, double ySpeed, double omega, boolean fieldRelative, boolean isPID) {
@@ -362,7 +486,8 @@ public class DriveTrain extends SubsystemBase {
    * @return The pose.
    */
   public synchronized Pose2d getPose() {
-    return m_odometry.getPoseMeters();
+    return poseEstimator.getEstimatedPosition();
+    //return m_odometry.getPoseMeters();
   }
 
   /**
@@ -457,18 +582,18 @@ public class DriveTrain extends SubsystemBase {
     return fieldOrientation;
   }
 
-  /**
-   * Sets the offset of the gyro.
-   * 
-   * @param offsetDegrees The number of degrees to offset by.
-   */
-  public void setGyroOffset(double offsetDegrees) {
-    m_gyro.setAngleAdjustment(offsetDegrees);
-  }
+  // /**
+  //  * Sets the offset of the gyro.
+  //  * 
+  //  * @param offsetDegrees The number of degrees to offset by.
+  //  */
+  // public void setGyroOffset(double offsetDegrees) {
+  //   m_gyro.setAngleAdjustment(offsetDegrees);
+  // }
 
   /** Zeroes the heading of the robot */
   public void zeroHeading() {
-    m_gyro.zeroYaw();
+    m_gyro.setYaw(0);
   }
 
   /**
@@ -477,18 +602,18 @@ public class DriveTrain extends SubsystemBase {
    * @return The robot's heading in degrees, from -180 to 180
    */
   public synchronized double getHeading() {
-    return m_gyro.getYaw();
+    return m_gyro.getYaw().getValueAsDouble();
   }
 
-   /** @return The roll of the gyro */
-   public double getRoll(){
-    return m_gyro.getRoll();
-  }
+  //  /** @return The roll of the gyro */
+  //  public double getRoll(){
+  //   return m_gyro.getRoll();
+  // }
   
-  /** @return The pitch of the gyro */
-  public double getPitch(){
-    return m_gyro.getPitch();
-  }
+  // /** @return The pitch of the gyro */
+  // public double getPitch(){
+  //   return m_gyro.getPitch();
+  // }
 
   /**
    * Returns the turn rate of the robot.
@@ -538,5 +663,104 @@ public class DriveTrain extends SubsystemBase {
       }
     }
     return selectedAngle;
+  }
+
+
+  //FromAAS
+  
+  private Optional<EstimatedRobotPose> getEstimatedGlobalPoseBlue() {
+    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(cameraName);
+    return Optional.of(new EstimatedRobotPose(new Pose3d(new Translation3d(mt2.pose.getTranslation()),
+                                                          new Rotation3d(mt2.pose.getRotation())),
+                                              mt2.timestampSeconds,
+                                              null,
+                                              null));
+  }
+
+  private Optional<Pose2d> getEstimatedPose2dBlue() {
+    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(cameraName);
+    return Optional.of(new Pose3d(new Translation3d(mt2.pose.getTranslation()), new Rotation3d(mt2.pose.getRotation())).toPose2d());
+  }
+
+  private Optional<PoseEstimate> getPoseEstimateBlue() {
+    return Optional.of(LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(cameraName));
+  }
+
+  private Optional<EstimatedRobotPose> getEstimatedGlobalPoseRed() {
+    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(cameraName);
+    return Optional.of(new EstimatedRobotPose(new Pose3d(new Translation3d(mt2.pose.getTranslation()),
+                                                          new Rotation3d(mt2.pose.getRotation())),
+                                              mt2.timestampSeconds,
+                                              null,
+                                              null));
+  }
+
+  private Optional<Pose2d> getEstimatedPose2dRed() {
+    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(cameraName);
+    return Optional.of(new Pose3d(new Translation3d(mt2.pose.getTranslation()), new Rotation3d(mt2.pose.getRotation())).toPose2d());
+  }
+
+  private Optional<PoseEstimate> getPoseEstimateRed() {
+    return Optional.of(LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(cameraName));
+  }
+
+  public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
+    return m_alliance == Alliance.Blue ? getEstimatedGlobalPoseBlue() : getEstimatedGlobalPoseRed();
+  }
+
+  public Optional<Pose2d> getEstimatedPose2d() {
+    return m_alliance == Alliance.Blue ? getEstimatedPose2dBlue() : getEstimatedPose2dRed();
+  }
+
+  public Optional<PoseEstimate> getPoseEstimate() {
+    return m_alliance == Alliance.Blue ? getPoseEstimateBlue() : getPoseEstimateRed();
+  }
+
+  // public double getDistanceMeasurementmm() {
+  //   return lcMeasurement != null && lcMeasurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT 
+  //                                   ? (((dis / 1000) - AutoAimConstants.LCToBumperEdgeOffsetMeters) * 1000) 
+  //                                   : -1;
+  // }
+
+  public double getTX() {
+    return tx;
+  }
+
+  public double getTY() {
+    return ty;
+  }
+
+  public double getTA() {
+    return ta;
+  }
+
+  public double getTargetID() {
+    return tID;
+  }
+
+  public synchronized void setDesiredPose(AdvancedPose2D pose) {
+    desiredPose = pose;
+  }
+
+  public synchronized void setDesiredAlignment(Alignment alignment) {
+    desiredAlignment = alignment;
+  }
+
+  public synchronized AdvancedPose2D getDesiredPose() {
+    return desiredPose;
+  }
+
+  public synchronized Alignment getDesiredAlignment() {
+    return desiredAlignment;
+  }
+
+  public synchronized void setInitialPose(AdvancedPose2D pose) {
+    poseEstimator.resetPose(pose);
+    fieldLayout.setOrigin(new Pose3d(pose));
+    initialPose = pose;
+  }
+
+  public synchronized AdvancedPose2D getAutoAimPose() {
+    return desiredPose.withReefAlignment(desiredAlignment);
   }
 }

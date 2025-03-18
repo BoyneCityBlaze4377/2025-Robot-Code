@@ -9,28 +9,25 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import frc.Lib.AdvancedPose2D;
+
 import frc.robot.Constants.AutoAimConstants;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.IOConstants;
+import frc.robot.Constants.SensorConstants;
 import frc.robot.Constants.AutoAimConstants.Alignment;
 import frc.robot.Constants.AutoAimConstants.Position;
 import frc.robot.Constants.AutoAimConstants.ReefStation;
 import frc.robot.subsystems.*;
 import frc.robot.commands.AllToSetPosition;
-import frc.robot.commands.Auton.Functions.AutonAlgaeScore;
-import frc.robot.commands.Auton.Functions.AutonCoralScore;
-import frc.robot.commands.Auton.Functions.InRangeAllToPosition;
-import frc.robot.commands.Auton.Functions.SetDriveTrainPose;
 import frc.robot.commands.ClimberCommands.*;
 import frc.robot.commands.DriveCommands.*;
 import frc.robot.commands.ElevatorCommands.*;
 import frc.robot.commands.PieceAffectorsCommands.*;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /*
@@ -52,9 +49,11 @@ public class RobotContainer {
   private final Climber m_climber = new Climber();
   private final Elevator m_elevator = new Elevator();
   private final AutoAimSubsystem m_autoAimSubsystem = new AutoAimSubsystem(Constants.SensorConstants.limeLightName);
-  private final DriveTrain m_driveTrain = new DriveTrain(m_elevator);
+  private final DriveTrain m_driveTrain = new DriveTrain(m_elevator, m_autoAimSubsystem, SensorConstants.limeLightName, 
+                                                         alliance, m_driverStick);
 
-  private SendableChooser<Command> autonChooser = new SendableChooser<>();
+  private SendableChooser<Command> autonChooser = new SendableChooser<Command>();
+  private SendableChooser<AdvancedPose2D> initialPoseSelector = new SendableChooser<AdvancedPose2D>();
 
   /* COMMANDS */
   // DriveTrain
@@ -67,6 +66,7 @@ public class RobotContainer {
   private final Command SlowMode = new SlowMode(m_driveTrain);
   private final Command StraightDrive = new StraightDrive(m_driveTrain, m_driverStick);
   private final Command AutoAimDrive = new AutoAimDrive(m_driveTrain, m_autoAimSubsystem);
+  private final Command TEMPAUTODRIVE = new TEMPAUTODRIVE(m_driveTrain);
 
   //Poses
   private final Command SelectAlignmentLeft = new SelectDesiredAlignment(m_autoAimSubsystem, Alignment.left);
@@ -117,15 +117,21 @@ public class RobotContainer {
   public RobotContainer() {
     m_driveTrain.setDefaultCommand(TeleopDrive);
     configureButtonBindings();
-    m_driveTrain.setGyroOffset(0);
     m_driveTrain.setOdometry(new Pose2d());
 
     configAutonChooser();
     IOConstants.ConfigTab.add("Auton Chooser", autonChooser);
+
+    configInitialPoseSelector();
+    IOConstants.ConfigTab.add("Starting Position Chooser", initialPoseSelector);
+  }
+
+  public void setDriveTrainInitialPose() {
+    m_driveTrain.setInitialPose(initialPoseSelector.getSelected());
   }
 
   public void setDriveTrainPoseEstimate() {
-    if (m_autoAimSubsystem.getEstimatedGlobalPose().isPresent()) m_driveTrain.setOdometry(m_autoAimSubsystem.getEstimatedPose2d().get());
+    //if (m_autoAimSubsystem.getEstimatedGlobalPose().isPresent()) m_driveTrain.setOdometry(m_autoAimSubsystem.getEstimatedPose2d().get());
   }
 
   public void setDriveOrientation(boolean fieldOriented) {
@@ -134,6 +140,14 @@ public class RobotContainer {
 
   public void configAutonChooser() {
     autonChooser.setDefaultOption("No Auton", null);
+  }
+
+  public void configInitialPoseSelector() {
+    initialPoseSelector.setDefaultOption("Blue, Right", AutonConstants.initialPoseBlueRight);
+    initialPoseSelector.addOption("Blue, Left", AutonConstants.initialPoseBlueLeft);
+    initialPoseSelector.addOption("Red, Right", AutonConstants.initialPoseRedRight);
+    initialPoseSelector.addOption("Red, Left", AutonConstants.initialPoseRedLeft);
+    initialPoseSelector.addOption("Custom", AutonConstants.customInitialPose);
   }
 
   /**
@@ -151,6 +165,7 @@ public class RobotContainer {
     new JoystickButton(m_driverStick, IOConstants.switchOrientationButtonID).onTrue(SwitchOrientation);
     new JoystickButton(m_driverStick, IOConstants.switchBrakeButtonID).onTrue(SwitchBrake);
     new JoystickButton(m_driverStick, IOConstants.StraightDriveButtonID).whileTrue(StraightDrive);
+    new JoystickButton(m_driverStick, IOConstants.autoDriveButtonID).whileTrue(TEMPAUTODRIVE);
 
     //Poses
 
@@ -180,8 +195,7 @@ public class RobotContainer {
     new JoystickButton(m_operatorStick2, IOConstants.climbButtonID).whileTrue(Climb);
 
     //Testing
-    new JoystickButton(m_driverStick, 12).whileTrue(new AutonAlgaeScore(m_algaeAffector));
-    new JoystickButton(m_driverStick, 11).whileTrue(new AutonCoralScore(m_coralAffector));
+
   }
 
   /**
@@ -191,6 +205,5 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autonChooser.getSelected();
-    //autonChooser.getSelected();
   }
 }
