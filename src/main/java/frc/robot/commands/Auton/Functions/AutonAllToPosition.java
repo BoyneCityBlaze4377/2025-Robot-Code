@@ -1,12 +1,8 @@
 package frc.robot.commands.Auton.Functions;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.AffectorConstants;
 import frc.robot.Constants.AutoAimConstants;
 import frc.robot.Constants.AutoAimConstants.Position;
-import frc.robot.Constants.ElevatorConstants;
 import frc.robot.subsystems.CoralAffector;
 import frc.robot.subsystems.Elevator;
 
@@ -14,22 +10,12 @@ import frc.robot.subsystems.Elevator;
 public class AutonAllToPosition extends Command {
   private final Elevator m_elevator;
   private final CoralAffector m_coralAffector;
-  private final PIDController wristController, elevatorController;
   private final double elevatorTarget, coralWristTarget;
-  private double elevatorOutput, coralWristOutput;
   
   public AutonAllToPosition(Elevator elevator, CoralAffector coralAffector, 
                             double elevatorPos, double wristPos) {
     m_elevator = elevator;
     m_coralAffector = coralAffector;
-                          
-    elevatorController = new PIDController(ElevatorConstants.kP, ElevatorConstants.kI, ElevatorConstants.kD);
-    elevatorController.setTolerance(ElevatorConstants.kTolerance);
-                          
-    wristController = new PIDController(AffectorConstants.coralWristKP, 
-                                        AffectorConstants.coralWristKI, 
-                                        AffectorConstants.coralWristKD);
-    wristController.setTolerance(AffectorConstants.coralWristKTolerance);
                           
     elevatorTarget = elevatorPos;
     coralWristTarget = wristPos;
@@ -45,20 +31,15 @@ public class AutonAllToPosition extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    elevatorOutput = 0;
-    coralWristOutput = 0;
+    m_elevator.setSetpoint(elevatorTarget);
+    m_coralAffector.setSetpoint(coralWristTarget);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    elevatorOutput = MathUtil.clamp(elevatorController.calculate(m_elevator.getEncoderVal(), elevatorTarget), 
-                                   ElevatorConstants.maxDownSpeed, ElevatorConstants.maxUpSpeed);
-    m_elevator.set(elevatorOutput);
-
-    coralWristOutput = MathUtil.clamp(wristController.calculate(m_coralAffector.getWristDegrees(), coralWristTarget), 
-                                   AffectorConstants.maxCoralWristDownSpeed, AffectorConstants.maxCoralWristUpSpeed);
-    m_coralAffector.moveWrist(coralWristOutput);
+    m_elevator.PIDMove();
+    m_coralAffector.PIDMoveWrist();
   }
 
   // Called once the command ends or is interrupted.
@@ -66,14 +47,11 @@ public class AutonAllToPosition extends Command {
   public void end(boolean interrupted) {
     m_elevator.lockElevator();
     m_coralAffector.PIDLockWrist();
-
-    elevatorOutput = 0;
-    coralWristOutput = 0;
-  }
+}
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return wristController.atSetpoint() && elevatorController.atSetpoint();
+    return m_elevator.atSetpoint() && m_coralAffector.atSetpoint();
   }
 }

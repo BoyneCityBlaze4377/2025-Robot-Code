@@ -34,7 +34,7 @@ public class CoralWristOverride extends Command {
     if (Math.abs(input) < .2) {
       m_coralAffector.overrideLockWrist();
     } else {
-      m_coralAffector.moveWrist(-input);
+      m_coralAffector.overrideWrist(-input);
     }
   }
 

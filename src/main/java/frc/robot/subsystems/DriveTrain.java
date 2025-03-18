@@ -12,6 +12,7 @@ import java.util.Optional;
 import org.photonvision.EstimatedRobotPose;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -241,6 +242,13 @@ public class DriveTrain extends SubsystemBase {
       periodicTimer = 0;
     }
 
+    heading = m_gyro.getYaw().getValueAsDouble();
+    if (heading > 180) {
+      m_gyro.setYaw(heading - 360);
+    } else if (heading <= -180) {
+      m_gyro.setYaw(heading + 360);
+    }
+
     isBrake = m_frontLeft.getIdleMode() == IdleMode.kBrake;
 
     updateOdometry();
@@ -248,7 +256,7 @@ public class DriveTrain extends SubsystemBase {
     elevatorHeight = m_elevator.getEncoderVal();
 
     /** Dashboard Posting */
-    robotHeading.setDouble(m_gyro.getYaw().getValueAsDouble());
+    robotHeading.setDouble(heading);
 
     // Update the odometry in the periodic block
     m_odometry.update(m_gyro.getRotation2d(), getSwerveModulePositions());
@@ -321,8 +329,8 @@ public class DriveTrain extends SubsystemBase {
                                               : AutoAimConstants.redReef.get(AutoAimConstants.redReefStationFromAngle.get(getEstimatedStationAngle()));
   }
 
-  private void rawDrive(double xSpeed, double ySpeed, double omega, boolean fieldRelative, boolean isPID) {
-    if (isPID) {
+  private void rawDrive(double xSpeed, double ySpeed, double omega, boolean fieldRelative, boolean scale) {
+    if (scale) {
       xSpeed *= calcTransHeightScaler(elevatorHeight);
       ySpeed *= calcTransHeightScaler(elevatorHeight);
       omega *= calcRotHeightScaler(elevatorHeight);
@@ -602,6 +610,10 @@ public class DriveTrain extends SubsystemBase {
    * @return The robot's heading in degrees, from -180 to 180
    */
   public synchronized double getHeading() {
+    return heading;
+  }
+
+  public synchronized double getRawHeading() {
     return m_gyro.getYaw().getValueAsDouble();
   }
 

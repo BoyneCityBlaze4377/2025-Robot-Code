@@ -155,6 +155,7 @@ public class Elevator extends SubsystemBase {
   public void PIDMove() {
     elevatorSpeed = MathUtil.clamp(elevatorController.calculate(getEncoderVal()), 
                     ElevatorConstants.maxDownSpeed, ElevatorConstants.maxUpSpeed);
+    locked = false;
   }
 
   public boolean atSetpoint() {

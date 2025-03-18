@@ -14,6 +14,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.AffectorConstants;
 import frc.robot.Constants.IOConstants;
@@ -28,6 +29,7 @@ public class CoralAffector extends SubsystemBase {
   private boolean locked;
   private final double dA;
   private final PIDController wristController;
+  private double wristSpeed;
 
   /** Creates a new PieceAffector. */
   public CoralAffector() {
@@ -60,7 +62,7 @@ public class CoralAffector extends SubsystemBase {
     lockedSender = IOConstants.DiagnosticTab.add("CoralWrist Locked", false)
                                             .withWidget("Boolean Box").getEntry();
 
-    zeroWristEncoder();
+    wristSpeed = 0;
   }
   
   @Override
@@ -68,6 +70,9 @@ public class CoralAffector extends SubsystemBase {
     wristValSender.setDouble(getWristDegrees());
     hasCoralSender.setBoolean(hasCoral());
     lockedSender.setBoolean(locked);
+    SmartDashboard.putNumber("SET", wristController.getSetpoint());
+
+    coralWrist.set(wristSpeed);
   }
 
   private void configMotorControllerDefaults() {
@@ -85,8 +90,8 @@ public class CoralAffector extends SubsystemBase {
     coralWrist.configure(coralWristConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
-  public void moveWrist(double speed) {
-    coralWrist.set(speed);
+  public void overrideWrist(double speed) {
+    wristSpeed = speed;
     locked = false;
   }
 
@@ -111,7 +116,7 @@ public class CoralAffector extends SubsystemBase {
   }
 
   public void stopWrist() {
-    coralWrist.set(0);
+    wristSpeed = 0;
     locked = false;
   }
 
@@ -120,12 +125,12 @@ public class CoralAffector extends SubsystemBase {
   }
 
   public void overrideLockWrist() {
-    coralWrist.set(.06 - .0000052 * Math.pow(getWristDegrees() - 90, 2));
+    wristSpeed = (.06 - .0000052 * Math.pow(getWristDegrees() - 90, 2));
     locked = true;
   }
 
   public void PIDLockWrist() {
-    coralWrist.set(.06 - .0000052 * Math.pow(wristController.getSetpoint() - 90, 2));
+    wristSpeed = (.06 - .0000052 * Math.pow(wristController.getSetpoint() - 90, 2));
     locked = true;
   }
 
@@ -146,8 +151,9 @@ public class CoralAffector extends SubsystemBase {
   }
 
   public void PIDMoveWrist() {
-    coralWrist.set(MathUtil.clamp(wristController.calculate(getWristDegrees()), 
-                   AffectorConstants.maxCoralWristDownSpeed, AffectorConstants.maxCoralWristUpSpeed));
+    wristSpeed = (MathUtil.clamp(wristController.calculate(getWristDegrees()), 
+                  AffectorConstants.maxCoralWristDownSpeed, AffectorConstants.maxCoralWristUpSpeed));
+    locked = false;
   }
 
   public boolean atSetpoint() {
