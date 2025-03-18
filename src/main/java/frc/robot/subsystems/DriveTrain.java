@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.lang.model.element.ModuleElement.UsesDirective;
 
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.MathUtil;
@@ -36,7 +37,7 @@ public class DriveTrain extends SubsystemBase {
   private final SwerveModule m_frontLeft, m_frontRight, m_backLeft, m_backRight;
 
   // The gyro sensor
-  public final AHRS m_gyro;
+  public final Pigeon2 m_gyro;
   private boolean fieldOrientation = true, isLocked = false, slow = false, 
                   isBrake = true, autonInRange = false, useScalers = false;
   private double speedScaler, heading, x, y, omega, translationElevatorHeightSpeedScaler, 
@@ -96,7 +97,7 @@ public class DriveTrain extends SubsystemBase {
                                                      ModuleConstants.backRightAnalogEncoderOffset, 
                                                      ModuleConstants.backRightAbsReversed);
 
-    m_gyro  = new AHRS(NavXComType.kMXP_SPI);
+    m_gyro = new Pigeon2(16);
 
     m_odometry = new SwerveDriveOdometry(DriveConstants.driveKinematics, m_gyro.getRotation2d(),
                                          new SwerveModulePosition[] {m_frontLeft.getPosition(), m_frontRight.getPosition(),
@@ -166,6 +167,13 @@ public class DriveTrain extends SubsystemBase {
       periodicTimer = 0;
     }
 
+    heading = m_gyro.getYaw().getValueAsDouble();
+    if (heading > 180) {
+      m_gyro.setYaw(heading - 360);
+    } else if (heading <= -180) {
+      m_gyro.setYaw(heading + 360);
+    }
+
     isBrake = m_frontLeft.getIdleMode() == IdleMode.kBrake;
 
     updateOdometry();
@@ -173,7 +181,7 @@ public class DriveTrain extends SubsystemBase {
     elevatorHeight = m_elevator.getEncoderVal();
 
     /** Dashboard Posting */
-    robotHeading.setDouble(m_gyro.getYaw());
+    robotHeading.setDouble(heading);
 
     // Update the odometry in the periodic block
     m_odometry.update(m_gyro.getRotation2d(), getSwerveModulePositions());
@@ -190,15 +198,13 @@ public class DriveTrain extends SubsystemBase {
     SmartDashboard.putBoolean("INRANGE", autonInRange);
     SmartDashboard.putBoolean("Orientation", fieldOrientation);
     SmartDashboard.putBoolean("NAVX", m_gyro.isConnected());
-    SmartDashboard.putBoolean("CAlib", m_gyro.isCalibrating());
-
-    heading = m_gyro.getYaw();
+    // SmartDashboard.putBoolean("Calib", m_gyro.isCalibrating());
 
     autonInRange = Math.hypot(xController.getError(), yController.getError()) <= AutonConstants.inRangeThreshold;
   }
 
-  private void rawDrive(double xSpeed, double ySpeed, double omega, boolean fieldRelative, boolean isPID) {
-    if (isPID) {
+  private void rawDrive(double xSpeed, double ySpeed, double omega, boolean fieldRelative, boolean scale) {
+    if (scale) {
       xSpeed *= calcTransHeightScaler(elevatorHeight);
       ySpeed *= calcTransHeightScaler(elevatorHeight);
       omega *= calcRotHeightScaler(elevatorHeight);
@@ -463,12 +469,12 @@ public class DriveTrain extends SubsystemBase {
    * @param offsetDegrees The number of degrees to offset by.
    */
   public void setGyroOffset(double offsetDegrees) {
-    m_gyro.setAngleAdjustment(offsetDegrees);
+    m_gyro.setYaw(offsetDegrees);
   }
 
   /** Zeroes the heading of the robot */
   public void zeroHeading() {
-    m_gyro.zeroYaw();
+    m_gyro.setYaw(0);
   }
 
   /**
@@ -477,18 +483,22 @@ public class DriveTrain extends SubsystemBase {
    * @return The robot's heading in degrees, from -180 to 180
    */
   public synchronized double getHeading() {
-    return m_gyro.getYaw();
+    return heading;
   }
 
-   /** @return The roll of the gyro */
-   public double getRoll(){
-    return m_gyro.getRoll();
+  public synchronized double getRawHeading() {
+    return m_gyro.getYaw().getValueAsDouble();
   }
+
+  //  /** @return The roll of the gyro */
+  //  public double getRoll(){
+  //   return m_gyro.getRoll();
+  // }
   
-  /** @return The pitch of the gyro */
-  public double getPitch(){
-    return m_gyro.getPitch();
-  }
+  // /** @return The pitch of the gyro */
+  // public double getPitch(){
+  //   return m_gyro.getPitch();
+  // }
 
   /**
    * Returns the turn rate of the robot.

@@ -49,7 +49,7 @@ public class AllToSetPosition extends Command {
     m_coralAffector.PIDLockWrist();
 
     m_elevator.setPositionString("At " + position.toString());
-    m_elevator.setAtPos(false);
+    m_elevator.setAtPos(true);
   }
 
   // Returns true when the command should end.

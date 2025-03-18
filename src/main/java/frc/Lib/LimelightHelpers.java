@@ -1012,7 +1012,8 @@ public class LimelightHelpers {
         setLimelightNTDouble(limelightName, "fiducial_downscale_set", d);
     }
     
-    public static void setCameraPose_RobotSpace(String limelightName, double forward, double side, double up, double roll, double pitch, double yaw) {
+    public static void setCameraPose_RobotSpace(String limelightName, double forward, double side, double up, 
+                                                double roll, double pitch, double yaw) {
         double[] entries = new double[6];
         entries[0] = forward;
         entries[1] = side;

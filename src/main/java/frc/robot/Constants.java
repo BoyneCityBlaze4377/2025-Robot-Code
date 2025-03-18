@@ -121,18 +121,18 @@ public final class Constants {
     public static final double coralWristL4 = 104;
     public static final double coralWristHP = 30;
 
-    public static final double wristOverrideSpeed = .3;
+    public static final double wristOverrideSpeed = .4;
 
-    public static final double coralWristKP = .01; //.01
-    public static final double coralWristKI = .0001; //.0001
-    public static final double coralWristKD = .0002; //.0002
+    public static final double coralWristKP = .042; //.01
+    public static final double coralWristKI = .000; //.0001
+    public static final double coralWristKD = .000; //.0002
     public static final double coralWristKTolerance = .5;
 
     public static final double coralAffectorInSpeed = .25;
     public static final double coralAffectorOutSpeed = .75;
 
-    public static final double maxCoralWristUpSpeed = .25;
-    public static final double maxCoralWristDownSpeed = -.05;
+    public static final double maxCoralWristUpSpeed = .52;
+    public static final double maxCoralWristDownSpeed = -.175;
 
     /** ALGAE */
     public static final int algaeCollectorOneID = 13;
