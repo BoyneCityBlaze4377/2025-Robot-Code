@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.AutoAimConstants;
 import frc.robot.Constants.AutoAimConstants.Position;
 import frc.robot.subsystems.CoralAffector;
+import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Elevator;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -11,11 +12,13 @@ public class AutonAllToPosition extends Command {
   private final Elevator m_elevator;
   private final CoralAffector m_coralAffector;
   private final double elevatorTarget, coralWristTarget;
+  private final DriveTrain m_driveTrain;
   
-  public AutonAllToPosition(Elevator elevator, CoralAffector coralAffector, 
+  public AutonAllToPosition(Elevator elevator, CoralAffector coralAffector, DriveTrain driveTrain,
                             double elevatorPos, double wristPos) {
     m_elevator = elevator;
     m_coralAffector = coralAffector;
+    m_driveTrain = driveTrain;
                           
     elevatorTarget = elevatorPos;
     coralWristTarget = wristPos;
@@ -23,9 +26,9 @@ public class AutonAllToPosition extends Command {
     addRequirements(m_elevator, m_coralAffector);
   }
 
-  public AutonAllToPosition(Elevator elevator, CoralAffector coralAffector, Position desiredPosition) {
-    this(elevator, coralAffector, AutoAimConstants.positionValues.get(desiredPosition)[0], 
-                                  AutoAimConstants.positionValues.get(desiredPosition)[1]);
+  public AutonAllToPosition(Elevator elevator, CoralAffector coralAffector, DriveTrain driveTrain, Position desiredPosition) {
+    this(elevator, coralAffector, driveTrain, AutoAimConstants.positionValues.get(desiredPosition)[0], 
+                                              AutoAimConstants.positionValues.get(desiredPosition)[1]);
   }
 
   // Called when the command is initially scheduled.
@@ -52,6 +55,6 @@ public class AutonAllToPosition extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_elevator.atSetpoint() && m_coralAffector.atSetpoint();
+    return (m_elevator.atSetpoint() && m_coralAffector.atSetpoint()) || m_driveTrain.getInRange();
   }
 }

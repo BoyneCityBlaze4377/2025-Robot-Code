@@ -16,9 +16,8 @@ import au.grapplerobotics.CanBridge;
  * project.
  */
 public class Robot extends TimedRobot {
-
   private Command m_autonomousCommand;
-  private double periodicCounter = 0;
+  // private double periodicCounter = 0;
 
   private RobotContainer m_robotContainer;
 
@@ -61,14 +60,13 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void disabledPeriodic() {
-    m_robotContainer.setDriveTrainInitialPose();
-  }
+  public void disabledPeriodic() {}
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    m_robotContainer.setDriveTrainInitialPose();
     Shuffleboard.selectTab(IOConstants.AutonTab.getTitle());
     // m_robotContainer.setDriveTrainPoseEstimate();
 

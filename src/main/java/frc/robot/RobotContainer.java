@@ -1,5 +1,7 @@
 package frc.robot;
 
+import java.util.Map;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -37,6 +39,8 @@ public class RobotContainer {
                                                                             : AutonConstants.initialPoseRedRight;
   private final AdvancedPose2D initialPoseLeft = alliance == Alliance.Blue ? AutonConstants.initialPoseBlueLeft 
                                                                            : AutonConstants.initialPoseRedLeft;
+  private final AdvancedPose2D initialPoseBack = alliance == Alliance.Blue ? AutonConstants.initialPoseBlueBack
+                                                                           : AutonConstants.initialPoseRedBack;
 
   private final Joystick m_driverStick = new Joystick(IOConstants.driverControllerID); //Driving
   private final Joystick m_operatorStick1 = new Joystick(IOConstants.operatorController1ID); //Set positions and elevatorOverride
@@ -106,15 +110,31 @@ public class RobotContainer {
   private final Command Climb = new Climb(m_climber, m_algaeAffector);
   private final Command UnClimb = new UnClimb(m_climber);
 
-  //Autons
+  /** AUTONS */
+  //Neutral
   private final Object[] NoAuton = {new NoAuton(), AutonConstants.customInitialPose};
   private final Object[] DriveOffLine = {new DriveOffLine(m_driveTrain), AutonConstants.customInitialPose};
+
+  //Right
   private final Object[] FourL3Right = {new FourCoralL3Right(m_driveTrain, m_coralAffector, m_elevator, alliance), initialPoseRight};
   private final Object[] ThreeL4Right = {new ThreeCoralL4Right(m_driveTrain, m_elevator, m_coralAffector, alliance), initialPoseRight};
   private final Object[] TwoL4Processor = {new TwoL4AndProcessor(m_driveTrain, m_elevator, m_coralAffector, m_algaeAffector, alliance),
                                            initialPoseRight};
 
+  //Left
+  private final Object[] FourL3Left = {new FourCoralL3Left(m_driveTrain, m_coralAffector, m_elevator, alliance), initialPoseLeft};
+  private final Object[] ThreeL4Left = {new ThreeCoralL4Left(m_driveTrain, m_elevator, m_coralAffector, alliance), initialPoseLeft};
+
+  //Back
+  private final Object[] BackRightAndProcess = {new PlaceOnBackAndProcessor(m_driveTrain, m_coralAffector, m_elevator, 
+                                                                            m_algaeAffector, alliance, Alignment.right),
+                                                initialPoseBack};
+  private final Object[] BackLeftAndProcess = {new PlaceOnBackAndProcessor(m_driveTrain, m_coralAffector, m_elevator, 
+                                                                           m_algaeAffector, alliance, Alignment.left),
+                                               initialPoseBack};
+
   //Testing
+  private final Object[] TestAuton = {};
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -122,7 +142,9 @@ public class RobotContainer {
     configureButtonBindings();
 
     configAutonChooser();
-    IOConstants.ConfigTab.add("Auton Chooser", autonChooser).withWidget("ComboBox Chooser");
+    IOConstants.ConfigTab.add("Auton Chooser", autonChooser)
+                         .withWidget("ComboBox Chooser")
+                         .withProperties(Map.of("sort_options", true));
   }
 
   public void setDriveTrainInitialPose() {
@@ -143,6 +165,8 @@ public class RobotContainer {
     autonChooser.addOption("Three Coral on L4, right side", ThreeL4Right);
     autonChooser.addOption("Four Coral on L3, right side", FourL3Right);
     autonChooser.addOption("Two on L4 and Processor (right side)", TwoL4Processor);
+    autonChooser.addOption("Four Coral on L3, left side", FourL3Left);
+    autonChooser.addOption("Three Coral on L4, left side", ThreeL4Left);
   }
 
   /**

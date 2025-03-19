@@ -264,6 +264,8 @@ public final class Constants {
     public static final double fieldLength = 17.548;
     public static final double fieldWidth = 8.052;
 
+    public static final double autonLineDistance = Units.inchesToMeters(297.5);
+
     // public static AdvancedPose2D INIT_POSE_BLUE = new AdvancedPose2D(2, 4, Rotation2d.fromDegrees(0));
     public static AdvancedPose2D blueReefCenterPos = new AdvancedPose2D(4.48945, fieldWidth / 2, Rotation2d.fromDegrees(0));
 
@@ -302,7 +304,7 @@ public final class Constants {
     public static final double LLDefaultOffsetDegrees = 2.3;
     public static final double LCToBumperEdgeOffsetMeters = Units.inchesToMeters(4.85);
 
-    public static final double coralStationToRobotDistance = DriveConstants.trackWidth / 2 + .15;
+    public static final double coralStationToRobotDistance = DriveConstants.trackWidth / 2 + Units.inchesToMeters(3);
     public static final double coralStationSideOffsetDistance = Units.inchesToMeters(76) / 4 - coralAffectorOffsetFromRobotCenter;
 
     public static final HashMap<Alignment, Double> offsetFromAlignment = new HashMap<Alignment, Double> () {{
@@ -453,12 +455,26 @@ public final class Constants {
     public static final double coralScoreTime = .5;
     public static final double alageScoreTime = .3;
 
+    public static final double awayFromReefTime = 1;
+
     public static final double inRangeThreshold = 2.15; //2.15
 
-    public static final AdvancedPose2D initialPoseBlueRight = new AdvancedPose2D(7.588, .426, 90);
+    public static final AdvancedPose2D initialPoseBlueRight = new AdvancedPose2D(FieldConstants.autonLineDistance,
+                                                                                 DriveConstants.trackWidth / 2,
+                                                                                 90);
     public static final AdvancedPose2D initialPoseRedRight = initialPoseBlueRight.flipBoth();
-    public static final AdvancedPose2D initialPoseBlueLeft = new AdvancedPose2D(7.588, 7.64, -90);
+
+    public static final AdvancedPose2D initialPoseBlueLeft = new AdvancedPose2D(FieldConstants.autonLineDistance, 
+                                                                                FieldConstants.fieldWidth - 
+                                                                                        (DriveConstants.trackWidth / 2), 
+                                                                                -90);
     public static final AdvancedPose2D initialPoseRedLeft = initialPoseBlueLeft.flipBoth();
+
+    public static final AdvancedPose2D initialPoseBlueBack = new AdvancedPose2D(FieldConstants.autonLineDistance, 
+                                                                                FieldConstants.blueReefCenterPos.getY(),
+                                                                                180);
+    public static final AdvancedPose2D initialPoseRedBack = initialPoseBlueBack.flipBoth();
+
     public static final AdvancedPose2D customInitialPose = new AdvancedPose2D();
   }
 

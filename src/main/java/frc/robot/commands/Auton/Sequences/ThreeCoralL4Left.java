@@ -26,49 +26,48 @@ import frc.robot.subsystems.Elevator;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class ThreeCoralL4Right extends SequentialCommandGroup {
-  /** Creates a new ThreeCoralL4. */
-  public ThreeCoralL4Right(DriveTrain driveTrain, Elevator elevator, CoralAffector coralAffector, Alliance alliance) {
+public class ThreeCoralL4Left extends SequentialCommandGroup {
+  /** Creates a new ThreeCoralL4Left. */
+  public ThreeCoralL4Left(DriveTrain driveTrain, Elevator elevator, CoralAffector coralAffector, Alliance alliance) {
     HashMap<ReefStation, AdvancedPose2D> reef = alliance == Alliance.Blue ? AutoAimConstants.blueReef : AutoAimConstants.redReef;
-    AdvancedPose2D coralStation = alliance == Alliance.Blue ? AutoAimConstants.blueRightCoralStationPos : AutoAimConstants.redRightCoralStationPos;
-    
+    AdvancedPose2D coralStation = alliance == Alliance.Blue ? AutoAimConstants.blueLeftCoralStationPos : AutoAimConstants.redLeftCoralStationPos;
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addCommands(new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, reef.get(ReefStation.backRight).withReefAlignment(Alignment.right)),
+    addCommands(new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, reef.get(ReefStation.backLeft).withReefAlignment(Alignment.left)),
                                          new InRangeAllToPosition(elevator, coralAffector, driveTrain, Position.L4)),
                 new AutonCoralScore(coralAffector),
                 new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, coralStation.withRobotRelativeTransformation(
-                                                                                  new Translation2d(-AutoAimConstants.coralStationSideOffsetDistance,
-                                                                                                    -AutoAimConstants.coralStationToRobotDistance))),
+                                                                                  new Translation2d(AutoAimConstants.coralStationSideOffsetDistance,
+                                                                                                   -AutoAimConstants.coralStationToRobotDistance))),
                                          new SequentialCommandGroup(new Wait(AutonConstants.awayFromReefTime), 
                                                                     new AutonAllToPosition(elevator, coralAffector, driveTrain, Position.floor),
                                                                     new InRangeAllToPosition(elevator, coralAffector, driveTrain, Position.HP))),
                 new AutonCoralCollect(coralAffector), 
-                new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, reef.get(ReefStation.frontRight).withReefAlignment(Alignment.right)),
+                new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, reef.get(ReefStation.frontLeft).withReefAlignment(Alignment.left)),
                                          new InRangeAllToPosition(elevator, coralAffector, driveTrain, Position.L4)),
                 new AutonCoralScore(coralAffector),
                 new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, coralStation.withRobotRelativeTransformation(
-                                                                                  new Translation2d(-AutoAimConstants.coralStationSideOffsetDistance,
-                                                                                                    -AutoAimConstants.coralStationToRobotDistance))),
+                                                                                  new Translation2d(AutoAimConstants.coralStationSideOffsetDistance,
+                                                                                                   -AutoAimConstants.coralStationToRobotDistance))),
                                          new SequentialCommandGroup(new Wait(AutonConstants.awayFromReefTime), 
                                                                     new AutonAllToPosition(elevator, coralAffector, driveTrain, Position.floor),
                                                                     new InRangeAllToPosition(elevator, coralAffector, driveTrain, Position.HP))),
                 new AutonCoralCollect(coralAffector), 
-                new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, reef.get(ReefStation.frontRight).withReefAlignment(Alignment.left)),
+                new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, reef.get(ReefStation.frontLeft).withReefAlignment(Alignment.right)),
                                          new InRangeAllToPosition(elevator, coralAffector, driveTrain, Position.L4)),
                 new AutonCoralScore(coralAffector),
                 new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, coralStation.withRobotRelativeTransformation(
-                                                                                  new Translation2d(-AutoAimConstants.coralStationSideOffsetDistance,
-                                                                                                    -AutoAimConstants.coralStationToRobotDistance))),
+                                                                                  new Translation2d(AutoAimConstants.coralStationSideOffsetDistance,
+                                                                                                   -AutoAimConstants.coralStationToRobotDistance))),
                                          new SequentialCommandGroup(new Wait(AutonConstants.awayFromReefTime), 
                                                                     new AutonAllToPosition(elevator, coralAffector, driveTrain, Position.floor),
                                                                     new InRangeAllToPosition(elevator, coralAffector, driveTrain, Position.HP))),
                 new AutonCoralCollect(coralAffector), 
-                new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, reef.get(ReefStation.frontRight).withReefAlignment(Alignment.left)),
+                new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, reef.get(ReefStation.frontLeft).withReefAlignment(Alignment.left)),
                                          new InRangeAllToPosition(elevator, coralAffector, driveTrain, Position.L3)),
                 new AutonCoralScore(coralAffector),
                 new AutonDriveToPosition(driveTrain, coralStation.withRobotRelativeTransformation(
-                                                         new Translation2d(-AutoAimConstants.coralStationSideOffsetDistance, 
+                                                          new Translation2d(AutoAimConstants.coralStationSideOffsetDistance, 
                                                                            -AutoAimConstants.coralStationToRobotDistance))));
   }
 }
