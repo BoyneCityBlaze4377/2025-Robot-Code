@@ -11,10 +11,9 @@ import frc.robot.subsystems.DriveTrain;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class DriveOffLine extends SequentialCommandGroup {
   /** Creates a new DriveOffLine. */
-  public DriveOffLine(DriveTrain driveTrain, AdvancedPose2D startingPose) {
+  public DriveOffLine(DriveTrain driveTrain) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addCommands(new SetDriveTrainPose(driveTrain, startingPose),
-                new RawAutonDrive(driveTrain, 1, 0, 0, 3, 0));
+    addCommands(new RawAutonDrive(driveTrain, 1, 0, 0, 3, 0));
   }
 }

@@ -43,7 +43,7 @@ public class Elevator extends SubsystemBase {
     elevatorSpeed = 0;
     dH = ElevatorConstants.startingHeight - elevatorEncoder.getPosition();
 
-    positionStatusString = "At Position.floor";
+    positionStatusString = "At floor";
 
     atPos = false;
     locked = false;
@@ -68,7 +68,7 @@ public class Elevator extends SubsystemBase {
                                                .withWidget("Text Display").getEntry();
     lockedSender = IOConstants.DiagnosticTab.add("Elevator locked", false)
                                             .withWidget("Boolean Box").getEntry();
-    atPositionSender = IOConstants.TeleopTab.add("At Position", atPos)
+    atPositionSender = IOConstants.TeleopTab.add("At Position?", atPos)
                                             .withWidget("Boolean Box").getEntry();
   }
 

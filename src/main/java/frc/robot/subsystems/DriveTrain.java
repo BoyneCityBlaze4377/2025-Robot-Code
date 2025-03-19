@@ -28,6 +28,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -35,6 +36,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import frc.Lib.AdvancedPose2D;
 import frc.Lib.LimelightHelpers;
 import frc.Lib.LimelightHelpers.PoseEstimate;
@@ -75,7 +78,9 @@ public class DriveTrain extends SubsystemBase {
   private final Elevator m_elevator;
 
   private final GenericEntry robotHeading, poseEstimate, xSpeedSender, 
-                             ySpeedSender, omegaSender;
+                             ySpeedSender, omegaSender, matchTime,
+                             desPoseSender, desAlignSender, desStationSender,
+                             atDesPose, fmsInfo;
 
   private final PIDController xController = new PIDController(AutoAimConstants.transkP,
                                                               AutoAimConstants.transkI,
@@ -174,7 +179,25 @@ public class DriveTrain extends SubsystemBase {
                                        .withWidget("Number Slider")
                                        .withProperties(Map.of("min_value", -1, "max_value", 1))
                                        .getEntry();
-    // SmartDashboard.putData(swerveSendable);
+    matchTime = IOConstants.TeleopTab.add("Match Time", 15)
+                                     .withWidget("Match Time")
+                                     .withProperties(Map.of("red_start_time", 10, "yellow_start_time", 20))
+                                     .getEntry();
+    desPoseSender = IOConstants.DiagnosticTab.add("Desired Pose", initialPose.toString())
+                                             .withWidget("Text Display")
+                                             .getEntry();
+    desAlignSender = IOConstants.DiagnosticTab.add("Desired Alignment", desiredAlignment.toString())
+                                              .withWidget("Text Display")
+                                              .getEntry();
+    desStationSender = IOConstants.DiagnosticTab.add("Estimated Reefstation", estimatedStation.toString())
+                                                .withWidget("Text Display")
+                                                .getEntry();
+    atDesPose = IOConstants.TeleopTab.add("At Desired Pose", false)
+                                     .withWidget("Boolean Box")
+                                     .getEntry();
+    fmsInfo = IOConstants.ConfigTab.add("FMSInfo", 0)
+                                   .withWidget("FMSInfo")
+                                   .getEntry();
 
     zeroHeading();
     brakeAll();
@@ -248,10 +271,14 @@ public class DriveTrain extends SubsystemBase {
 
     /** Dashboard Posting */
     robotHeading.setDouble(heading);
+    desPoseSender.setString(desiredPose.toString());
+    desAlignSender.setString(desiredAlignment.toString());
+    desStationSender.setString(estimatedStation.toString());
+    atDesPose.setBoolean(atSetpoints());
+    matchTime.setDouble(DriverStation.getMatchTime());
 
     // Update the odometry in the periodic block
     m_odometry.update(m_gyro.getRotation2d(), getSwerveModulePositions());
-
     poseEstimator.update(m_gyro.getRotation2d(), getSwerveModulePositions());
     if (getPoseEstimate().isPresent()) {
       poseEstimator.addVisionMeasurement(getPoseEstimate().get().pose, 
@@ -265,9 +292,9 @@ public class DriveTrain extends SubsystemBase {
 
     periodicTimer ++;
 
-    SmartDashboard.putBoolean("INRANGE", autonInRange);
-    SmartDashboard.putBoolean("Orientation", fieldOrientation);
-    SmartDashboard.putBoolean("NAVX", m_gyro.isConnected());
+    // SmartDashboard.putBoolean("INRANGE", autonInRange);
+    // SmartDashboard.putBoolean("Orientation", fieldOrientation);
+    // SmartDashboard.putBoolean("NAVX", m_gyro.isConnected());
     // SmartDashboard.putBoolean("CAlib", m_gyro.isCalibrating());
 
     heading = m_gyro.getYaw().getValueAsDouble();
@@ -292,36 +319,31 @@ public class DriveTrain extends SubsystemBase {
     // dis = lcMeasurement != null && lcMeasurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT 
     //       ? lcMeasurement.distance_mm : -1;
 
-    SmartDashboard.putString("DesiredPose", desiredPose.withReefAlignment(desiredAlignment).toString());
-    SmartDashboard.putString("DesiredAlignment", desiredAlignment.toString());
-    SmartDashboard.putString("EstimatedStation", estimatedStation.toString());
-
-    switch (stick.getPOV()) {
-      case 90:
-        desiredAlignment = Alignment.right;
-        break;
-      case 270:
-        desiredAlignment = Alignment.left;
-        break;
-      case 0:
-        desiredAlignment = Alignment.center;
-        break;
-      case 180:
-        desiredAlignment = Alignment.center;
-        break;
-      case -1:
-        desiredAlignment = Alignment.blank;
-        break;
-      default:
-        desiredAlignment = Alignment.blank;
-        break;
-    }
-
     estimatedStation = m_alliance == Alliance.Blue ? AutoAimConstants.blueReefStationFromAngle.get(getEstimatedStationAngle()) 
                                                    : AutoAimConstants.redReefStationFromAngle.get(getEstimatedStationAngle());
     desiredPose = m_alliance == Alliance.Blue ? AutoAimConstants.blueReef.get(estimatedStation) 
                                               : AutoAimConstants.redReef.get(estimatedStation);
-    
+
+    SmartDashboard.putData("Swerve Drive", new Sendable() {
+      @Override
+      public void initSendable(SendableBuilder builder) {
+        builder.setSmartDashboardType("SwerveDrive");
+
+        builder.addDoubleProperty("Front Left Angle", () -> m_frontLeft.getState().angle.getRadians(), null);
+        builder.addDoubleProperty("Front Left Velocity", () -> m_frontLeft.getState().speedMetersPerSecond, null);
+
+        builder.addDoubleProperty("Front Right Angle", () -> m_frontRight.getState().angle.getRadians(), null);
+        builder.addDoubleProperty("Front Right Velocity", () -> m_frontRight.getState().speedMetersPerSecond, null);
+
+        builder.addDoubleProperty("Back Left Angle", () -> m_backLeft.getState().angle.getRadians(), null);
+        builder.addDoubleProperty("Back Left Velocity", () -> m_backLeft.getState().speedMetersPerSecond, null);
+
+        builder.addDoubleProperty("Back Right Angle", () -> m_backRight.getState().angle.getRadians(), null);
+        builder.addDoubleProperty("Back Right Velocity", () -> m_backRight.getState().speedMetersPerSecond, null);
+
+        builder.addDoubleProperty("Robot Angle", () -> m_gyro.getRotation2d().getRadians(), null);
+      }
+    });
   }
 
   private void rawDrive(double xSpeed, double ySpeed, double omega, boolean fieldRelative, boolean scale) {
@@ -628,7 +650,7 @@ public class DriveTrain extends SubsystemBase {
    * @return The turn rate of the robot, in degrees per second.
    */
   public double getTurnRate() {
-    return m_gyro.getRate() * (DriveConstants.gyroReversed ? -1.0 : 1.0);
+    return m_gyro.getAngularVelocityZWorld().getValueAsDouble() * (DriveConstants.gyroReversed ? -1.0 : 1.0);
   }
 
   /** @return The average distance of all modules */
@@ -746,5 +768,9 @@ public class DriveTrain extends SubsystemBase {
 
   public synchronized AdvancedPose2D getAutoAimPose() {
     return desiredPose.withReefAlignment(desiredAlignment);
+  }
+
+  public synchronized ReefStation getDesiredStation() {
+    return estimatedStation;
   }
 }

@@ -3,7 +3,7 @@ package frc.robot.commands.Auton.Functions;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.DriveTrain;
 
@@ -102,9 +102,9 @@ public class CurvedAutonDrive extends Command {
       turnError = 0;
     }
 
-    SmartDashboard.putNumber("CRVX", x);
-    SmartDashboard.putNumber("CRVY", y);
-    SmartDashboard.putNumber("CurvedTurnError", turnError);
+    // SmartDashboard.putNumber("CRVX", x);
+    // SmartDashboard.putNumber("CRVY", y);
+    // SmartDashboard.putNumber("CurvedTurnError", turnError);
   }
 
   // Called once the command ends or is interrupted.

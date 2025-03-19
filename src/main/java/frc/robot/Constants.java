@@ -46,7 +46,10 @@ public final class Constants {
     public static final int straightDriveButtonID = 2; //2
     public static final int autoDriveButtonID = 1; //1
 
-    //Align left,11 right,12 center,10
+    //Alignments left,11 right,12 center,10
+    public static final int leftAlignButtonID = 11;
+    public static final int centerAlignButtonID = 10;
+    public static final int rightAlignButtonID = 12;
 
     /* Operator */
     // Positions

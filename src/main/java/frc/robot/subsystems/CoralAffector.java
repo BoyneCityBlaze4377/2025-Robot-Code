@@ -14,7 +14,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.AffectorConstants;
 import frc.robot.Constants.IOConstants;
@@ -52,7 +51,7 @@ public class CoralAffector extends SubsystemBase {
 
     coralDetector = new DigitalInput(SensorConstants.coralBreakID);
 
-    wristValSender = IOConstants.DiagnosticTab.add("Wrist Encoder Degrees", getWristDegrees())
+    wristValSender = IOConstants.TeleopTab.add("Wrist Encoder Degrees", getWristDegrees())
                                               .withWidget("Radial Gauge")
                                               .withProperties(Map.of("start_angle", 180, "end_angle", 0,
                                                                      "min_value", 0, "max_value", 180, 
@@ -70,7 +69,6 @@ public class CoralAffector extends SubsystemBase {
     wristValSender.setDouble(getWristDegrees());
     hasCoralSender.setBoolean(hasCoral());
     lockedSender.setBoolean(locked);
-    SmartDashboard.putNumber("SET", wristController.getSetpoint());
 
     coralWrist.set(wristSpeed);
   }

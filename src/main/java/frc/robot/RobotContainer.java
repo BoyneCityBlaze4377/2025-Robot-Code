@@ -1,9 +1,5 @@
 package frc.robot;
 
-import java.util.HashMap;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -12,20 +8,18 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 import frc.Lib.AdvancedPose2D;
 
-import frc.robot.Constants.AutoAimConstants;
 import frc.robot.Constants.AutonConstants;
-import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.Constants.SensorConstants;
 import frc.robot.Constants.AutoAimConstants.Alignment;
 import frc.robot.Constants.AutoAimConstants.Position;
-import frc.robot.Constants.AutoAimConstants.ReefStation;
 import frc.robot.subsystems.*;
 import frc.robot.commands.AllToSetPosition;
 import frc.robot.commands.ClimberCommands.*;
 import frc.robot.commands.DriveCommands.*;
 import frc.robot.commands.ElevatorCommands.*;
 import frc.robot.commands.PieceAffectorsCommands.*;
+import frc.robot.commands.Auton.Sequences.*;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -39,6 +33,10 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 public class RobotContainer {
   private final Alliance alliance = DriverStation.getAlliance().get();
   //private final HashMap<ReefStation, AdvancedPose2D> reef = alliance == Alliance.Blue ? AutoAimConstants.blueReef : AutoAimConstants.redReef;
+  private final AdvancedPose2D initialPoseRight = alliance == Alliance.Blue ? AutonConstants.initialPoseBlueRight 
+                                                                            : AutonConstants.initialPoseRedRight;
+  private final AdvancedPose2D initialPoseLeft = alliance == Alliance.Blue ? AutonConstants.initialPoseBlueLeft 
+                                                                           : AutonConstants.initialPoseRedLeft;
 
   private final Joystick m_driverStick = new Joystick(IOConstants.driverControllerID); //Driving
   private final Joystick m_operatorStick1 = new Joystick(IOConstants.operatorController1ID); //Set positions and elevatorOverride
@@ -52,8 +50,7 @@ public class RobotContainer {
   private final DriveTrain m_driveTrain = new DriveTrain(m_elevator, m_autoAimSubsystem, SensorConstants.limeLightName, 
                                                          alliance, m_driverStick);
 
-  private SendableChooser<Command> autonChooser = new SendableChooser<Command>();
-  private SendableChooser<AdvancedPose2D> initialPoseSelector = new SendableChooser<AdvancedPose2D>();
+  private SendableChooser<Object[]> autonChooser = new SendableChooser<Object[]>();
 
   /* COMMANDS */
   // DriveTrain
@@ -66,12 +63,12 @@ public class RobotContainer {
   private final Command SlowMode = new SlowMode(m_driveTrain);
   private final Command StraightDrive = new StraightDrive(m_driveTrain, m_driverStick);
   //private final Command AutoAimDrive = new AutoAimDrive(m_driveTrain, m_autoAimSubsystem);
-  private final Command TEMPAUTODRIVE = new TEMPAUTODRIVE(m_driveTrain);
+  private final Command TEMPAUTODRIVE = new TEMPAUTODRIVE(m_driveTrain, alliance);
 
   //Poses
-  // private final Command SelectAlignmentLeft = new SelectDesiredAlignment(m_autoAimSubsystem, Alignment.left);
-  // private final Command SelectAlignmentCenter = new SelectDesiredAlignment(m_autoAimSubsystem, Alignment.center);
-  // private final Command SelectAlignmentRight = new SelectDesiredAlignment(m_autoAimSubsystem, Alignment.right);
+  private final Command SelectAlignmentLeft = new SelectDesiredAlignment(m_driveTrain, Alignment.left);
+  private final Command SelectAlignmentCenter = new SelectDesiredAlignment(m_driveTrain, Alignment.center);
+  private final Command SelectAlignmentRight = new SelectDesiredAlignment(m_driveTrain, Alignment.right);
 
   // private final Command SelectReefStationFront = new SelectDesiredPose(m_autoAimSubsystem, reef.get(ReefStation.front));
   // private final Command SelectReefStationFrontRight = new SelectDesiredPose(m_autoAimSubsystem, reef.get(ReefStation.frontRight));
@@ -109,7 +106,13 @@ public class RobotContainer {
   private final Command Climb = new Climb(m_climber, m_algaeAffector);
   private final Command UnClimb = new UnClimb(m_climber);
 
-  //Auton
+  //Autons
+  private final Object[] NoAuton = {new NoAuton(), AutonConstants.customInitialPose};
+  private final Object[] DriveOffLine = {new DriveOffLine(m_driveTrain), AutonConstants.customInitialPose};
+  private final Object[] FourL3Right = {new FourCoralL3Right(m_driveTrain, m_coralAffector, m_elevator, alliance), initialPoseRight};
+  private final Object[] ThreeL4Right = {new ThreeCoralL4Right(m_driveTrain, m_elevator, m_coralAffector, alliance), initialPoseRight};
+  private final Object[] TwoL4Processor = {new TwoL4AndProcessor(m_driveTrain, m_elevator, m_coralAffector, m_algaeAffector, alliance),
+                                           initialPoseRight};
 
   //Testing
 
@@ -117,17 +120,13 @@ public class RobotContainer {
   public RobotContainer() {
     m_driveTrain.setDefaultCommand(TeleopDrive);
     configureButtonBindings();
-    m_driveTrain.setOdometry(new Pose2d());
 
     configAutonChooser();
-    IOConstants.ConfigTab.add("Auton Chooser", autonChooser);
-
-    configInitialPoseSelector();
-    IOConstants.ConfigTab.add("Starting Position Chooser", initialPoseSelector);
+    IOConstants.ConfigTab.add("Auton Chooser", autonChooser).withWidget("ComboBox Chooser");
   }
 
   public void setDriveTrainInitialPose() {
-    m_driveTrain.setInitialPose(initialPoseSelector.getSelected());
+    m_driveTrain.setInitialPose((AdvancedPose2D) autonChooser.getSelected()[1]);
   }
 
   public void setDriveTrainPoseEstimate() {
@@ -139,15 +138,11 @@ public class RobotContainer {
   }
 
   public void configAutonChooser() {
-    autonChooser.setDefaultOption("No Auton", null);
-  }
-
-  public void configInitialPoseSelector() {
-    initialPoseSelector.setDefaultOption("Blue, Right", AutonConstants.initialPoseBlueRight);
-    initialPoseSelector.addOption("Blue, Left", AutonConstants.initialPoseBlueLeft);
-    initialPoseSelector.addOption("Red, Right", AutonConstants.initialPoseRedRight);
-    initialPoseSelector.addOption("Red, Left", AutonConstants.initialPoseRedLeft);
-    initialPoseSelector.addOption("Custom", AutonConstants.customInitialPose);
+    autonChooser.setDefaultOption("No Auton", NoAuton);
+    autonChooser.addOption("Drive Off Line", DriveOffLine);
+    autonChooser.addOption("Three Coral on L4, right side", ThreeL4Right);
+    autonChooser.addOption("Four Coral on L3, right side", FourL3Right);
+    autonChooser.addOption("Two on L4 and Processor (right side)", TwoL4Processor);
   }
 
   /**
@@ -167,7 +162,10 @@ public class RobotContainer {
     new JoystickButton(m_driverStick, IOConstants.straightDriveButtonID).whileTrue(StraightDrive);
     new JoystickButton(m_driverStick, IOConstants.autoDriveButtonID).whileTrue(TEMPAUTODRIVE);
 
-    //Poses
+    //Alignments
+    new JoystickButton(m_driverStick, IOConstants.leftAlignButtonID).onTrue(SelectAlignmentLeft);
+    new JoystickButton(m_driverStick, IOConstants.centerAlignButtonID).onTrue(SelectAlignmentCenter);
+    new JoystickButton(m_driverStick, IOConstants.rightAlignButtonID).onTrue(SelectAlignmentRight);
 
     /* OPERATOR */
     //Set positions
@@ -195,7 +193,6 @@ public class RobotContainer {
     // new JoystickButton(m_operatorStick2, IOConstants.climbButtonID).whileTrue(Climb);
 
     //Testing
-
   }
 
   /**
@@ -204,6 +201,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autonChooser.getSelected();
+    return (Command) autonChooser.getSelected()[0];
   }
 }
