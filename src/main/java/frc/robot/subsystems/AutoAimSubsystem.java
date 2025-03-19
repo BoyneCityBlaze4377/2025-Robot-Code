@@ -89,8 +89,8 @@ public class AutoAimSubsystem extends SubsystemBase {
     // LCMeasurementSender.setDouble(getDistanceMeasurementmm());
     // LCHasMeasurement.setBoolean(lcMeasurement != null && lcMeasurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT);
 
-    SmartDashboard.putString("DesiredPose", desiredPose.toString());
-    SmartDashboard.putString("DesiredAlignment", desiredAlignment.toString());
+    // SmartDashboard.putString("DesiredPose", desiredPose.toString());
+    // SmartDashboard.putString("DesiredAlignment", desiredAlignment.toString());
 
     // switch (stick.getPOV()) {
     //   case 90:

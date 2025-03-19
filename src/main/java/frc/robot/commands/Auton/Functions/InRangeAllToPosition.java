@@ -1,12 +1,8 @@
 package frc.robot.commands.Auton.Functions;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.AffectorConstants;
 import frc.robot.Constants.AutoAimConstants;
-import frc.robot.Constants.AutonConstants;
-import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.AutoAimConstants.Position;
-import frc.robot.Constants.ElevatorConstants;
 import frc.robot.subsystems.CoralAffector;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Elevator;

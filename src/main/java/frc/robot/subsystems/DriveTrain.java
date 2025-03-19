@@ -9,9 +9,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 
-import org.photonvision.EstimatedRobotPose;
-
-import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
@@ -43,6 +40,7 @@ import frc.Lib.LimelightHelpers;
 import frc.Lib.LimelightHelpers.PoseEstimate;
 import frc.robot.Constants.AutoAimConstants;
 import frc.robot.Constants.AutoAimConstants.Alignment;
+import frc.robot.Constants.AutoAimConstants.ReefStation;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
@@ -59,7 +57,8 @@ public class DriveTrain extends SubsystemBase {
   // The gyro sensor
   //private final AHRS m_gyro;
   private final Pigeon2 m_gyro;
-  private boolean fieldOrientation = true, isLocked = false, slow = false, 
+  private boolean fieldOrientation = true,
+                  isLocked = false, slow = false, 
                   isBrake = true, autonInRange = false, useScalers = false;
   private double speedScaler, heading, x, y, omega,  elevatorHeight;
 
@@ -88,6 +87,8 @@ public class DriveTrain extends SubsystemBase {
                                                                     AutoAimConstants.turnkI,
                                                                     AutoAimConstants.turnkD);
 
+  private AdvancedPose2D initialPose = new AdvancedPose2D();
+
   // From AAS
   private double tx, ty, ta, tID, dis;
   private final String cameraName;
@@ -95,11 +96,9 @@ public class DriveTrain extends SubsystemBase {
   private final Joystick stick;
   //private final LaserCan laserCan;
   private LaserCanInterface.Measurement lcMeasurement;
-  private final GenericEntry txSender, targetIDSender, LCMeasurementSender, LCHasMeasurement;
   private AdvancedPose2D desiredPose;
   private Alignment desiredAlignment;
-
-  private AdvancedPose2D initialPose = new AdvancedPose2D();
+  private ReefStation estimatedStation;
     
   /** Creates a new DriveTrain. */
   public DriveTrain(Elevator elevator, AutoAimSubsystem autoAimSubsystem, 
@@ -158,7 +157,7 @@ public class DriveTrain extends SubsystemBase {
                                                                "min_value", -180, "max_value", 180,
                                                                "wrap_value", true, "show_pointer", false))
                                         .getEntry();
-    poseEstimate = IOConstants.DiagnosticTab.add("Field", poseEstimator.getEstimatedPosition())
+    poseEstimate = IOConstants.DiagnosticTab.add("Field", poseEstimator.getEstimatedPosition().toString())
                                             .withWidget("Field")
                                             .withProperties(Map.of("robot_width", DriveConstants.trackWidth,
                                                                    "robot_length", DriveConstants.wheelBase))
@@ -218,17 +217,9 @@ public class DriveTrain extends SubsystemBase {
     NetworkTableInstance.getDefault().getTable("limelight").getEntry("camera_robotspace_set")
                     .setDoubleArray(SensorConstants.limelightRobotSpacePose);
 
-    txSender = IOConstants.DiagnosticTab.add("tx", tx)
-                                        .withWidget("Text Display").getEntry();
-    targetIDSender = IOConstants.DiagnosticTab.add("target ID", tID)
-                                              .withWidget("Text Display").getEntry();
-    LCMeasurementSender = IOConstants.DiagnosticTab.add("LaserCAN measured distance", -1)
-                                                   .withWidget("Text Display").getEntry();
-    LCHasMeasurement = IOConstants.DiagnosticTab.add("LCHasMeasurement", false)
-                                                .withWidget("Boolean Box").getEntry();
-
     desiredPose = new AdvancedPose2D();
     desiredAlignment = Alignment.left;
+    estimatedStation = ReefStation.front;
   }
 
   @Override
@@ -267,7 +258,7 @@ public class DriveTrain extends SubsystemBase {
                                          getPoseEstimate().get().timestampSeconds);
     }
 
-    poseEstimate.setValue(poseEstimator.getEstimatedPosition());
+    poseEstimate.setValue(poseEstimator.getEstimatedPosition().toString());
 
     //drive
     rawDrive(x , y, omega, fieldOrientation, useScalers);
@@ -301,14 +292,9 @@ public class DriveTrain extends SubsystemBase {
     // dis = lcMeasurement != null && lcMeasurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT 
     //       ? lcMeasurement.distance_mm : -1;
 
-    /* Value Posting */
-    txSender.setDouble(getTX());
-    targetIDSender.setDouble(getTargetID());
-    // LCMeasurementSender.setDouble(getDistanceMeasurementmm());
-    // LCHasMeasurement.setBoolean(lcMeasurement != null && lcMeasurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT);
-
-    SmartDashboard.putString("DesiredPose", desiredPose.toString());
+    SmartDashboard.putString("DesiredPose", desiredPose.withReefAlignment(desiredAlignment).toString());
     SmartDashboard.putString("DesiredAlignment", desiredAlignment.toString());
+    SmartDashboard.putString("EstimatedStation", estimatedStation.toString());
 
     switch (stick.getPOV()) {
       case 90:
@@ -317,16 +303,25 @@ public class DriveTrain extends SubsystemBase {
       case 270:
         desiredAlignment = Alignment.left;
         break;
-      case -1:
+      case 0:
         desiredAlignment = Alignment.center;
         break;
-      default:
+      case 180:
         desiredAlignment = Alignment.center;
+        break;
+      case -1:
+        desiredAlignment = Alignment.blank;
+        break;
+      default:
+        desiredAlignment = Alignment.blank;
         break;
     }
 
-    desiredPose = m_alliance == Alliance.Blue ? AutoAimConstants.blueReef.get(AutoAimConstants.blueReefStationFromAngle.get(getEstimatedStationAngle()))
-                                              : AutoAimConstants.redReef.get(AutoAimConstants.redReefStationFromAngle.get(getEstimatedStationAngle()));
+    estimatedStation = m_alliance == Alliance.Blue ? AutoAimConstants.blueReefStationFromAngle.get(getEstimatedStationAngle()) 
+                                                   : AutoAimConstants.redReefStationFromAngle.get(getEstimatedStationAngle());
+    desiredPose = m_alliance == Alliance.Blue ? AutoAimConstants.blueReef.get(estimatedStation) 
+                                              : AutoAimConstants.redReef.get(estimatedStation);
+    
   }
 
   private void rawDrive(double xSpeed, double ySpeed, double omega, boolean fieldRelative, boolean scale) {
@@ -679,16 +674,6 @@ public class DriveTrain extends SubsystemBase {
 
 
   //FromAAS
-  
-  private Optional<EstimatedRobotPose> getEstimatedGlobalPoseBlue() {
-    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(cameraName);
-    return Optional.of(new EstimatedRobotPose(new Pose3d(new Translation3d(mt2.pose.getTranslation()),
-                                                          new Rotation3d(mt2.pose.getRotation())),
-                                              mt2.timestampSeconds,
-                                              null,
-                                              null));
-  }
-
   private Optional<Pose2d> getEstimatedPose2dBlue() {
     LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(cameraName);
     return Optional.of(new Pose3d(new Translation3d(mt2.pose.getTranslation()), new Rotation3d(mt2.pose.getRotation())).toPose2d());
@@ -698,15 +683,6 @@ public class DriveTrain extends SubsystemBase {
     return Optional.of(LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(cameraName));
   }
 
-  private Optional<EstimatedRobotPose> getEstimatedGlobalPoseRed() {
-    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(cameraName);
-    return Optional.of(new EstimatedRobotPose(new Pose3d(new Translation3d(mt2.pose.getTranslation()),
-                                                          new Rotation3d(mt2.pose.getRotation())),
-                                              mt2.timestampSeconds,
-                                              null,
-                                              null));
-  }
-
   private Optional<Pose2d> getEstimatedPose2dRed() {
     LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(cameraName);
     return Optional.of(new Pose3d(new Translation3d(mt2.pose.getTranslation()), new Rotation3d(mt2.pose.getRotation())).toPose2d());
@@ -714,10 +690,6 @@ public class DriveTrain extends SubsystemBase {
 
   private Optional<PoseEstimate> getPoseEstimateRed() {
     return Optional.of(LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(cameraName));
-  }
-
-  public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
-    return m_alliance == Alliance.Blue ? getEstimatedGlobalPoseBlue() : getEstimatedGlobalPoseRed();
   }
 
   public Optional<Pose2d> getEstimatedPose2d() {

@@ -38,7 +38,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
  */
 public class RobotContainer {
   private final Alliance alliance = DriverStation.getAlliance().get();
-  private final HashMap<ReefStation, AdvancedPose2D> reef = alliance == Alliance.Blue ? AutoAimConstants.blueReef : AutoAimConstants.redReef;
+  //private final HashMap<ReefStation, AdvancedPose2D> reef = alliance == Alliance.Blue ? AutoAimConstants.blueReef : AutoAimConstants.redReef;
 
   private final Joystick m_driverStick = new Joystick(IOConstants.driverControllerID); //Driving
   private final Joystick m_operatorStick1 = new Joystick(IOConstants.operatorController1ID); //Set positions and elevatorOverride
@@ -60,34 +60,34 @@ public class RobotContainer {
   //Main Commands
   private final Command TeleopDrive = new TeleopDrive(m_driverStick, m_driveTrain);
   private final Command LockPose = new LockPose(m_driveTrain); 
-  private final Command SwitchBrake = new SwitchBrake(m_driveTrain);
+  // private final Command SwitchBrake = new SwitchBrake(m_driveTrain);
   private final Command SwitchOrientation = new SwitchOrientation(m_driveTrain);
   private final Command QuickBrake = new QuickBrake(m_driveTrain);
   private final Command SlowMode = new SlowMode(m_driveTrain);
   private final Command StraightDrive = new StraightDrive(m_driveTrain, m_driverStick);
-  private final Command AutoAimDrive = new AutoAimDrive(m_driveTrain, m_autoAimSubsystem);
+  //private final Command AutoAimDrive = new AutoAimDrive(m_driveTrain, m_autoAimSubsystem);
   private final Command TEMPAUTODRIVE = new TEMPAUTODRIVE(m_driveTrain);
 
   //Poses
-  private final Command SelectAlignmentLeft = new SelectDesiredAlignment(m_autoAimSubsystem, Alignment.left);
-  private final Command SelectAlignmentCenter = new SelectDesiredAlignment(m_autoAimSubsystem, Alignment.center);
-  private final Command SelectAlignmentRight = new SelectDesiredAlignment(m_autoAimSubsystem, Alignment.right);
+  // private final Command SelectAlignmentLeft = new SelectDesiredAlignment(m_autoAimSubsystem, Alignment.left);
+  // private final Command SelectAlignmentCenter = new SelectDesiredAlignment(m_autoAimSubsystem, Alignment.center);
+  // private final Command SelectAlignmentRight = new SelectDesiredAlignment(m_autoAimSubsystem, Alignment.right);
 
-  private final Command SelectReefStationFront = new SelectDesiredPose(m_autoAimSubsystem, reef.get(ReefStation.front));
-  private final Command SelectReefStationFrontRight = new SelectDesiredPose(m_autoAimSubsystem, reef.get(ReefStation.frontRight));
-  private final Command SelectReefStationBackRight = new SelectDesiredPose(m_autoAimSubsystem, reef.get(ReefStation.backRight));
-  private final Command SelectReefStationBack = new SelectDesiredPose(m_autoAimSubsystem, reef.get(ReefStation.back));
-  private final Command SelectReefStationBackLeft = new SelectDesiredPose(m_autoAimSubsystem, reef.get(ReefStation.backLeft));
-  private final Command SelectReefStationFrontLeft = new SelectDesiredPose(m_autoAimSubsystem, reef.get(ReefStation.frontLeft));
-  private final Command SelectProcessorPose = new SelectDesiredPose(m_autoAimSubsystem, alliance == Alliance.Blue ?
-                                                                      FieldConstants.blueProcessor.withRobotRelativeTransformation(
-                                                                        new Translation2d(0, AutoAimConstants.algaePosBackset)) :
-                                                                      FieldConstants.redprocessor.withRobotRelativeTransformation(
-                                                                        new Translation2d(0, AutoAimConstants.algaePosBackset)));
+  // private final Command SelectReefStationFront = new SelectDesiredPose(m_autoAimSubsystem, reef.get(ReefStation.front));
+  // private final Command SelectReefStationFrontRight = new SelectDesiredPose(m_autoAimSubsystem, reef.get(ReefStation.frontRight));
+  // private final Command SelectReefStationBackRight = new SelectDesiredPose(m_autoAimSubsystem, reef.get(ReefStation.backRight));
+  // private final Command SelectReefStationBack = new SelectDesiredPose(m_autoAimSubsystem, reef.get(ReefStation.back));
+  // private final Command SelectReefStationBackLeft = new SelectDesiredPose(m_autoAimSubsystem, reef.get(ReefStation.backLeft));
+  // private final Command SelectReefStationFrontLeft = new SelectDesiredPose(m_autoAimSubsystem, reef.get(ReefStation.frontLeft));
+  // private final Command SelectProcessorPose = new SelectDesiredPose(m_autoAimSubsystem, alliance == Alliance.Blue ?
+  //                                                                     FieldConstants.blueProcessor.withRobotRelativeTransformation(
+  //                                                                       new Translation2d(0, AutoAimConstants.algaePosBackset)) :
+  //                                                                     FieldConstants.redprocessor.withRobotRelativeTransformation(
+  //                                                                       new Translation2d(0, AutoAimConstants.algaePosBackset)));
 
   //Positions
   private final Command AllToFloor = new AllToSetPosition(m_elevator, m_coralAffector, Position.floor);
-  private final Command AllToL1 = new AllToSetPosition(m_elevator, m_coralAffector, Position.L1);
+  private final Command AllToprocessor = new AllToSetPosition(m_elevator, m_coralAffector, Position.processor);
   private final Command AllToL2Algae = new AllToSetPosition(m_elevator, m_coralAffector, Position.L2algae);
   private final Command AllToL2 = new AllToSetPosition(m_elevator, m_coralAffector, Position.L2);
   private final Command AllToL3Algae = new AllToSetPosition(m_elevator, m_coralAffector, Position.L3algae);
@@ -163,8 +163,8 @@ public class RobotContainer {
     new JoystickButton(m_driverStick, IOConstants.slowModeButtonID).whileTrue(SlowMode);
     new JoystickButton(m_driverStick, IOConstants.lockPoseButtonID).whileTrue(LockPose);
     new JoystickButton(m_driverStick, IOConstants.switchOrientationButtonID).onTrue(SwitchOrientation);
-    new JoystickButton(m_driverStick, IOConstants.switchBrakeButtonID).onTrue(SwitchBrake);
-    new JoystickButton(m_driverStick, IOConstants.StraightDriveButtonID).whileTrue(StraightDrive);
+    // new JoystickButton(m_driverStick, IOConstants.switchBrakeButtonID).onTrue(SwitchBrake);
+    new JoystickButton(m_driverStick, IOConstants.straightDriveButtonID).whileTrue(StraightDrive);
     new JoystickButton(m_driverStick, IOConstants.autoDriveButtonID).whileTrue(TEMPAUTODRIVE);
 
     //Poses
@@ -172,7 +172,7 @@ public class RobotContainer {
     /* OPERATOR */
     //Set positions
     new JoystickButton(m_operatorStick1, IOConstants.floorPosButtonID).whileTrue(AllToFloor);
-    new JoystickButton(m_operatorStick1, IOConstants.L1PosButtonID).whileTrue(AllToL1);
+    new JoystickButton(m_operatorStick1, IOConstants.processorPosButtonID).whileTrue(AllToprocessor);
     new JoystickButton(m_operatorStick1, IOConstants.L2AlgaePosButtonID).whileTrue(AllToL2Algae);
     new JoystickButton(m_operatorStick1, IOConstants.L2PosButtonID).whileTrue(AllToL2);
     new JoystickButton(m_operatorStick1, IOConstants.L3AlgaePosButtonID).whileTrue(AllToL3Algae);
@@ -191,8 +191,8 @@ public class RobotContainer {
     new JoystickButton(m_operatorStick2, IOConstants.algaeScoreButtonID).whileTrue(AlgaeScore);
 
     //Climber
-    new JoystickButton(m_operatorStick2, IOConstants.unClimbButtonID).whileTrue(UnClimb);
-    new JoystickButton(m_operatorStick2, IOConstants.climbButtonID).whileTrue(Climb);
+    // new JoystickButton(m_operatorStick2, IOConstants.unClimbButtonID).whileTrue(UnClimb);
+    // new JoystickButton(m_operatorStick2, IOConstants.climbButtonID).whileTrue(Climb);
 
     //Testing
 

@@ -39,17 +39,19 @@ public final class Constants {
     /* BUTTON IDS */
     /* Driver */
     public static final int quickBrakeButtonID = 6; //6
-    public static final int slowModeButtonID = 3; //2
-    public static final int switchBrakeButtonID = 5; //5
-    public static final int switchOrientationButtonID = 4; //3
-    public static final int lockPoseButtonID = 1; //4
-    public static final int StraightDriveButtonID = 2;
-    public static final int autoDriveButtonID = 1;
+    public static final int slowModeButtonID = 3; //3
+    // public static final int switchBrakeButtonID = 5; //5
+    public static final int switchOrientationButtonID = 4; //4
+    public static final int lockPoseButtonID = 5; //5
+    public static final int straightDriveButtonID = 2; //2
+    public static final int autoDriveButtonID = 1; //1
+
+    //Align left,11 right,12 center,10
 
     /* Operator */
     // Positions
     public static final int floorPosButtonID = 1;
-    public static final int L1PosButtonID = 2;
+    public static final int processorPosButtonID = 2;
     public static final int L2AlgaePosButtonID = 5;
     public static final int L2PosButtonID = 4;
     public static final int L3AlgaePosButtonID = 7;
@@ -99,7 +101,7 @@ public final class Constants {
 
     public static final double defaultPos = lowerLimit;
     public static final double floorPos = lowerLimit;
-    public static final double L1Pos = 24;
+    public static final double processorPos = 37;
     public static final double L2AlgaePos = 111;
     public static final double L2Pos = 85;
     public static final double L3AlgaePos = 177;
@@ -119,7 +121,7 @@ public final class Constants {
     public static final double wristScoringThreshold = 90;
 
     public static final double coralWristDefaultPos = 0;
-    public static final double coralWristL1 = 22;
+    // public static final double coralWristL1 = 22;
     public static final double coralWristL23 = 21;
     public static final double coralWristL4 = 104;
     public static final double coralWristHP = 30;
@@ -187,12 +189,12 @@ public final class Constants {
     public static final double speedScaler = 1;
     public static final double maxDriveSpeed = .96;
     public static final double minDriveSpeed = .35;
-    public static final double maxRotSpeed = .8;
+    public static final double maxRotSpeed = .9;
     public static final double minRotSpeed = .3;
 
     public static final double maxSpeedMetersPerSecond = 4.25; //4.5 true max
     public static final double maxAccelerationMetersPerSecondSquared = 1;
-    public static final double maxRotationSpeedRadiansPerSecond = Math.PI * 2;
+    public static final double maxRotationSpeedRadiansPerSecond = Math.PI;
 
     public static final double xyDeadband = .1;
     public static final double zDeadband = .4;
@@ -271,13 +273,13 @@ public final class Constants {
   }
 
   public class AutoAimConstants{
-    public static enum Position {floor, L1, L2algae, L2, L3algae, L3, L4, HP};
+    public static enum Position {floor, processor, L2algae, L2, L3algae, L3, L4, HP};
     public static enum ReefStation {front, frontRight, backRight, back, backLeft, frontLeft};
-    public static enum Alignment {left, center, right};
+    public static enum Alignment {left, center, right, blank};
 
     public static final HashMap<Position, double[]> positionValues = new HashMap<Position, double[]> () {{
       put(Position.floor, new double[] {ElevatorConstants.floorPos, AffectorConstants.coralWristDefaultPos});
-      put(Position.L1, new double[] {ElevatorConstants.L1Pos, AffectorConstants.coralWristL1});
+      put(Position.processor, new double[] {ElevatorConstants.processorPos, AffectorConstants.coralWristDefaultPos});
       put(Position.L2algae, new double[] {ElevatorConstants.L2AlgaePos, AffectorConstants.coralWristDefaultPos});
       put(Position.L2, new double[] {ElevatorConstants.L2Pos, AffectorConstants.coralWristL23});
       put(Position.L3algae, new double[] {ElevatorConstants.L3AlgaePos, AffectorConstants.coralWristDefaultPos});
@@ -304,6 +306,7 @@ public final class Constants {
       put(Alignment.left, leftCoralReefOffset);
       put(Alignment.center, 0.0);
       put(Alignment.right, rightCoralReefOffset);
+      put(Alignment.blank, 0.0);
     }};
 
     public static final double[] reefStationAngles = {0, 60, 120, 180, -180, -120, -60};
@@ -449,9 +452,9 @@ public final class Constants {
 
     public static final double inRangeThreshold = 2.15; //2.15
 
-    public static final AdvancedPose2D initialPoseBlueRight = new AdvancedPose2D(7.588, .426, Math.PI/2);
+    public static final AdvancedPose2D initialPoseBlueRight = new AdvancedPose2D(7.588, .426, 90);
     public static final AdvancedPose2D initialPoseRedRight = initialPoseBlueRight.flipBoth();
-    public static final AdvancedPose2D initialPoseBlueLeft = new AdvancedPose2D(7.588, 7.64, -Math.PI/2);
+    public static final AdvancedPose2D initialPoseBlueLeft = new AdvancedPose2D(7.588, 7.64, -90);
     public static final AdvancedPose2D initialPoseRedLeft = initialPoseBlueLeft.flipBoth();
     public static final AdvancedPose2D customInitialPose = new AdvancedPose2D();
   }
