@@ -462,6 +462,7 @@ public final class Constants {
     public static final Vector<N3> poseEstimateVisionStdDev = VecBuilder.fill(.02, .02, Units.degreesToRadians(1));
 
     public static final double maxPIDDriveSpeed = 3.1; //3.1
+    public static final double maxPIDRot = Math.PI/2;
   }
 
   public class ClimberConstants {

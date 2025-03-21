@@ -455,8 +455,8 @@ public class DriveTrain extends SubsystemBase {
     y = MathUtil.clamp(yController.calculate(getPose().getY()), -AutoAimConstants.maxPIDDriveSpeed, 
                                                                  AutoAimConstants.maxPIDDriveSpeed);
     omega = MathUtil.clamp(headingController.calculate(getPose().getRotation().getRadians()), 
-                                                      -DriveConstants.maxRotationSpeedRadiansPerSecond, 
-                                                       DriveConstants.maxRotationSpeedRadiansPerSecond);
+                                                      -AutoAimConstants.maxPIDRot, 
+                                                       AutoAimConstants.maxPIDRot);
 
     useScalers = false;
   }
