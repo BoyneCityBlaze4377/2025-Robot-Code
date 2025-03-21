@@ -30,10 +30,13 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import frc.Lib.AdvancedPose2D;
 import frc.Lib.LimelightHelpers;
 import frc.Lib.LimelightHelpers.PoseEstimate;
@@ -70,7 +73,7 @@ public class DriveTrain extends SubsystemBase {
   private final SwerveDriveOdometry m_odometry;
   private final SwerveDrivePoseEstimator poseEstimator;
 
-  Field2d estimateField;
+  private final Field2d estimateField;
 
   private final Elevator m_elevator;
 
@@ -137,6 +140,8 @@ public class DriveTrain extends SubsystemBase {
 
     m_gyro = new Pigeon2(SensorConstants.gyroID);
 
+    estimateField = new Field2d();
+
     m_autoAimSubsystem = autoAimSubsystem;
     desiredAlignment = Alignment.left;
     desiredPose = new AdvancedPose2D();
@@ -147,7 +152,9 @@ public class DriveTrain extends SubsystemBase {
     poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.driveKinematics, m_gyro.getRotation2d(), 
                                                  getSwerveModulePositions(), initialPose,
                                                  AutoAimConstants.poseEstimateOdometryStdDev,
-                                                 AutoAimConstants.poseEstimateVisionStdDev);    
+                                                 AutoAimConstants.poseEstimateVisionStdDev);
+                                                 
+    estimateField.setRobotPose(poseEstimator.getEstimatedPosition());
 
     try {
       fieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2025Reefscape.m_resourceFile);
@@ -158,9 +165,9 @@ public class DriveTrain extends SubsystemBase {
                                         .withWidget("Radial Gauge")
                                         .withProperties(Map.of("start_angle", -180, "end_angle", 180,
                                                                "min_value", -180, "max_value", 180,
-                                                               "wrap_value", true, "show_pointer", false))
+                                                               "wrap_value", true, "show_pointer", true))
                                         .getEntry();
-    poseEstimate = IOConstants.DiagnosticTab.add("Field", poseEstimator.getEstimatedPosition().toString())
+    poseEstimate = IOConstants.DiagnosticTab.add("Field Position", estimateField.getRobotPose())
                                             .withWidget("Field")
                                             .withProperties(Map.of("robot_width", DriveConstants.trackWidth,
                                                                    "robot_length", DriveConstants.wheelBase))
@@ -212,8 +219,6 @@ public class DriveTrain extends SubsystemBase {
     m_elevator = elevator;
     elevatorHeight = m_elevator.getEncoderVal();
 
-    estimateField = new Field2d();
-
     m_gyro.reset();
 
     xController.setTolerance(AutoAimConstants.transkTolerance);
@@ -239,6 +244,27 @@ public class DriveTrain extends SubsystemBase {
 
     // NetworkTableInstance.getDefault().getTable("limelight").getEntry("camera_robotspace_set")
     //                 .setDoubleArray(SensorConstants.limelightRobotSpacePose);
+
+    SmartDashboard.putData("Swerve Drive", new Sendable() {
+      @Override
+      public void initSendable(SendableBuilder builder) {
+        builder.setSmartDashboardType("SwerveDrive");
+
+        builder.addDoubleProperty("Front Left Angle", () -> m_frontLeft.getState().angle.getRadians(), null);
+        builder.addDoubleProperty("Front Left Velocity", () -> m_frontLeft.getState().speedMetersPerSecond, null);
+
+        builder.addDoubleProperty("Front Right Angle", () -> m_frontRight.getState().angle.getRadians(), null);
+        builder.addDoubleProperty("Front Right Velocity", () -> m_frontRight.getState().speedMetersPerSecond, null);
+
+        builder.addDoubleProperty("Back Left Angle", () -> m_backLeft.getState().angle.getRadians(), null);
+        builder.addDoubleProperty("Back Left Velocity", () -> m_backLeft.getState().speedMetersPerSecond, null);
+
+        builder.addDoubleProperty("Back Right Angle", () -> m_backRight.getState().angle.getRadians(), null);
+        builder.addDoubleProperty("Back Right Velocity", () -> m_backRight.getState().speedMetersPerSecond, null);
+
+        builder.addDoubleProperty("Robot Angle", () -> m_gyro.getRotation2d().getRadians(), null);
+      }
+    });
   }
 
   @Override
@@ -262,7 +288,7 @@ public class DriveTrain extends SubsystemBase {
     isBrake = m_frontLeft.getIdleMode() == IdleMode.kBrake;
 
     updateOdometry();
-    estimateField.setRobotPose(m_odometry.getPoseMeters());
+    estimateField.setRobotPose(poseEstimator.getEstimatedPosition());
     elevatorHeight = m_elevator.getEncoderVal();
 
     /** Dashboard Posting */
@@ -273,6 +299,7 @@ public class DriveTrain extends SubsystemBase {
     atDesPose.setBoolean(atSetpoints());
     matchTime.setDouble(DriverStation.getMatchTime());
     orientationSender.setBoolean(fieldOrientation);
+    poseEstimate.setValue(estimateField.getRobotPose());
 
     // Update the odometry in the periodic block
     m_odometry.update(m_gyro.getRotation2d(), getSwerveModulePositions());
@@ -347,27 +374,6 @@ public class DriveTrain extends SubsystemBase {
                               : AutoAimConstants.redReefStationFromAngle.get(getEstimatedStationAngle());
     desiredPose = isBlue ? AutoAimConstants.blueReef.get(estimatedStation) 
                          : AutoAimConstants.redReef.get(estimatedStation);
-
-    // SmartDashboard.putData("Swerve Drive", new Sendable() {
-    //   @Override
-    //   public void initSendable(SendableBuilder builder) {
-    //     builder.setSmartDashboardType("SwerveDrive");
-
-    //     builder.addDoubleProperty("Front Left Angle", () -> m_frontLeft.getState().angle.getRadians(), null);
-    //     builder.addDoubleProperty("Front Left Velocity", () -> m_frontLeft.getState().speedMetersPerSecond, null);
-
-    //     builder.addDoubleProperty("Front Right Angle", () -> m_frontRight.getState().angle.getRadians(), null);
-    //     builder.addDoubleProperty("Front Right Velocity", () -> m_frontRight.getState().speedMetersPerSecond, null);
-
-    //     builder.addDoubleProperty("Back Left Angle", () -> m_backLeft.getState().angle.getRadians(), null);
-    //     builder.addDoubleProperty("Back Left Velocity", () -> m_backLeft.getState().speedMetersPerSecond, null);
-
-    //     builder.addDoubleProperty("Back Right Angle", () -> m_backRight.getState().angle.getRadians(), null);
-    //     builder.addDoubleProperty("Back Right Velocity", () -> m_backRight.getState().speedMetersPerSecond, null);
-
-    //     builder.addDoubleProperty("Robot Angle", () -> m_gyro.getRotation2d().getRadians(), null);
-    //   }
-    // });
 
     LimelightHelpers.SetRobotOrientation(cameraName, heading, 0, 0, 0, 0, 0);
   }
