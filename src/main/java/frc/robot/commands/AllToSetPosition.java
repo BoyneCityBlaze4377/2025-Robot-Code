@@ -32,6 +32,7 @@ public class AllToSetPosition extends Command {
     m_elevator.setSetpoint(elevatorTarget);
 
     m_elevator.setPositionString("Going to " + position.toString());
+    m_elevator.setCurrentPosition(position);
     m_elevator.setAtPos(false);
   }
 
