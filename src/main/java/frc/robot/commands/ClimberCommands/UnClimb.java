@@ -3,10 +3,10 @@ package frc.robot.commands.ClimberCommands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Climber;
 
+/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class UnClimb extends Command {
   private final Climber m_climber;
-
-  /** Creates a new Climb. */
+  /** Creates a new UnCLimb. */
   public UnClimb(Climber climber) {
     m_climber = climber;
     // Use addRequirements() here to declare subsystem dependencies.

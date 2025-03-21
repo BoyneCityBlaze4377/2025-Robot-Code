@@ -1,19 +1,16 @@
 package frc.robot.commands.ClimberCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.AlgaeAffector;
 import frc.robot.subsystems.Climber;
 
+/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class Climb extends Command {
   private final Climber m_climber;
-  private final AlgaeAffector m_algaeWrist;
-
-  /** Creates a new Climb. */
-  public Climb(Climber climber, AlgaeAffector algaeWrist) {
+  /** Creates a new CLimb. */
+  public Climb(Climber climber) {
     m_climber = climber;
-    m_algaeWrist = algaeWrist;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(m_climber, m_algaeWrist);
+    addRequirements(m_climber);
   }
 
   // Called when the command is initially scheduled.

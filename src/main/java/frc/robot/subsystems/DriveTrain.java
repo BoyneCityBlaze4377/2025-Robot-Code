@@ -28,6 +28,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.shuffleboard.ComplexWidget;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -77,7 +78,9 @@ public class DriveTrain extends SubsystemBase {
 
   private final Elevator m_elevator;
 
-  private final GenericEntry robotHeading, poseEstimate, xSpeedSender, 
+  private final GenericEntry robotHeading, 
+                             //poseEstimate, 
+                             xSpeedSender, 
                              ySpeedSender, omegaSender, matchTime,
                              desPoseSender, desAlignSender, desStationSender,
                              atDesPose, fmsInfo, orientationSender;
@@ -167,11 +170,7 @@ public class DriveTrain extends SubsystemBase {
                                                                "min_value", -180, "max_value", 180,
                                                                "wrap_value", true, "show_pointer", true))
                                         .getEntry();
-    poseEstimate = IOConstants.DiagnosticTab.add("Field Position", estimateField.getRobotPose())
-                                            .withWidget("Field")
-                                            .withProperties(Map.of("robot_width", DriveConstants.trackWidth,
-                                                                   "robot_length", DriveConstants.wheelBase))
-                                            .getEntry();
+    SmartDashboard.putData("Field Position", estimateField);
     xSpeedSender = IOConstants.TeleopTab.add("xSpeed", 0)
                                         .withWidget("Number Slider")
                                         .withProperties(Map.of("min_value", -1, "max_value", 1))
@@ -299,7 +298,7 @@ public class DriveTrain extends SubsystemBase {
     atDesPose.setBoolean(atSetpoints());
     matchTime.setDouble(DriverStation.getMatchTime());
     orientationSender.setBoolean(fieldOrientation);
-    poseEstimate.setValue(estimateField.getRobotPose());
+    // poseEstimate.setValue(estimateField.getRobotPose());
 
     // Update the odometry in the periodic block
     m_odometry.update(m_gyro.getRotation2d(), getSwerveModulePositions());
@@ -309,7 +308,9 @@ public class DriveTrain extends SubsystemBase {
                                          getPoseEstimate().get().timestampSeconds);
     }
 
-    poseEstimate.setValue(poseEstimator.getEstimatedPosition().toString());
+    //poseEstimate.setValue(poseEstimator.getEstimatedPosition().toString());
+    estimateField.setRobotPose(poseEstimator.getEstimatedPosition());
+
 
     //drive
     rawDrive(x , y, omega, fieldOrientation, useScalers);

@@ -40,8 +40,7 @@ public class RobotContainer {
   private final CoralAffector m_coralAffector = new CoralAffector();
   private final AlgaeAffector m_algaeAffector = new AlgaeAffector();
   private final Climber m_climber = new Climber();
-  private final Elevator m_elevator = new Elevator();
-  private final AutoAimSubsystem m_autoAimSubsystem = new AutoAimSubsystem(SensorConstants.limeLightName);
+  private final Elevator m_elevator = new Elevator();  private final AutoAimSubsystem m_autoAimSubsystem = new AutoAimSubsystem(SensorConstants.limeLightName);
   private final DriveTrain m_driveTrain = new DriveTrain(m_elevator, m_autoAimSubsystem, SensorConstants.limeLightName);
 
   private final SendableChooser<String> autonChooser = new SendableChooser<String>();
@@ -98,7 +97,7 @@ public class RobotContainer {
   private final Command AlgaeScore = new AlgaeScore(m_algaeAffector);
 
   //Climber
-  private final Command Climb = new Climb(m_climber, m_algaeAffector);
+  private final Command Climb = new Climb(m_climber);
   private final Command UnClimb = new UnClimb(m_climber);
 
   /** AUTONS */
@@ -109,7 +108,7 @@ public class RobotContainer {
   //Right
   private final FourCoralL3Right FourL3Right = new FourCoralL3Right(m_driveTrain, m_coralAffector, m_elevator);
   private final ThreeCoralL4Right ThreeL4Right = new ThreeCoralL4Right(m_driveTrain, m_elevator, m_coralAffector);
-  private final TwoL4AndProcessor TwoL4Processor = new TwoL4AndProcessor(m_driveTrain, m_elevator, m_coralAffector, m_algaeAffector);
+  //private final TwoL4AndProcessor TwoL4Processor = new TwoL4AndProcessor(m_driveTrain, m_elevator, m_coralAffector, m_algaeAffector);
 
   //Left
   private final FourCoralL3Left FourL3Left = new FourCoralL3Left(m_driveTrain, m_coralAffector, m_elevator);
@@ -140,7 +139,7 @@ public class RobotContainer {
 
     FourL3Right.setAlliance(m_alliance);
     ThreeL4Right.setAlliance(m_alliance);
-    TwoL4Processor.setAlliance(m_alliance);
+    //TwoL4Processor.setAlliance(m_alliance);
     FourL3Left.setAlliance(m_alliance);
     ThreeL4Left.setAlliance(m_alliance);
     BackRightAndProcess.setAlliance(m_alliance);
@@ -172,7 +171,7 @@ public class RobotContainer {
                                "DriveOffLine", DriveOffLine,
                                "ThreeL4Right", ThreeL4Right,
                                "FourL3Right", FourL3Right,
-                               "TwoL4Processor", TwoL4Processor,
+                               //"TwoL4Processor", TwoL4Processor,
                                "FourL3Left", FourL3Left,
                                "ThreeL4Left", ThreeL4Left,
                                "BackRightAndProcess", BackRightAndProcess,
