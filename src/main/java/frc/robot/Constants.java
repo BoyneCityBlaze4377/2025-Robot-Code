@@ -266,15 +266,29 @@ public final class Constants {
 
     public static final double autonLineDistance = Units.inchesToMeters(297.5);
 
-    // public static AdvancedPose2D INIT_POSE_BLUE = new AdvancedPose2D(2, 4, Rotation2d.fromDegrees(0));
     public static AdvancedPose2D blueReefCenterPos = new AdvancedPose2D(4.48945, fieldWidth / 2, Rotation2d.fromDegrees(0));
 
-    public static final AdvancedPose2D blueLeftStartAlgae = new AdvancedPose2D(new Translation2d(1.220, 5.848), new Rotation2d());
-    public static final AdvancedPose2D blueCenterStartAlgae = new AdvancedPose2D(new Translation2d(1.220, 4.026), new Rotation2d());
-    public static final AdvancedPose2D blueRightStartAlgae = new AdvancedPose2D(new Translation2d(1.220, 2.189), new Rotation2d());
+    public static final AdvancedPose2D blueLeftStartAlgae = new AdvancedPose2D(Units.inchesToMeters(48), 
+                                                                               blueReefCenterPos.getY() + Units.inchesToMeters(72), 
+                                                                               0);
+    public static final AdvancedPose2D blueCenterStartAlgae = new AdvancedPose2D(Units.inchesToMeters(48), 
+                                                                                 blueReefCenterPos.getY(), 0);
+    public static final AdvancedPose2D blueRightStartAlgae = new AdvancedPose2D(Units.inchesToMeters(48), 
+                                                                                blueReefCenterPos.getY() - Units.inchesToMeters(72), 
+                                                                                0);
 
-    public static final AdvancedPose2D blueProcessor = new AdvancedPose2D(new Translation2d(6.348, .459), new Rotation2d(Math.PI/2));
+    public static final AdvancedPose2D blueProcessor = new AdvancedPose2D(autonLineDistance - Units.inchesToMeters(61.76), 
+                                                                          DriveConstants.trackWidth / 2 + AutoAimConstants.algaePosBackset,
+                                                                         -90);
     public static final AdvancedPose2D redprocessor = blueProcessor.flipBoth();
+
+    public static final double coralStationWidth = Units.inchesToMeters(79.76);
+    public static final double coralStationTotalX = autonLineDistance - Units.inchesToMeters(231.66); //65.84
+    public static final double coralStationTotalY = Math.sqrt(Math.pow(coralStationWidth, 2) - Math.pow(coralStationTotalX, 2));
+    public static final double coralStationXMid = coralStationTotalX / 2;
+    public static final double coralStationYMid = coralStationTotalY / 2;
+    public static final double coralStationAngle = Units.radiansToDegrees(Math.atan(coralStationTotalX / coralStationTotalY));
+    public static final double coralStationDesiredHeading = 90 - coralStationAngle;
   }
 
   public class AutoAimConstants{
@@ -293,7 +307,7 @@ public final class Constants {
       put(Position.HP, new double[] {ElevatorConstants.HPPos, AffectorConstants.coralWristHP});
     }};
             
-    public static final double centerOfReefToRobotDistance = Units.inchesToMeters(32.75) + DriveConstants.trackWidth / 2 + 0.025;
+    public static final double centerOfReefToRobotDistance = Units.inchesToMeters(32.75) + DriveConstants.trackWidth / 2;
 
     public static final double coralAffectorOffsetFromRobotCenter = Units.inchesToMeters(2);
     public static final double leftCoralReefOffset = -(Units.inchesToMeters(6.47) + coralAffectorOffsetFromRobotCenter);
@@ -304,7 +318,7 @@ public final class Constants {
     public static final double LLDefaultOffsetDegrees = 2.3;
     public static final double LCToBumperEdgeOffsetMeters = Units.inchesToMeters(4.85);
 
-    public static final double coralStationToRobotDistance = DriveConstants.trackWidth / 2 + Units.inchesToMeters(3);
+    public static final double coralStationToRobotDistance = DriveConstants.trackWidth / 2;
     public static final double coralStationSideOffsetDistance = Units.inchesToMeters(76) / 4 - coralAffectorOffsetFromRobotCenter;
 
     public static final HashMap<Alignment, Double> offsetFromAlignment = new HashMap<Alignment, Double> () {{
@@ -317,21 +331,21 @@ public final class Constants {
     public static final double[] reefStationAngles = {0, 60, 120, 180, -180, -120, -60};
 
     public static final HashMap<ReefStation, AdvancedPose2D> blueReef = new HashMap<ReefStation, AdvancedPose2D> () {{
-      put(ReefStation.front, FieldConstants.blueReefCenterPos.withVector(Rotation2d.fromDegrees(0), new Translation2d(-centerOfReefToRobotDistance, 0), Rotation2d.fromDegrees(0)));
-      put(ReefStation.frontRight, FieldConstants.blueReefCenterPos.withVector(Rotation2d.fromDegrees(-120), new Translation2d(centerOfReefToRobotDistance, 0), Rotation2d.fromDegrees(60)));
-      put(ReefStation.backRight, FieldConstants.blueReefCenterPos.withVector(Rotation2d.fromDegrees(-60), new Translation2d(centerOfReefToRobotDistance, 0), Rotation2d.fromDegrees(120)));
-      put(ReefStation.back, FieldConstants.blueReefCenterPos.withVector(Rotation2d.fromDegrees(0), new Translation2d(centerOfReefToRobotDistance, 0), Rotation2d.fromDegrees(180)));
-      put(ReefStation.backLeft, FieldConstants.blueReefCenterPos.withVector(Rotation2d.fromDegrees(60), new Translation2d(centerOfReefToRobotDistance, 0), Rotation2d.fromDegrees(-120)));
-      put(ReefStation.frontLeft, FieldConstants.blueReefCenterPos.withVector(Rotation2d.fromDegrees(120), new Translation2d(centerOfReefToRobotDistance, 0), Rotation2d.fromDegrees(-60)));
+      put(ReefStation.front, FieldConstants.blueReefCenterPos.withVector(Rotation2d.fromDegrees(0), new Translation2d(0, -centerOfReefToRobotDistance), Rotation2d.fromDegrees(0)));
+      put(ReefStation.frontRight, FieldConstants.blueReefCenterPos.withVector(Rotation2d.fromDegrees(-120), new Translation2d(0, centerOfReefToRobotDistance), Rotation2d.fromDegrees(60)));
+      put(ReefStation.backRight, FieldConstants.blueReefCenterPos.withVector(Rotation2d.fromDegrees(-60), new Translation2d(0, centerOfReefToRobotDistance), Rotation2d.fromDegrees(120)));
+      put(ReefStation.back, FieldConstants.blueReefCenterPos.withVector(Rotation2d.fromDegrees(0), new Translation2d(0, centerOfReefToRobotDistance), Rotation2d.fromDegrees(180)));
+      put(ReefStation.backLeft, FieldConstants.blueReefCenterPos.withVector(Rotation2d.fromDegrees(60), new Translation2d(0, centerOfReefToRobotDistance), Rotation2d.fromDegrees(-120)));
+      put(ReefStation.frontLeft, FieldConstants.blueReefCenterPos.withVector(Rotation2d.fromDegrees(120), new Translation2d(0, centerOfReefToRobotDistance), Rotation2d.fromDegrees(-60)));
     }};
 
     public static final HashMap<ReefStation, AdvancedPose2D> redReef = new HashMap<ReefStation, AdvancedPose2D> () {{
-      put(ReefStation.front, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(0), new Translation2d(-centerOfReefToRobotDistance, 0), Rotation2d.fromDegrees(0)));
-      put(ReefStation.frontRight, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(-120), new Translation2d(centerOfReefToRobotDistance, 0), Rotation2d.fromDegrees(60)));
-      put(ReefStation.backRight, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(-60), new Translation2d(centerOfReefToRobotDistance, 0), Rotation2d.fromDegrees(120)));
-      put(ReefStation.back, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(0), new Translation2d(centerOfReefToRobotDistance, 0), Rotation2d.fromDegrees(180)));
-      put(ReefStation.backLeft, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(60), new Translation2d(centerOfReefToRobotDistance, 0), Rotation2d.fromDegrees(-120)));
-      put(ReefStation.backRight, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(120), new Translation2d(centerOfReefToRobotDistance, 0), Rotation2d.fromDegrees(-60)));
+      put(ReefStation.front, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(0), new Translation2d(0, -centerOfReefToRobotDistance), Rotation2d.fromDegrees(0)));
+      put(ReefStation.frontRight, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(-120), new Translation2d(0, centerOfReefToRobotDistance), Rotation2d.fromDegrees(60)));
+      put(ReefStation.backRight, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(-60), new Translation2d(0, centerOfReefToRobotDistance), Rotation2d.fromDegrees(120)));
+      put(ReefStation.back, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(0), new Translation2d(0, centerOfReefToRobotDistance), Rotation2d.fromDegrees(180)));
+      put(ReefStation.backLeft, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(60), new Translation2d(0, centerOfReefToRobotDistance), Rotation2d.fromDegrees(-120)));
+      put(ReefStation.backRight, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(120), new Translation2d(0, centerOfReefToRobotDistance), Rotation2d.fromDegrees(-60)));
     }};
 
     public static final HashMap<Double, ReefStation> blueReefStationFromAngle = new HashMap<Double, ReefStation> () {{
@@ -415,8 +429,12 @@ public final class Constants {
       put(ReefStation.frontLeft, 6.);
     }};
 
-    public static final AdvancedPose2D blueLeftCoralStationPos = new AdvancedPose2D(new Translation2d(0.836168, 0.6334625), null).withVector(Rotation2d.fromDegrees(54), new Translation2d(coralStationToRobotDistance, 0), Rotation2d.fromDegrees(-126));
-    public static final AdvancedPose2D blueRightCoralStationPos = new AdvancedPose2D(new Translation2d(0.836168, 7.4185375), null).withVector(Rotation2d.fromDegrees(-54), new Translation2d(coralStationToRobotDistance, 0), Rotation2d.fromDegrees(126));
+    public static final AdvancedPose2D blueLeftCoralStationPos = new AdvancedPose2D(FieldConstants.coralStationXMid, 
+                                                                                    FieldConstants.fieldWidth - FieldConstants.coralStationYMid, 
+                                                                                    FieldConstants.coralStationDesiredHeading);
+    public static final AdvancedPose2D blueRightCoralStationPos = new AdvancedPose2D(FieldConstants.coralStationXMid, 
+                                                                                     FieldConstants.coralStationYMid, 
+                                                                                     FieldConstants.coralStationDesiredHeading);
     public static final AdvancedPose2D redLeftCoralStationPos = blueLeftCoralStationPos.flipBoth();
     public static final AdvancedPose2D redRightCoralStationPos = blueRightCoralStationPos.flipBoth();
 
@@ -481,7 +499,11 @@ public final class Constants {
   public class SensorConstants {
     /**LIMELIGHT */
     public static final String limeLightName = "limelight";
-    public static final double[] limelightRobotSpacePose = {0, 0, 0, 0, 0, 0};
+    //                                                     {forward, right, up, roll, pitch, yaw}
+    public static final double[] limelightRobotSpacePose = {Units.inchesToMeters(1.875), 
+                                                           -Units.inchesToMeters(5.875), 
+                                                            Units.inchesToMeters(33.6875), 
+                                                            0, 0, 0};
 
     /** LASERCAN */
     public static final int laserCANID = 17;

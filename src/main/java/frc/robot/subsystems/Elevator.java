@@ -16,6 +16,7 @@ import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IOConstants;
+import frc.robot.Constants.AutoAimConstants.Position;
 
 public class Elevator extends SubsystemBase {
   private final SparkMax elevatorMotor;
@@ -26,6 +27,7 @@ public class Elevator extends SubsystemBase {
   private double elevatorSpeed;
   private String positionStatusString;
   private final double dH;
+  private Position currentPosition;
 
   private final GenericEntry elevatorHeight, elevatorSpeedSender, upperLimit, lowerLimit, 
                              positionStatusSender, lockedSender, atPositionSender;
@@ -44,6 +46,7 @@ public class Elevator extends SubsystemBase {
     dH = ElevatorConstants.startingHeight - elevatorEncoder.getPosition();
 
     positionStatusString = "At floor";
+    currentPosition = Position.floor;
 
     atPos = false;
     locked = false;
@@ -160,5 +163,13 @@ public class Elevator extends SubsystemBase {
 
   public boolean atSetpoint() {
     return elevatorController.atSetpoint();
+  }
+
+  public void setCurrentPosition(Position position) {
+    currentPosition = position;
+  }
+
+  public Position getCurrentPosition() {
+    return currentPosition;
   }
 }

@@ -22,14 +22,14 @@ public class AutoAimDrive extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    desiredPose = m_autoAimSubsystem.getDesiredPose().withReefAlignment(m_autoAimSubsystem.getDesiredAlignment());
+    desiredPose = m_autoAimSubsystem.getDesiredPose().withReefAlignment(m_autoAimSubsystem.getDesiredAlignment(), false);
     m_driveTrain.setPIDSetpoints(desiredPose.getX(), desiredPose.getY(), desiredPose.getRotation().getRadians());
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    desiredPose = m_autoAimSubsystem.getDesiredPose().withReefAlignment(m_autoAimSubsystem.getDesiredAlignment());
+    desiredPose = m_autoAimSubsystem.getDesiredPose().withReefAlignment(m_autoAimSubsystem.getDesiredAlignment(), false);
     m_driveTrain.setPIDSetpoints(desiredPose.getX(), desiredPose.getY(), desiredPose.getRotation().getRadians());
     
     m_driveTrain.PIDDrive();

@@ -1,6 +1,7 @@
 package frc.robot;
 
 import edu.wpi.first.net.WebServer;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -65,8 +66,8 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
+    m_robotContainer.setAlliances(DriverStation.getAlliance());
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-    m_robotContainer.setDriveTrainInitialPose();
     Shuffleboard.selectTab(IOConstants.AutonTab.getTitle());
     // m_robotContainer.setDriveTrainPoseEstimate();
 
@@ -82,7 +83,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    Shuffleboard.selectTab(IOConstants.DiagnosticTab.getTitle());
+    Shuffleboard.selectTab(IOConstants.TeleopTab.getTitle());
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }

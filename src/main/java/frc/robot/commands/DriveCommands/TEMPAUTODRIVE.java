@@ -18,10 +18,10 @@ public class TEMPAUTODRIVE extends Command {
 
 
   /** Creates a new AutoAimDrive. */
-  public TEMPAUTODRIVE(DriveTrain driveTrain, Alliance alliance) {
+  public TEMPAUTODRIVE(DriveTrain driveTrain) {
     m_driveTrain = driveTrain;
     desiredStation = ReefStation.front;
-    reef = alliance == Alliance.Blue ? AutoAimConstants.blueReef : AutoAimConstants.redReef;
+    reef = m_driveTrain.getAlliance() == Alliance.Blue ? AutoAimConstants.blueReef : AutoAimConstants.redReef;
     desiredPose = reef.get(desiredStation);
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_driveTrain);
@@ -31,7 +31,7 @@ public class TEMPAUTODRIVE extends Command {
   @Override
   public void initialize() {
     desiredStation = m_driveTrain.getDesiredStation();
-    desiredPose = reef.get(desiredStation).withReefAlignment(m_driveTrain.getDesiredAlignment());
+    desiredPose = reef.get(desiredStation).withReefAlignment(m_driveTrain.getDesiredAlignment(), false);
     m_driveTrain.setPIDSetpoints(desiredPose.getX(),
                                  desiredPose.getY(),
                                  desiredPose.getRotation().getRadians());
@@ -40,7 +40,7 @@ public class TEMPAUTODRIVE extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    desiredPose = reef.get(desiredStation).withReefAlignment(m_driveTrain.getDesiredAlignment());
+    desiredPose = reef.get(desiredStation).withReefAlignment(m_driveTrain.getDesiredAlignment(), false);
     m_driveTrain.setPIDSetpoints(desiredPose.getX(),
                                  desiredPose.getY(),
                                  desiredPose.getRotation().getRadians());

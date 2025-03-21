@@ -29,15 +29,11 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.util.sendable.Sendable;
-import edu.wpi.first.util.sendable.SendableBuilder;
 import frc.Lib.AdvancedPose2D;
 import frc.Lib.LimelightHelpers;
 import frc.Lib.LimelightHelpers.PoseEstimate;
@@ -62,7 +58,8 @@ public class DriveTrain extends SubsystemBase {
   private final Pigeon2 m_gyro;
   private boolean fieldOrientation = true,
                   isLocked = false, slow = false, 
-                  isBrake = true, autonInRange = false, useScalers = false;
+                  isBrake = true, autonInRange = false, useScalers = false, 
+                  straightDriveBackwards = false, isBlue = true;
   private double speedScaler, heading, x, y, omega,  elevatorHeight;
 
   private AprilTagFieldLayout fieldLayout;
@@ -80,7 +77,7 @@ public class DriveTrain extends SubsystemBase {
   private final GenericEntry robotHeading, poseEstimate, xSpeedSender, 
                              ySpeedSender, omegaSender, matchTime,
                              desPoseSender, desAlignSender, desStationSender,
-                             atDesPose, fmsInfo;
+                             atDesPose, fmsInfo, orientationSender;
 
   private final PIDController xController = new PIDController(AutoAimConstants.transkP,
                                                               AutoAimConstants.transkI,
@@ -97,8 +94,7 @@ public class DriveTrain extends SubsystemBase {
   // From AAS
   private double tx, ty, ta, tID, dis;
   private final String cameraName;
-  private final Alliance m_alliance;
-  private final Joystick stick;
+  private Alliance m_alliance;
   //private final LaserCan laserCan;
   private LaserCanInterface.Measurement lcMeasurement;
   private AdvancedPose2D desiredPose;
@@ -106,8 +102,7 @@ public class DriveTrain extends SubsystemBase {
   private ReefStation estimatedStation;
     
   /** Creates a new DriveTrain. */
-  public DriveTrain(Elevator elevator, AutoAimSubsystem autoAimSubsystem, 
-                    String limelightName, Alliance alliance, Joystick driverStick) {
+  public DriveTrain(Elevator elevator, AutoAimSubsystem autoAimSubsystem, String limelightName) {
     m_frontLeft = new SwerveModule("frontLeft", ModuleConstants.frontLeftDriveMotorPort, 
                                                      ModuleConstants.frontLeftTurningMotorPort,
                                                      ModuleConstants.frontLeftTurningEncoderPort, 
@@ -143,6 +138,9 @@ public class DriveTrain extends SubsystemBase {
     m_gyro = new Pigeon2(SensorConstants.gyroID);
 
     m_autoAimSubsystem = autoAimSubsystem;
+    desiredAlignment = Alignment.left;
+    desiredPose = new AdvancedPose2D();
+    estimatedStation = ReefStation.front;
 
     m_odometry = new SwerveDriveOdometry(DriveConstants.driveKinematics, m_gyro.getRotation2d(),
                                          getSwerveModulePositions());
@@ -153,7 +151,7 @@ public class DriveTrain extends SubsystemBase {
 
     try {
       fieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2025Reefscape.m_resourceFile);
-      fieldLayout.setOrigin(new Pose3d(initialPose));
+      fieldLayout.setOrigin(new Pose3d());
     } catch (IOException e) {}
 
     robotHeading = IOConstants.TeleopTab.add("Robot Heading", heading)
@@ -198,6 +196,9 @@ public class DriveTrain extends SubsystemBase {
     fmsInfo = IOConstants.ConfigTab.add("FMSInfo", 0)
                                    .withWidget("FMSInfo")
                                    .getEntry();
+    orientationSender = IOConstants.TeleopTab.add("Field Oriented?", true)
+                                             .withWidget("Boolean Box")
+                                             .getEntry();
 
     zeroHeading();
     brakeAll();
@@ -226,8 +227,7 @@ public class DriveTrain extends SubsystemBase {
 
     //From AAS
     cameraName = limelightName;
-    m_alliance = alliance;
-    stick = driverStick;
+    m_alliance = Alliance.Blue;
     // laserCan = new LaserCan(17);
 
     // try {laserCan.setRangingMode(RangingMode.SHORT);} catch (ConfigurationFailedException e) {}
@@ -237,12 +237,8 @@ public class DriveTrain extends SubsystemBase {
 
     LimelightHelpers.SetRobotOrientation(cameraName, initialPose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
 
-    NetworkTableInstance.getDefault().getTable("limelight").getEntry("camera_robotspace_set")
-                    .setDoubleArray(SensorConstants.limelightRobotSpacePose);
-
-    desiredPose = new AdvancedPose2D();
-    desiredAlignment = Alignment.left;
-    estimatedStation = ReefStation.front;
+    // NetworkTableInstance.getDefault().getTable("limelight").getEntry("camera_robotspace_set")
+    //                 .setDoubleArray(SensorConstants.limelightRobotSpacePose);
   }
 
   @Override
@@ -276,6 +272,7 @@ public class DriveTrain extends SubsystemBase {
     desStationSender.setString(estimatedStation.toString());
     atDesPose.setBoolean(atSetpoints());
     matchTime.setDouble(DriverStation.getMatchTime());
+    orientationSender.setBoolean(fieldOrientation);
 
     // Update the odometry in the periodic block
     m_odometry.update(m_gyro.getRotation2d(), getSwerveModulePositions());
@@ -306,6 +303,33 @@ public class DriveTrain extends SubsystemBase {
 
     autonInRange = Math.hypot(xController.getError(), yController.getError()) <= AutonConstants.inRangeThreshold;
 
+    switch (m_elevator.getCurrentPosition()) {
+      case processor:
+        straightDriveBackwards = true;
+        break;
+      case L2:
+        straightDriveBackwards = false;
+        break;
+      case L2algae:
+        straightDriveBackwards = true;
+        break;
+      case L3:
+        straightDriveBackwards = false;
+        break;
+      case L3algae:
+        straightDriveBackwards = true;
+        break;
+      case L4:
+        straightDriveBackwards = false;
+        break;
+      case HP:
+        straightDriveBackwards = false;
+        break;
+      default:
+        straightDriveBackwards = false;
+        break;
+    }
+
     //From AAS
     /* LIMELIGHT */
     NetworkTable table = NetworkTableInstance.getDefault().getTable(SensorConstants.limeLightName);
@@ -319,31 +343,33 @@ public class DriveTrain extends SubsystemBase {
     // dis = lcMeasurement != null && lcMeasurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT 
     //       ? lcMeasurement.distance_mm : -1;
 
-    estimatedStation = m_alliance == Alliance.Blue ? AutoAimConstants.blueReefStationFromAngle.get(getEstimatedStationAngle()) 
-                                                   : AutoAimConstants.redReefStationFromAngle.get(getEstimatedStationAngle());
-    desiredPose = m_alliance == Alliance.Blue ? AutoAimConstants.blueReef.get(estimatedStation) 
-                                              : AutoAimConstants.redReef.get(estimatedStation);
+    estimatedStation = isBlue ? AutoAimConstants.blueReefStationFromAngle.get(getEstimatedStationAngle()) 
+                              : AutoAimConstants.redReefStationFromAngle.get(getEstimatedStationAngle());
+    desiredPose = isBlue ? AutoAimConstants.blueReef.get(estimatedStation) 
+                         : AutoAimConstants.redReef.get(estimatedStation);
 
-    SmartDashboard.putData("Swerve Drive", new Sendable() {
-      @Override
-      public void initSendable(SendableBuilder builder) {
-        builder.setSmartDashboardType("SwerveDrive");
+    // SmartDashboard.putData("Swerve Drive", new Sendable() {
+    //   @Override
+    //   public void initSendable(SendableBuilder builder) {
+    //     builder.setSmartDashboardType("SwerveDrive");
 
-        builder.addDoubleProperty("Front Left Angle", () -> m_frontLeft.getState().angle.getRadians(), null);
-        builder.addDoubleProperty("Front Left Velocity", () -> m_frontLeft.getState().speedMetersPerSecond, null);
+    //     builder.addDoubleProperty("Front Left Angle", () -> m_frontLeft.getState().angle.getRadians(), null);
+    //     builder.addDoubleProperty("Front Left Velocity", () -> m_frontLeft.getState().speedMetersPerSecond, null);
 
-        builder.addDoubleProperty("Front Right Angle", () -> m_frontRight.getState().angle.getRadians(), null);
-        builder.addDoubleProperty("Front Right Velocity", () -> m_frontRight.getState().speedMetersPerSecond, null);
+    //     builder.addDoubleProperty("Front Right Angle", () -> m_frontRight.getState().angle.getRadians(), null);
+    //     builder.addDoubleProperty("Front Right Velocity", () -> m_frontRight.getState().speedMetersPerSecond, null);
 
-        builder.addDoubleProperty("Back Left Angle", () -> m_backLeft.getState().angle.getRadians(), null);
-        builder.addDoubleProperty("Back Left Velocity", () -> m_backLeft.getState().speedMetersPerSecond, null);
+    //     builder.addDoubleProperty("Back Left Angle", () -> m_backLeft.getState().angle.getRadians(), null);
+    //     builder.addDoubleProperty("Back Left Velocity", () -> m_backLeft.getState().speedMetersPerSecond, null);
 
-        builder.addDoubleProperty("Back Right Angle", () -> m_backRight.getState().angle.getRadians(), null);
-        builder.addDoubleProperty("Back Right Velocity", () -> m_backRight.getState().speedMetersPerSecond, null);
+    //     builder.addDoubleProperty("Back Right Angle", () -> m_backRight.getState().angle.getRadians(), null);
+    //     builder.addDoubleProperty("Back Right Velocity", () -> m_backRight.getState().speedMetersPerSecond, null);
 
-        builder.addDoubleProperty("Robot Angle", () -> m_gyro.getRotation2d().getRadians(), null);
-      }
-    });
+    //     builder.addDoubleProperty("Robot Angle", () -> m_gyro.getRotation2d().getRadians(), null);
+    //   }
+    // });
+
+    LimelightHelpers.SetRobotOrientation(cameraName, heading, 0, 0, 0, 0, 0);
   }
 
   private void rawDrive(double xSpeed, double ySpeed, double omega, boolean fieldRelative, boolean scale) {
@@ -362,6 +388,12 @@ public class DriveTrain extends SubsystemBase {
     xSpeedSender.setDouble(xSpeed);
     ySpeedSender.setDouble(ySpeed);
     omegaSender.setDouble(omega);
+  }
+
+  public void straightDrive(double xSpeed) {
+    x = xSpeed * (straightDriveBackwards ? -1 : 1);
+    y = 0;
+    omega = 0;
   }
 
   /**
@@ -697,29 +729,29 @@ public class DriveTrain extends SubsystemBase {
 
   //FromAAS
   private Optional<Pose2d> getEstimatedPose2dBlue() {
-    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(cameraName);
+    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue(cameraName);
     return Optional.of(new Pose3d(new Translation3d(mt2.pose.getTranslation()), new Rotation3d(mt2.pose.getRotation())).toPose2d());
   }
 
   private Optional<PoseEstimate> getPoseEstimateBlue() {
-    return Optional.of(LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(cameraName));
+    return Optional.of(LimelightHelpers.getBotPoseEstimate_wpiBlue(cameraName));
   }
 
   private Optional<Pose2d> getEstimatedPose2dRed() {
-    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(cameraName);
+    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiRed(cameraName);
     return Optional.of(new Pose3d(new Translation3d(mt2.pose.getTranslation()), new Rotation3d(mt2.pose.getRotation())).toPose2d());
   }
 
   private Optional<PoseEstimate> getPoseEstimateRed() {
-    return Optional.of(LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(cameraName));
+    return Optional.of(LimelightHelpers.getBotPoseEstimate_wpiRed(cameraName));
   }
 
   public Optional<Pose2d> getEstimatedPose2d() {
-    return m_alliance == Alliance.Blue ? getEstimatedPose2dBlue() : getEstimatedPose2dRed();
+    return isBlue ? getEstimatedPose2dBlue() : getEstimatedPose2dRed();
   }
 
   public Optional<PoseEstimate> getPoseEstimate() {
-    return m_alliance == Alliance.Blue ? getPoseEstimateBlue() : getPoseEstimateRed();
+    return isBlue ? getPoseEstimateBlue() : getPoseEstimateRed();
   }
 
   // public double getDistanceMeasurementmm() {
@@ -762,15 +794,23 @@ public class DriveTrain extends SubsystemBase {
 
   public synchronized void setInitialPose(AdvancedPose2D pose) {
     poseEstimator.resetPose(pose);
-    fieldLayout.setOrigin(new Pose3d(pose));
     initialPose = pose;
   }
 
   public synchronized AdvancedPose2D getAutoAimPose() {
-    return desiredPose.withReefAlignment(desiredAlignment);
+    return desiredPose.withReefAlignment(desiredAlignment, false);
   }
 
   public synchronized ReefStation getDesiredStation() {
     return estimatedStation;
+  }
+
+  public synchronized void setAlliance(Alliance alliance) {
+    m_alliance = alliance;
+    isBlue = m_alliance == Alliance.Blue;
+  }
+
+  public synchronized Alliance getAlliance() {
+    return m_alliance;
   }
 }

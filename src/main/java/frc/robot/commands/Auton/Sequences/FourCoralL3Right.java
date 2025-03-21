@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.Lib.AdvancedPose2D;
 import frc.robot.Constants.AutoAimConstants;
+import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.AutoAimConstants.Alignment;
 import frc.robot.Constants.AutoAimConstants.Position;
 import frc.robot.Constants.AutoAimConstants.ReefStation;
@@ -24,13 +25,20 @@ import frc.robot.subsystems.Elevator;
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class FourCoralL3Right extends SequentialCommandGroup {
+  private HashMap<ReefStation, AdvancedPose2D> reef;
+  private AdvancedPose2D coralStation, initialPose;
+  private final DriveTrain m_driveTrain;
+
   /** Creates a new FourCoralL3. */
-  public FourCoralL3Right(DriveTrain driveTrain, CoralAffector coralAffector, Elevator elevator, Alliance alliance) {
-    HashMap<ReefStation, AdvancedPose2D> reef = alliance == Alliance.Blue ? AutoAimConstants.blueReef : AutoAimConstants.redReef;
-    AdvancedPose2D coralStation = alliance == Alliance.Blue ? AutoAimConstants.blueRightCoralStationPos : AutoAimConstants.redRightCoralStationPos;
+  public FourCoralL3Right(DriveTrain driveTrain, CoralAffector coralAffector, Elevator elevator) {
+    reef = AutoAimConstants.blueReef;
+    coralStation = AutoAimConstants.blueRightCoralStationPos;
+    initialPose = AutonConstants.initialPoseBlueRight;
+    m_driveTrain = driveTrain;
+    
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addCommands(new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, reef.get(ReefStation.backRight).withReefAlignment(Alignment.right)),
+    addCommands(new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, reef.get(ReefStation.backRight).withReefAlignment(Alignment.right, false)),
                                          new InRangeAllToPosition(elevator, coralAffector, driveTrain, Position.L3)), 
                 new AutonCoralScore(coralAffector),
                 new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, coralStation.withRobotRelativeTransformation(
@@ -39,7 +47,7 @@ public class FourCoralL3Right extends SequentialCommandGroup {
                                          new SequentialCommandGroup(new AutonAllToPosition(elevator, coralAffector, driveTrain, Position.floor), 
                                                                     new InRangeAllToPosition(elevator, coralAffector, driveTrain, Position.HP))),
                 new AutonCoralCollect(coralAffector),
-                new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, reef.get(ReefStation.backRight).withReefAlignment(Alignment.left)),
+                new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, reef.get(ReefStation.backRight).withReefAlignment(Alignment.left, false)),
                                          new InRangeAllToPosition(elevator, coralAffector, driveTrain, Position.L3)), 
                 new AutonCoralScore(coralAffector),
                 new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, coralStation.withRobotRelativeTransformation(
@@ -48,7 +56,7 @@ public class FourCoralL3Right extends SequentialCommandGroup {
                                          new SequentialCommandGroup(new AutonAllToPosition(elevator, coralAffector, driveTrain, Position.floor), 
                                                                     new InRangeAllToPosition(elevator, coralAffector, driveTrain, Position.HP))),
                 new AutonCoralCollect(coralAffector),
-                new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, reef.get(ReefStation.frontRight).withReefAlignment(Alignment.right)),
+                new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, reef.get(ReefStation.frontRight).withReefAlignment(Alignment.right, false)),
                                          new InRangeAllToPosition(elevator, coralAffector, driveTrain, Position.L3)), 
                 new AutonCoralScore(coralAffector),
                 new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, coralStation.withRobotRelativeTransformation(
@@ -57,7 +65,7 @@ public class FourCoralL3Right extends SequentialCommandGroup {
                                          new SequentialCommandGroup(new AutonAllToPosition(elevator, coralAffector, driveTrain, Position.floor), 
                                                                     new InRangeAllToPosition(elevator, coralAffector, driveTrain, Position.HP))),
                 new AutonCoralCollect(coralAffector),
-                new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, reef.get(ReefStation.frontRight).withReefAlignment(Alignment.left)),
+                new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, reef.get(ReefStation.frontRight).withReefAlignment(Alignment.left, false)),
                                          new InRangeAllToPosition(elevator, coralAffector, driveTrain, Position.L3)),
                 new AutonCoralScore(coralAffector),
                 new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, coralStation.withRobotRelativeTransformation(
@@ -66,5 +74,15 @@ public class FourCoralL3Right extends SequentialCommandGroup {
                                          new SequentialCommandGroup(new AutonAllToPosition(elevator, coralAffector, driveTrain, Position.floor), 
                                                                     new InRangeAllToPosition(elevator, coralAffector, driveTrain, Position.HP))),
                 new AutonCoralCollect(coralAffector));
+  }
+
+  public void setAlliance(Alliance alliance) {
+    if (alliance == Alliance.Red) {
+      reef = AutoAimConstants.redReef;
+      coralStation = AutoAimConstants.redRightCoralStationPos;
+      initialPose = AutonConstants.initialPoseRedRight;
+    }
+
+    m_driveTrain.setInitialPose(initialPose);
   }
 }

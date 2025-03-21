@@ -1,14 +1,13 @@
 package frc.robot;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-
-import frc.Lib.AdvancedPose2D;
 
 import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.IOConstants;
@@ -22,6 +21,7 @@ import frc.robot.commands.DriveCommands.*;
 import frc.robot.commands.ElevatorCommands.*;
 import frc.robot.commands.PieceAffectorsCommands.*;
 import frc.robot.commands.Auton.Sequences.*;
+import frc.robot.commands.Auton.Sequences.FourCoralL3Left;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -33,15 +33,6 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
  * (including subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  private final Alliance alliance = DriverStation.getAlliance().get();
-  //private final HashMap<ReefStation, AdvancedPose2D> reef = alliance == Alliance.Blue ? AutoAimConstants.blueReef : AutoAimConstants.redReef;
-  private final AdvancedPose2D initialPoseRight = alliance == Alliance.Blue ? AutonConstants.initialPoseBlueRight 
-                                                                            : AutonConstants.initialPoseRedRight;
-  private final AdvancedPose2D initialPoseLeft = alliance == Alliance.Blue ? AutonConstants.initialPoseBlueLeft 
-                                                                           : AutonConstants.initialPoseRedLeft;
-  private final AdvancedPose2D initialPoseBack = alliance == Alliance.Blue ? AutonConstants.initialPoseBlueBack
-                                                                           : AutonConstants.initialPoseRedBack;
-
   private final Joystick m_driverStick = new Joystick(IOConstants.driverControllerID); //Driving
   private final Joystick m_operatorStick1 = new Joystick(IOConstants.operatorController1ID); //Set positions and elevatorOverride
   private final Joystick m_operatorStick2 = new Joystick(IOConstants.operatorController2ID); //Affectors, climber, alignments, and wristOverride
@@ -50,11 +41,11 @@ public class RobotContainer {
   private final AlgaeAffector m_algaeAffector = new AlgaeAffector();
   private final Climber m_climber = new Climber();
   private final Elevator m_elevator = new Elevator();
-  private final AutoAimSubsystem m_autoAimSubsystem = new AutoAimSubsystem(Constants.SensorConstants.limeLightName);
-  private final DriveTrain m_driveTrain = new DriveTrain(m_elevator, m_autoAimSubsystem, SensorConstants.limeLightName, 
-                                                         alliance, m_driverStick);
+  private final AutoAimSubsystem m_autoAimSubsystem = new AutoAimSubsystem(SensorConstants.limeLightName);
+  private final DriveTrain m_driveTrain = new DriveTrain(m_elevator, m_autoAimSubsystem, SensorConstants.limeLightName);
 
-  private SendableChooser<Object[]> autonChooser = new SendableChooser<Object[]>();
+  private final SendableChooser<String> autonChooser = new SendableChooser<String>();
+  private final HashMap<String, Command> autonOptions = new HashMap<>();
 
   /* COMMANDS */
   // DriveTrain
@@ -67,7 +58,7 @@ public class RobotContainer {
   private final Command SlowMode = new SlowMode(m_driveTrain);
   private final Command StraightDrive = new StraightDrive(m_driveTrain, m_driverStick);
   //private final Command AutoAimDrive = new AutoAimDrive(m_driveTrain, m_autoAimSubsystem);
-  private final Command TEMPAUTODRIVE = new TEMPAUTODRIVE(m_driveTrain, alliance);
+  private final Command TEMPAUTODRIVE = new TEMPAUTODRIVE(m_driveTrain);
 
   //Poses
   private final Command SelectAlignmentLeft = new SelectDesiredAlignment(m_driveTrain, Alignment.left);
@@ -112,29 +103,25 @@ public class RobotContainer {
 
   /** AUTONS */
   //Neutral
-  private final Object[] NoAuton = {new NoAuton(), AutonConstants.customInitialPose};
-  private final Object[] DriveOffLine = {new DriveOffLine(m_driveTrain), AutonConstants.customInitialPose};
+  private final NoAuton NoAuton = new NoAuton(m_driveTrain, AutonConstants.customInitialPose);
+  private final DriveOffLine DriveOffLine = new DriveOffLine(m_driveTrain, AutonConstants.customInitialPose);
 
   //Right
-  private final Object[] FourL3Right = {new FourCoralL3Right(m_driveTrain, m_coralAffector, m_elevator, alliance), initialPoseRight};
-  private final Object[] ThreeL4Right = {new ThreeCoralL4Right(m_driveTrain, m_elevator, m_coralAffector, alliance), initialPoseRight};
-  private final Object[] TwoL4Processor = {new TwoL4AndProcessor(m_driveTrain, m_elevator, m_coralAffector, m_algaeAffector, alliance),
-                                           initialPoseRight};
+  private final FourCoralL3Right FourL3Right = new FourCoralL3Right(m_driveTrain, m_coralAffector, m_elevator);
+  private final ThreeCoralL4Right ThreeL4Right = new ThreeCoralL4Right(m_driveTrain, m_elevator, m_coralAffector);
+  private final TwoL4AndProcessor TwoL4Processor = new TwoL4AndProcessor(m_driveTrain, m_elevator, m_coralAffector, m_algaeAffector);
 
   //Left
-  private final Object[] FourL3Left = {new FourCoralL3Left(m_driveTrain, m_coralAffector, m_elevator, alliance), initialPoseLeft};
-  private final Object[] ThreeL4Left = {new ThreeCoralL4Left(m_driveTrain, m_elevator, m_coralAffector, alliance), initialPoseLeft};
+  private final FourCoralL3Left FourL3Left = new FourCoralL3Left(m_driveTrain, m_coralAffector, m_elevator);
+  private final ThreeCoralL4Left ThreeL4Left = new ThreeCoralL4Left(m_driveTrain, m_elevator, m_coralAffector);
 
   //Back
-  private final Object[] BackRightAndProcess = {new PlaceOnBackAndProcessor(m_driveTrain, m_coralAffector, m_elevator, 
-                                                                            m_algaeAffector, alliance, Alignment.right),
-                                                initialPoseBack};
-  private final Object[] BackLeftAndProcess = {new PlaceOnBackAndProcessor(m_driveTrain, m_coralAffector, m_elevator, 
-                                                                           m_algaeAffector, alliance, Alignment.left),
-                                               initialPoseBack};
+  private final PlaceOnBackAndProcessor BackRightAndProcess = new PlaceOnBackAndProcessor(m_driveTrain, m_coralAffector, m_elevator, 
+                                                                                   m_algaeAffector, Alignment.right);
+  private final PlaceOnBackAndProcessor BackLeftAndProcess = new PlaceOnBackAndProcessor(m_driveTrain, m_coralAffector, m_elevator, 
+                                                                         m_algaeAffector, Alignment.left);
 
   //Testing
-  private final Object[] TestAuton = {};
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -147,8 +134,19 @@ public class RobotContainer {
                          .withProperties(Map.of("sort_options", true));
   }
 
-  public void setDriveTrainInitialPose() {
-    m_driveTrain.setInitialPose((AdvancedPose2D) autonChooser.getSelected()[1]);
+  public void setAlliances(Optional<Alliance> alliance) {
+    Alliance m_alliance = alliance.isPresent() ? Alliance.Blue : Alliance.Blue;
+    m_driveTrain.setAlliance(m_alliance);
+
+    FourL3Right.setAlliance(m_alliance);
+    ThreeL4Right.setAlliance(m_alliance);
+    TwoL4Processor.setAlliance(m_alliance);
+    FourL3Left.setAlliance(m_alliance);
+    ThreeL4Left.setAlliance(m_alliance);
+    BackRightAndProcess.setAlliance(m_alliance);
+    BackLeftAndProcess.setAlliance(m_alliance);
+
+    configAutonChooser();
   }
 
   public void setDriveTrainPoseEstimate() {
@@ -160,13 +158,25 @@ public class RobotContainer {
   }
 
   public void configAutonChooser() {
-    autonChooser.setDefaultOption("No Auton", NoAuton);
-    autonChooser.addOption("Drive Off Line", DriveOffLine);
-    autonChooser.addOption("Three Coral on L4, right side", ThreeL4Right);
-    autonChooser.addOption("Four Coral on L3, right side", FourL3Right);
-    autonChooser.addOption("Two on L4 and Processor (right side)", TwoL4Processor);
-    autonChooser.addOption("Four Coral on L3, left side", FourL3Left);
-    autonChooser.addOption("Three Coral on L4, left side", ThreeL4Left);
+    autonChooser.setDefaultOption("No Auton", "NoAuton");
+    autonChooser.addOption("Drive Off Line", "DriveOffLine");
+    autonChooser.addOption("Three Coral on L4, right side", "ThreeL4Right");
+    autonChooser.addOption("Four Coral on L3, right side", "FourL3Right");
+    autonChooser.addOption("Two on L4 and Processor (right side)", "TwoL4Processor");
+    autonChooser.addOption("Four Coral on L3, left side", "FourL3Left");
+    autonChooser.addOption("Three Coral on L4, left side", "ThreeL4Left");
+    autonChooser.addOption("Back and Process, first L4 on right", "BackRightAndProcess");
+    autonChooser.addOption("Back and Process, first L4 on left", "BackLeftAndProcess");
+
+    autonOptions.putAll(Map.of("NoAuton", NoAuton,
+                               "DriveOffLine", DriveOffLine,
+                               "ThreeL4Right", ThreeL4Right,
+                               "FourL3Right", FourL3Right,
+                               "TwoL4Processor", TwoL4Processor,
+                               "FourL3Left", FourL3Left,
+                               "ThreeL4Left", ThreeL4Left,
+                               "BackRightAndProcess", BackRightAndProcess,
+                               "BackLeftAndProcess", BackLeftAndProcess));
   }
 
   /**
@@ -213,8 +223,8 @@ public class RobotContainer {
     new JoystickButton(m_operatorStick2, IOConstants.algaeScoreButtonID).whileTrue(AlgaeScore);
 
     //Climber
-    // new JoystickButton(m_operatorStick2, IOConstants.unClimbButtonID).whileTrue(UnClimb);
-    // new JoystickButton(m_operatorStick2, IOConstants.climbButtonID).whileTrue(Climb);
+    new JoystickButton(m_operatorStick2, IOConstants.unClimbButtonID).whileTrue(UnClimb);
+    new JoystickButton(m_operatorStick2, IOConstants.climbButtonID).whileTrue(Climb);
 
     //Testing
   }
@@ -225,6 +235,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return (Command) autonChooser.getSelected()[0];
+    return autonOptions.get(autonChooser.getSelected());
   }
 }

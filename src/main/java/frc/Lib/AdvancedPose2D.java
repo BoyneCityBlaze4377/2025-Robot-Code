@@ -68,10 +68,10 @@ public class AdvancedPose2D extends Pose2d {
         return this.withVector(this.getRotation().minus(Rotation2d.fromDegrees(90)), transformation, this.getRotation()); // minus 90 because 0 axis changes to Y
     }
 
-    public AdvancedPose2D withReefAlignment(Alignment alignment) {
+    public AdvancedPose2D withReefAlignment(Alignment alignment, boolean isL4) {
         double backset = alignment == Alignment.center ? AutoAimConstants.algaePosBackset : -AutoAimConstants.coralPosBackset;
         return new AdvancedPose2D(this.withRobotRelativeTransformation(new Translation2d(AutoAimConstants.offsetFromAlignment.get(alignment),
-                                                                       backset)).getTranslation(),
+                                                                       (isL4 ? -.003 : backset))).getTranslation(),
                                                                        Rotation2d.fromDegrees(this.getRotation().getDegrees() +
                                                                        (alignment == Alignment.center ? 180 : 0)));
     }
