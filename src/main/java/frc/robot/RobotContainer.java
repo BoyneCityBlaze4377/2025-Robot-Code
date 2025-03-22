@@ -5,7 +5,9 @@ import java.util.Map;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import frc.Lib.AdvancedPose2D;
 import frc.robot.Constants.AutonConstants;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.Constants.SensorConstants;
 import frc.robot.Constants.AutoAimConstants.Alignment;
@@ -16,9 +18,8 @@ import frc.robot.commands.ClimberCommands.*;
 import frc.robot.commands.DriveCommands.*;
 import frc.robot.commands.ElevatorCommands.*;
 import frc.robot.commands.PieceAffectorsCommands.*;
+import frc.robot.commands.Auton.Functions.AutonCoralScore;
 import frc.robot.commands.Auton.Sequences.*;
-import frc.robot.commands.Auton.Sequences.FourCoralL3LeftBlue;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
@@ -97,9 +98,9 @@ public class RobotContainer {
 
   /** AUTONS */
   //Neutral
-  private final NoAuton NoAuton = new NoAuton(m_driveTrain, AutonConstants.customInitialPose);
-  private final DriveOffLine DriveOffLine = new DriveOffLine(m_driveTrain, AutonConstants.initialPoseBlueBack, 
-                                                             m_elevator, m_coralAffector);
+  // private final NoAuton NoAuton = new NoAuton(m_driveTrain, AutonConstants.customInitialPose);
+  // private final BackScore DriveOffLine = new BackScore(m_driveTrain, AutonConstants.initialPoseBlueBack, 
+  //                                                            m_elevator, m_coralAffector);
 
   // /* Blue */
   // //Right
@@ -133,6 +134,22 @@ public class RobotContainer {
   // private final PlaceOnBackAndProcessorRed BackLeftAndProcessRed = new PlaceOnBackAndProcessorRed(m_driveTrain, m_coralAffector, m_elevator, 
   //                                                                        m_algaeAffector, Alignment.left);
 
+  private final AdvancedPose2D initialPoseBLUE = new AdvancedPose2D(FieldConstants.autonLineDistance, FieldConstants.blueReefCenterPos.getY(), 180);
+  private final AdvancedPose2D initialPoseRED = new AdvancedPose2D(FieldConstants.fieldLength - FieldConstants.autonLineDistance, 
+                                                                   FieldConstants.blueReefCenterPos.horizontallyFlip().getY(), 180);
+
+  private final Command DriveOffLineRED = new DriveOffLine(m_driveTrain, initialPoseRED);
+  private final Command BackScoreRED = new BackScore(m_driveTrain, initialPoseRED, m_elevator, m_coralAffector);
+  private final Command BackScoreLeftRED = new BackScoreAndLeft(m_driveTrain, initialPoseRED, m_elevator, m_coralAffector);
+  private final Command BackScoreRightRED = new BackScoreAndRight(m_driveTrain, initialPoseRED, m_elevator, m_coralAffector);
+  private final Command BackScoreAlgaeRED = new BackScoreAndAlgae(m_driveTrain, initialPoseRED, m_elevator, m_coralAffector, m_algaeAffector);
+
+  private final Command DriveOffLineBLUE = new DriveOffLine(m_driveTrain, initialPoseBLUE);
+  private final Command BackScoreBLUE = new BackScore(m_driveTrain, initialPoseBLUE, m_elevator, m_coralAffector);
+  private final Command BackScoreLeftBLUE = new BackScoreAndLeft(m_driveTrain, initialPoseBLUE, m_elevator, m_coralAffector);
+  private final Command BackScoreRightBLUE = new BackScoreAndRight(m_driveTrain, initialPoseBLUE, m_elevator, m_coralAffector);
+  private final Command BackScoreAlgaeBLUE = new BackScoreAndAlgae(m_driveTrain, initialPoseBLUE, m_elevator, m_coralAffector, m_algaeAffector);
+
   //Left
 
   //Testing
@@ -152,6 +169,10 @@ public class RobotContainer {
 
   public void setDriveTrainPoseEstimate() {
     //if (m_autoAimSubsystem.getEstimatedGlobalPose().isPresent()) m_driveTrain.setOdometry(m_autoAimSubsystem.getEstimatedPose2d().get());
+  }
+
+  public void zeroWrist() {
+    m_coralAffector.zeroWrist();
   }
 
   public void setDriveOrientation(boolean fieldOriented) {
@@ -177,6 +198,18 @@ public class RobotContainer {
     // autonChooser.addOption("RED Three Coral on L4, left side", ThreeL4LeftRed);
     // autonChooser.addOption("RED Back and Process, first L4 on right", BackRightAndProcessRed);
     // autonChooser.addOption("RED Back and Process, first L4 on left", BackLeftAndProcessRed);
+
+    autonChooser.setDefaultOption("RED Drive Off Line", DriveOffLineRED);
+    autonChooser.addOption("RED Score on Back", BackScoreRED);
+    autonChooser.addOption("RED Score on Back and Collect Algae", BackScoreAlgaeRED);
+    autonChooser.addOption("RED Score on Back and Drive Right", BackScoreRightRED);
+    autonChooser.addOption("RED Score on Back and Drive Left", BackScoreLeftRED);
+
+    autonChooser.setDefaultOption("BLUE Drive Off Line", DriveOffLineBLUE);
+    autonChooser.addOption("BLUE Score on Back", BackScoreBLUE);
+    autonChooser.addOption("BLUE Score on Back and Collect Algae", BackScoreAlgaeBLUE);
+    autonChooser.addOption("BLUE Score on Back and Drive Right", BackScoreRightBLUE);
+    autonChooser.addOption("BLUE Score on Back and Drive Left", BackScoreLeftBLUE);
   }
 
   /**
@@ -235,6 +268,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return DriveOffLine;
+    return autonChooser.getSelected();
   }
 }

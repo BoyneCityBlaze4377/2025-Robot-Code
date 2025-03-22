@@ -123,12 +123,12 @@ public class CoralAffector extends SubsystemBase {
   }
 
   public void overrideLockWrist() {
-    wristSpeed = (.068 - .0000052 * Math.pow(getWristDegrees() - 90, 2));
+    wristSpeed = (.071 - .0000052 * Math.pow(getWristDegrees() - 90, 2));
     locked = true;
   }
 
   public void PIDLockWrist() {
-    wristSpeed = (.068 - .0000052 * Math.pow(wristController.getSetpoint() - 90, 2));
+    wristSpeed = (.071 - .0000052 * Math.pow(wristController.getSetpoint() - 90, 2));
     locked = true;
   }
 
@@ -156,5 +156,9 @@ public class CoralAffector extends SubsystemBase {
 
   public boolean atSetpoint() {
     return wristController.atSetpoint();
+  }
+
+  public void zeroWrist() {
+    wristEncoder.setPosition(0);
   }
 }

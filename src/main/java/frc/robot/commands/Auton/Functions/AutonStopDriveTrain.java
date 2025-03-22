@@ -12,6 +12,6 @@ public class AutonStopDriveTrain extends SequentialCommandGroup {
   public AutonStopDriveTrain(DriveTrain driveTrain) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addCommands(new StopDriveTrain(driveTrain).withTimeout(.01));
+    addCommands(new StopDriveTrain(driveTrain).withTimeout(.1));
   }
 }

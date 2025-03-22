@@ -105,11 +105,11 @@ public final class Constants {
     public static final double floorPos = lowerLimit;
     public static final double processorPos = 37;
     public static final double L2AlgaePos = 111;
-    public static final double L2Pos = 85;
+    public static final double L2Pos = 89;
     public static final double L3AlgaePos = 177;
-    public static final double L3Pos = 208;
+    public static final double L3Pos = 210;
     public static final double L4Pos = 208;
-    public static final double HPPos = 123;
+    public static final double HPPos = 124;
   }
 
   public class AffectorConstants {
@@ -457,8 +457,8 @@ public final class Constants {
     public static final double transkD = 0; //0
     public static final double transkTolerance = .025;
 
-    public static final Vector<N3> poseEstimateOdometryStdDev = VecBuilder.fill(.12, .12, Units.degreesToRadians(.025));
-    public static final Vector<N3> poseEstimateVisionStdDev = VecBuilder.fill(.02, .02, Units.degreesToRadians(5));
+    public static final Vector<N3> poseEstimateOdometryStdDev = VecBuilder.fill(.12, .12, Units.degreesToRadians(0));
+    public static final Vector<N3> poseEstimateVisionStdDev = VecBuilder.fill(.02, .02, Units.degreesToRadians(9000));
 
     public static final double maxPIDDriveSpeed = .8; //3.1
     public static final double maxPIDRot = Math.PI/2;
@@ -470,7 +470,7 @@ public final class Constants {
   }
 
   public class AutonConstants {
-    public static final double coralScoreTime = .5;
+    public static final double coralScoreTime = 1;
     public static final double alageScoreTime = .3;
 
     public static final double awayFromReefTime = 1;

@@ -300,8 +300,8 @@ public class DriveTrain extends SubsystemBase {
     m_odometry.update(m_gyro.getRotation2d(), getSwerveModulePositions());
     poseEstimator.update(m_gyro.getRotation2d(), getSwerveModulePositions());
     if (getPoseEstimate().get().pose != Pose2d.kZero) {
-      // poseEstimator.addVisionMeasurement(getPoseEstimate().get().pose, 
-      //                                    getPoseEstimate().get().timestampSeconds);
+      poseEstimator.addVisionMeasurement(getPoseEstimate().get().pose, 
+                                         getPoseEstimate().get().timestampSeconds);
     }
 
     //poseEstimate.setValue(poseEstimator.getEstimatedPosition().toString());
