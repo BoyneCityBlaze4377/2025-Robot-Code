@@ -43,6 +43,7 @@ import frc.Lib.LimelightHelpers;
 import frc.Lib.LimelightHelpers.PoseEstimate;
 import frc.robot.Constants.AutoAimConstants;
 import frc.robot.Constants.AutoAimConstants.Alignment;
+import frc.robot.Constants.AutoAimConstants.Position;
 import frc.robot.Constants.AutoAimConstants.ReefStation;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.DriveConstants;
@@ -59,7 +60,7 @@ public class DriveTrain extends SubsystemBase {
 
   // The gyro sensor
   //private final AHRS m_gyro;
-  private final Pigeon2 m_gyro;
+  private final AHRS m_gyro;
   private boolean fieldOrientation = true,
                   isLocked = false, slow = false, 
                   isBrake = true, autonInRange = false, useScalers = false, 
@@ -141,7 +142,8 @@ public class DriveTrain extends SubsystemBase {
                                                      ModuleConstants.backRightAnalogEncoderOffset, 
                                                      ModuleConstants.backRightAbsReversed);
 
-    m_gyro = new Pigeon2(SensorConstants.gyroID);
+    //m_gyro = new Pigeon2(SensorConstants.gyroID);
+    m_gyro = new AHRS(NavXComType.kMXP_SPI);
 
     estimateField = new Field2d();
 
@@ -206,7 +208,7 @@ public class DriveTrain extends SubsystemBase {
                                              .withWidget("Boolean Box")
                                              .getEntry();
 
-    zeroHeading();
+    // zeroHeading();
     brakeAll();
     fieldOrientation = true;
     isLocked = false;
@@ -277,12 +279,7 @@ public class DriveTrain extends SubsystemBase {
       periodicTimer = 0;
     }
 
-    heading = m_gyro.getYaw().getValueAsDouble();
-    if (heading > 180) {
-      m_gyro.setYaw(heading - 360);
-    } else if (heading <= -180) {
-      m_gyro.setYaw(heading + 360);
-    }
+    heading = m_gyro.getAngle();
 
     isBrake = m_frontLeft.getIdleMode() == IdleMode.kBrake;
 
@@ -298,18 +295,19 @@ public class DriveTrain extends SubsystemBase {
     atDesPose.setBoolean(atSetpoints());
     matchTime.setDouble(DriverStation.getMatchTime());
     orientationSender.setBoolean(fieldOrientation);
-    // poseEstimate.setValue(estimateField.getRobotPose());
 
     // Update the odometry in the periodic block
     m_odometry.update(m_gyro.getRotation2d(), getSwerveModulePositions());
     poseEstimator.update(m_gyro.getRotation2d(), getSwerveModulePositions());
-    if (getPoseEstimate().isPresent()) {
-      poseEstimator.addVisionMeasurement(getPoseEstimate().get().pose, 
-                                         getPoseEstimate().get().timestampSeconds);
+    if (getPoseEstimate().get().pose != Pose2d.kZero) {
+      // poseEstimator.addVisionMeasurement(getPoseEstimate().get().pose, 
+      //                                    getPoseEstimate().get().timestampSeconds);
     }
 
     //poseEstimate.setValue(poseEstimator.getEstimatedPosition().toString());
     estimateField.setRobotPose(poseEstimator.getEstimatedPosition());
+    estimateField.getObject("desired").setPose(desiredPose.withReefAlignment(desiredAlignment, 
+                                                    m_elevator.getCurrentPosition() == Position.L4));
 
 
     //drive
@@ -322,12 +320,7 @@ public class DriveTrain extends SubsystemBase {
     // SmartDashboard.putBoolean("NAVX", m_gyro.isConnected());
     // SmartDashboard.putBoolean("CAlib", m_gyro.isCalibrating());
 
-    heading = m_gyro.getYaw().getValueAsDouble();
-    if (heading > 180) {
-      m_gyro.setYaw(heading - 360);
-    } else if (heading <= -180) {
-      m_gyro.setYaw(heading + 360);
-    }
+    heading = m_gyro.getAngle();
 
     autonInRange = Math.hypot(xController.getError(), yController.getError()) <= AutonConstants.inRangeThreshold;
 
@@ -432,8 +425,6 @@ public class DriveTrain extends SubsystemBase {
     x = xSpeed;
     y = ySpeed;
     omega = rot;
-    fieldOrientation = true;
-    useScalers = true;
   }
 
   public void chassisSpeedDrive(ChassisSpeeds speeds) {
@@ -455,7 +446,7 @@ public class DriveTrain extends SubsystemBase {
                                                                  AutoAimConstants.maxPIDDriveSpeed);
     y = MathUtil.clamp(yController.calculate(getPose().getY()), -AutoAimConstants.maxPIDDriveSpeed, 
                                                                  AutoAimConstants.maxPIDDriveSpeed);
-    omega = MathUtil.clamp(headingController.calculate(getPose().getRotation().getRadians()), 
+    omega = MathUtil.clamp(headingController.calculate(m_gyro.getRotation2d().getRadians()),
                                                       -AutoAimConstants.maxPIDRot, 
                                                        AutoAimConstants.maxPIDRot);
 
@@ -542,6 +533,10 @@ public class DriveTrain extends SubsystemBase {
    */
   public void setIsSlow(boolean isSlow) {
     slow = isSlow;
+  }
+
+  public void setOffset(double offsetDeg) {
+    m_gyro.setAngleAdjustment(offsetDeg);
   }
 
   /**
@@ -655,10 +650,10 @@ public class DriveTrain extends SubsystemBase {
   //   m_gyro.setAngleAdjustment(offsetDegrees);
   // }
 
-  /** Zeroes the heading of the robot */
-  public void zeroHeading() {
-    m_gyro.setYaw(0);
-  }
+  // /** Zeroes the heading of the robot */
+  // public void zeroHeading() {
+  //   m_gyro.setYaw(0);
+  // }
 
   /**
    * Returns the heading of the robot.
@@ -670,7 +665,7 @@ public class DriveTrain extends SubsystemBase {
   }
 
   public synchronized double getRawHeading() {
-    return m_gyro.getYaw().getValueAsDouble();
+    return m_gyro.getAngle();
   }
 
   //  /** @return The roll of the gyro */
@@ -683,14 +678,14 @@ public class DriveTrain extends SubsystemBase {
   //   return m_gyro.getPitch();
   // }
 
-  /**
-   * Returns the turn rate of the robot.
-   *
-   * @return The turn rate of the robot, in degrees per second.
-   */
-  public double getTurnRate() {
-    return m_gyro.getAngularVelocityZWorld().getValueAsDouble() * (DriveConstants.gyroReversed ? -1.0 : 1.0);
-  }
+  // /**
+  //  * Returns the turn rate of the robot.
+  //  *
+  //  * @return The turn rate of the robot, in degrees per second.
+  //  */
+  // public double getTurnRate() {
+  //   return m_gyro.getAngularVelocityZWorld().getValueAsDouble() * (DriveConstants.gyroReversed ? -1.0 : 1.0);
+  // }
 
   /** @return The average distance of all modules */
   public double getAverageDistance(){
@@ -801,6 +796,7 @@ public class DriveTrain extends SubsystemBase {
 
   public synchronized void setInitialPose(AdvancedPose2D pose) {
     poseEstimator.resetPose(pose);
+    m_gyro.setAngleAdjustment(pose.getRotation().getDegrees());
     initialPose = pose;
   }
 
@@ -819,5 +815,9 @@ public class DriveTrain extends SubsystemBase {
 
   public synchronized Alliance getAlliance() {
     return m_alliance;
+  }
+
+  public synchronized void setUseScalers(boolean scale) {
+    useScalers = scale;
   }
 }

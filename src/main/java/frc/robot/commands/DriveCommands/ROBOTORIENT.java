@@ -1,43 +1,35 @@
-package frc.robot.commands.Auton.Functions;
+package frc.robot.commands.DriveCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.Lib.AdvancedPose2D;
 import frc.robot.subsystems.DriveTrain;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class AutonDriveToPosition extends Command {
+public class ROBOTORIENT extends Command {
   private final DriveTrain m_driveTrain;
-  private final AdvancedPose2D m_desiredPose;
-  /** Creates a new DriveToPosition. */
-  public AutonDriveToPosition(DriveTrain driveTrain, AdvancedPose2D desiredPose) {
+
+  /** Creates a new ROBOTORIENT. */
+  public ROBOTORIENT(DriveTrain driveTrain) {
     m_driveTrain = driveTrain;
-    m_desiredPose = desiredPose;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(m_driveTrain);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {
-    m_driveTrain.setPIDSetpoints(m_desiredPose.getX(), m_desiredPose.getY(), m_desiredPose.getRotation().getRadians());
-    m_driveTrain.setUseScalers(false);
-  }
+  public void initialize() {}
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_driveTrain.PIDDrive();
+    m_driveTrain.setOrientation(false);
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {
-    if (!interrupted) m_driveTrain.stop();
-  }
+  public void end(boolean interrupted) {}
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_driveTrain.atSetpoints();
+    return false;
   }
 }

@@ -32,9 +32,8 @@ public final class Constants {
 
     /* CONTROLLER IDS */
     public static final int driverControllerID = 0;
-    // public static final int drivePositionControllerID = 1;
-    public static final int operatorController1ID = 2;
-    public static final int operatorController2ID = 1;
+    public static final int operatorController1ID = 1;
+    public static final int operatorController2ID = 2;
 
     /* BUTTON IDS */
     /* Driver */
@@ -110,7 +109,7 @@ public final class Constants {
     public static final double L3AlgaePos = 177;
     public static final double L3Pos = 208;
     public static final double L4Pos = 208;
-    public static final double HPPos = 120;
+    public static final double HPPos = 123;
   }
 
   public class AffectorConstants {
@@ -125,9 +124,9 @@ public final class Constants {
 
     public static final double coralWristDefaultPos = 0;
     // public static final double coralWristL1 = 22;
-    public static final double coralWristL23 = 21;
+    public static final double coralWristL23 = 23;
     public static final double coralWristL4 = 104;
-    public static final double coralWristHP = 30;
+    public static final double coralWristHP = 32;
 
     public static final double wristOverrideSpeed = .4;
 
@@ -244,10 +243,10 @@ public final class Constants {
     public static final boolean backLeftAbsReversed = false;
     public static final boolean backRightAbsReversed = false;
 
-    public static final double frontLeftAnalogEncoderOffset = 4.26;  
-    public static final double frontRightAnalogEncoderOffset = 76.44;
-    public static final double backLeftAnalogEncoderOffset = 162.33;
-    public static final double backRightAnalogEncoderOffset = 61.92;
+    public static final double frontLeftAnalogEncoderOffset = 4.69;  
+    public static final double frontRightAnalogEncoderOffset = 75.88;
+    public static final double backLeftAnalogEncoderOffset = 162.39;
+    public static final double backRightAnalogEncoderOffset = 63.79;
 
     public static final double maxModuleAngularSpeedDegreesPerSecond = 360;
     public static final double maxModuleAngularAccelerationDegreesPerSecondSquared = 360;
@@ -458,10 +457,10 @@ public final class Constants {
     public static final double transkD = 0; //0
     public static final double transkTolerance = .025;
 
-    public static final Vector<N3> poseEstimateOdometryStdDev = VecBuilder.fill(.08, .08, Units.degreesToRadians(.025));
-    public static final Vector<N3> poseEstimateVisionStdDev = VecBuilder.fill(.02, .02, Units.degreesToRadians(1));
+    public static final Vector<N3> poseEstimateOdometryStdDev = VecBuilder.fill(.12, .12, Units.degreesToRadians(.025));
+    public static final Vector<N3> poseEstimateVisionStdDev = VecBuilder.fill(.02, .02, Units.degreesToRadians(5));
 
-    public static final double maxPIDDriveSpeed = 3.1; //3.1
+    public static final double maxPIDDriveSpeed = .8; //3.1
     public static final double maxPIDRot = Math.PI/2;
   }
 

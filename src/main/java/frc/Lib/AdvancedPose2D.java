@@ -50,13 +50,15 @@ public class AdvancedPose2D extends Pose2d {
      * Apply a rotated transfromation to the {@link AdvancedPose2D} object
      * @param direction the direction of the translation
      * @param translation Y positive goes front and X positive goes Right
-     * @param desireHeading the heading of processed pose
+     * @param desiredHeading the heading of processed pose
      * @return the transformed {@link AdvancedPose2D} object
      */
-    public AdvancedPose2D withVector(Rotation2d direction, Translation2d translation, Rotation2d desireHeading) {
-        double x = translation.getX() * direction.getCos() - translation.getY() * direction.getSin() + this.getX();
-        double y = translation.getX() * direction.getSin() + translation.getY() * direction.getCos() + this.getY();
-        return new AdvancedPose2D(x, y, desireHeading);
+    public AdvancedPose2D withVector(Rotation2d direction, Translation2d translation, Rotation2d desiredHeading) {
+        double theta = ((translation.getX() == 0 ? 0 : Math.atan(direction.getRadians())) + (direction.getRadians() - Math.PI/2));
+        double x = Math.hypot(translation.getX(), translation.getY()) * Math.cos(theta) + this.getX();
+        double y = Math.hypot(translation.getX(), translation.getY()) * Math.sin(theta) + this.getY();
+
+        return new AdvancedPose2D(x, y, desiredHeading);
     }
 
     /**

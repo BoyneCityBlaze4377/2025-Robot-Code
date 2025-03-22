@@ -1,14 +1,10 @@
 package frc.robot;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-
 import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.Constants.SensorConstants;
@@ -21,7 +17,7 @@ import frc.robot.commands.DriveCommands.*;
 import frc.robot.commands.ElevatorCommands.*;
 import frc.robot.commands.PieceAffectorsCommands.*;
 import frc.robot.commands.Auton.Sequences.*;
-import frc.robot.commands.Auton.Sequences.FourCoralL3Left;
+import frc.robot.commands.Auton.Sequences.FourCoralL3LeftBlue;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -43,8 +39,7 @@ public class RobotContainer {
   private final Elevator m_elevator = new Elevator();  private final AutoAimSubsystem m_autoAimSubsystem = new AutoAimSubsystem(SensorConstants.limeLightName);
   private final DriveTrain m_driveTrain = new DriveTrain(m_elevator, m_autoAimSubsystem, SensorConstants.limeLightName);
 
-  private final SendableChooser<String> autonChooser = new SendableChooser<String>();
-  private final HashMap<String, Command> autonOptions = new HashMap<>();
+  private final SendableChooser<Command> autonChooser = new SendableChooser<Command>();
 
   /* COMMANDS */
   // DriveTrain
@@ -103,22 +98,42 @@ public class RobotContainer {
   /** AUTONS */
   //Neutral
   private final NoAuton NoAuton = new NoAuton(m_driveTrain, AutonConstants.customInitialPose);
-  private final DriveOffLine DriveOffLine = new DriveOffLine(m_driveTrain, AutonConstants.customInitialPose);
+  private final DriveOffLine DriveOffLine = new DriveOffLine(m_driveTrain, AutonConstants.initialPoseBlueBack, 
+                                                             m_elevator, m_coralAffector);
 
-  //Right
-  private final FourCoralL3Right FourL3Right = new FourCoralL3Right(m_driveTrain, m_coralAffector, m_elevator);
-  private final ThreeCoralL4Right ThreeL4Right = new ThreeCoralL4Right(m_driveTrain, m_elevator, m_coralAffector);
-  //private final TwoL4AndProcessor TwoL4Processor = new TwoL4AndProcessor(m_driveTrain, m_elevator, m_coralAffector, m_algaeAffector);
+  // /* Blue */
+  // //Right
+  // private final FourCoralL3RightBlue FourL3RightBlue = new FourCoralL3RightBlue(m_driveTrain, m_coralAffector, m_elevator);
+  // private final ThreeCoralL4RightRed ThreeL4RightBlue = new ThreeCoralL4RightRed(m_driveTrain, m_elevator, m_coralAffector);
+  // //private final TwoL4AndProcessor TwoL4Processor = new TwoL4AndProcessor(m_driveTrain, m_elevator, m_coralAffector, m_algaeAffector);
+
+  // //Left
+  // private final FourCoralL3LeftBlue FourL3LeftBlue = new FourCoralL3LeftBlue(m_driveTrain, m_coralAffector, m_elevator);
+  // private final ThreeCoralL4LeftBlue ThreeL4LeftBlue = new ThreeCoralL4LeftBlue(m_driveTrain, m_elevator, m_coralAffector);
+
+  // //Back
+  // private final PlaceOnBackAndProcessorBlue BackRightAndProcessBlue = new PlaceOnBackAndProcessorBlue(m_driveTrain, m_coralAffector, m_elevator, 
+  //                                                                                  m_algaeAffector, Alignment.right);
+  // private final PlaceOnBackAndProcessorBlue BackLeftAndProcessBlue = new PlaceOnBackAndProcessorBlue(m_driveTrain, m_coralAffector, m_elevator, 
+  //                                                                        m_algaeAffector, Alignment.left);
+
+  // /* Red */
+  // //Right
+  // private final FourCoralL3RightRed FourL3RightRed = new FourCoralL3RightRed(m_driveTrain, m_coralAffector, m_elevator);
+  // private final ThreeCoralL4RightRed ThreeL4RightRed = new ThreeCoralL4RightRed(m_driveTrain, m_elevator, m_coralAffector);
+  // //private final TwoL4AndProcessor TwoL4Processor = new TwoL4AndProcessor(m_driveTrain, m_elevator, m_coralAffector, m_algaeAffector);
+
+  // //Left
+  // private final FourCoralL3LeftRed FourL3LeftRed = new FourCoralL3LeftRed(m_driveTrain, m_coralAffector, m_elevator);
+  // private final ThreeCoralL4LeftRed ThreeL4LeftRed = new ThreeCoralL4LeftRed(m_driveTrain, m_elevator, m_coralAffector);
+
+  // //Back
+  // private final PlaceOnBackAndProcessorRed BackRightAndProcessRed = new PlaceOnBackAndProcessorRed(m_driveTrain, m_coralAffector, m_elevator, 
+  //                                                                                  m_algaeAffector, Alignment.right);
+  // private final PlaceOnBackAndProcessorRed BackLeftAndProcessRed = new PlaceOnBackAndProcessorRed(m_driveTrain, m_coralAffector, m_elevator, 
+  //                                                                        m_algaeAffector, Alignment.left);
 
   //Left
-  private final FourCoralL3Left FourL3Left = new FourCoralL3Left(m_driveTrain, m_coralAffector, m_elevator);
-  private final ThreeCoralL4Left ThreeL4Left = new ThreeCoralL4Left(m_driveTrain, m_elevator, m_coralAffector);
-
-  //Back
-  private final PlaceOnBackAndProcessor BackRightAndProcess = new PlaceOnBackAndProcessor(m_driveTrain, m_coralAffector, m_elevator, 
-                                                                                   m_algaeAffector, Alignment.right);
-  private final PlaceOnBackAndProcessor BackLeftAndProcess = new PlaceOnBackAndProcessor(m_driveTrain, m_coralAffector, m_elevator, 
-                                                                         m_algaeAffector, Alignment.left);
 
   //Testing
 
@@ -133,20 +148,7 @@ public class RobotContainer {
                          .withProperties(Map.of("sort_options", true));
   }
 
-  public void setAlliances(Optional<Alliance> alliance) {
-    Alliance m_alliance = alliance.isPresent() ? Alliance.Blue : Alliance.Blue;
-    m_driveTrain.setAlliance(m_alliance);
-
-    FourL3Right.setAlliance(m_alliance);
-    ThreeL4Right.setAlliance(m_alliance);
-    //TwoL4Processor.setAlliance(m_alliance);
-    FourL3Left.setAlliance(m_alliance);
-    ThreeL4Left.setAlliance(m_alliance);
-    BackRightAndProcess.setAlliance(m_alliance);
-    BackLeftAndProcess.setAlliance(m_alliance);
-
-    configAutonChooser();
-  }
+  public void displayStuff() {}
 
   public void setDriveTrainPoseEstimate() {
     //if (m_autoAimSubsystem.getEstimatedGlobalPose().isPresent()) m_driveTrain.setOdometry(m_autoAimSubsystem.getEstimatedPose2d().get());
@@ -157,25 +159,24 @@ public class RobotContainer {
   }
 
   public void configAutonChooser() {
-    autonChooser.setDefaultOption("No Auton", "NoAuton");
-    autonChooser.addOption("Drive Off Line", "DriveOffLine");
-    autonChooser.addOption("Three Coral on L4, right side", "ThreeL4Right");
-    autonChooser.addOption("Four Coral on L3, right side", "FourL3Right");
-    autonChooser.addOption("Two on L4 and Processor (right side)", "TwoL4Processor");
-    autonChooser.addOption("Four Coral on L3, left side", "FourL3Left");
-    autonChooser.addOption("Three Coral on L4, left side", "ThreeL4Left");
-    autonChooser.addOption("Back and Process, first L4 on right", "BackRightAndProcess");
-    autonChooser.addOption("Back and Process, first L4 on left", "BackLeftAndProcess");
+    // autonChooser.setDefaultOption("No Auton", NoAuton);
+    // autonChooser.addOption("Drive Off Line", DriveOffLine);
 
-    autonOptions.putAll(Map.of("NoAuton", NoAuton,
-                               "DriveOffLine", DriveOffLine,
-                               "ThreeL4Right", ThreeL4Right,
-                               "FourL3Right", FourL3Right,
-                               //"TwoL4Processor", TwoL4Processor,
-                               "FourL3Left", FourL3Left,
-                               "ThreeL4Left", ThreeL4Left,
-                               "BackRightAndProcess", BackRightAndProcess,
-                               "BackLeftAndProcess", BackLeftAndProcess));
+    // autonChooser.addOption("BLUE Three Coral on L4, right side", ThreeL4RightBlue);
+    // autonChooser.addOption("BLUE Four Coral on L3, right side", FourL3RightBlue);
+    // //autonChooser.addOption("Two on L4 and Processor (right side)", "TwoL4Processor");
+    // autonChooser.addOption("BLUE Four Coral on L3, left side", FourL3LeftBlue);
+    // autonChooser.addOption("BLUE Three Coral on L4, left side", ThreeL4LeftBlue);
+    // autonChooser.addOption("BLUE Back and Process, first L4 on right", BackRightAndProcessBlue);
+    // autonChooser.addOption("BLUE Back and Process, first L4 on left", BackLeftAndProcessBlue);
+
+    // autonChooser.addOption("RED Three Coral on L4, right side", ThreeL4RightRed);
+    // autonChooser.addOption("RED Four Coral on L3, right side", FourL3RightRed);
+    // //autonChooser.addOption("Two on L4 and Processor (right side)", "TwoL4Processor");
+    // autonChooser.addOption("RED Four Coral on L3, left side", FourL3LeftRed);
+    // autonChooser.addOption("RED Three Coral on L4, left side", ThreeL4LeftRed);
+    // autonChooser.addOption("RED Back and Process, first L4 on right", BackRightAndProcessRed);
+    // autonChooser.addOption("RED Back and Process, first L4 on left", BackLeftAndProcessRed);
   }
 
   /**
@@ -193,7 +194,7 @@ public class RobotContainer {
     new JoystickButton(m_driverStick, IOConstants.switchOrientationButtonID).onTrue(SwitchOrientation);
     // new JoystickButton(m_driverStick, IOConstants.switchBrakeButtonID).onTrue(SwitchBrake);
     new JoystickButton(m_driverStick, IOConstants.straightDriveButtonID).whileTrue(StraightDrive);
-    new JoystickButton(m_driverStick, IOConstants.autoDriveButtonID).whileTrue(TEMPAUTODRIVE);
+    new JoystickButton(m_driverStick, IOConstants.autoDriveButtonID).whileTrue(new ROBOTORIENT(m_driveTrain));
 
     //Alignments
     new JoystickButton(m_driverStick, IOConstants.leftAlignButtonID).onTrue(SelectAlignmentLeft);
@@ -234,6 +235,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autonOptions.get(autonChooser.getSelected());
+    return DriveOffLine;
   }
 }
