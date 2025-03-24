@@ -48,6 +48,7 @@ public class AdvancedPose2D extends Pose2d {
 
     /**
      * Apply a rotated transfromation to the {@link AdvancedPose2D} object
+     * 
      * @param direction the direction of the translation
      * @param translation Y positive goes front and X positive goes Right
      * @param desiredHeading the heading of processed pose

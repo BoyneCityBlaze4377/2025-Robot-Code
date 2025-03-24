@@ -149,30 +149,6 @@ public final class Constants {
   }
 
   public static final class SwerveConstants {
-    public static final double angleGearRatio = (150/7);
-    public static final double voltageComp = 12.0;
-
-    /* Swerve Profiling Values */
-    public static final double maxSpeed = 4.5; // meters per second  //4.5
-    public static final double maxAngularVelocity =  11.5;
-
-    /* Angle Motor PID Values */
-    public static final double angleKP = 0.01; //.0005
-    public static final double angleKI = 0.0;
-    public static final double angleKD = 0.0;
-    public static final double angleKFF = 0.0;
-    public static final double kMaxOutput = 0.95;
-    public static final double kTolerance = 1;
-
-    public static final IdleMode angleNeutralMode = IdleMode.kBrake;
-
-    /* Swerve Current Limiting */
-    public static final int angleContinuousCurrentLimit = 20;
-
-    public static final double angleConversionFactor = 360.0 / angleGearRatio;
-  }
-
-  public static final class DriveConstants {
     // Distance between centers of right and left wheels on robot in meters
     public static final double trackWidth = Units.inchesToMeters(36);
     
@@ -180,14 +156,13 @@ public final class Constants {
     public static final double wheelBase = Units.inchesToMeters(36);
     
     public static final SwerveDriveKinematics driveKinematics =
-        new SwerveDriveKinematics(
-            new Translation2d(wheelBase / 2, trackWidth / 2),
-            new Translation2d(wheelBase / 2, -trackWidth / 2),
-            new Translation2d(-wheelBase / 2, trackWidth / 2),
-            new Translation2d(-wheelBase / 2, -trackWidth / 2));
+        new SwerveDriveKinematics(new Translation2d(wheelBase / 2, trackWidth / 2),
+                                  new Translation2d(wheelBase / 2, -trackWidth / 2),
+                                  new Translation2d(-wheelBase / 2, trackWidth / 2),
+                                  new Translation2d(-wheelBase / 2, -trackWidth / 2));
+  }
 
-    public static final boolean gyroReversed = true;
-
+  public static final class DriveConstants {
     public static final double speedScaler = 1;
     public static final double maxDriveSpeed = .96;
     public static final double minDriveSpeed = .35;
@@ -197,6 +172,7 @@ public final class Constants {
     public static final double maxSpeedMetersPerSecond = 4.25; //4.5 true max
     public static final double maxAccelerationMetersPerSecondSquared = 1;
     public static final double maxRotationSpeedRadiansPerSecond = Math.PI;
+    public static final double maxAngularVelocity = maxSpeedMetersPerSecond * Math.sqrt(2);
 
     public static final double xyDeadband = .1;
     public static final double zDeadband = .4;
@@ -205,7 +181,7 @@ public final class Constants {
     public static final double kvVoltSecondsPerMeter = 4;
     public static final double kaVoltSecondsSquaredPerMeter = 1;
 
-    public static final double startingHeading = 0;
+    public static final boolean gyroReversed = false;
   }
 
   public static final class ModuleConstants {
@@ -257,6 +233,21 @@ public final class Constants {
     public static final double driveMotorConversionFactor = 
       // Assumes the encoders are directly mounted on the wheel shafts
       (wheelDiameterMeters * Math.PI) / (double) encoderCPR * driveGearRatio;
+
+    public static final double angleGearRatio = (150/7);
+    public static final double angleConversionFactor = 360.0 / angleGearRatio;
+
+    public static final double voltageComp = 12.0;
+    public static final int angleContinuousCurrentLimit = 20;
+  
+    public static final double angleKP = 0.01; //.01
+    public static final double angleKI = 0.0;
+    public static final double angleKD = 0.0;
+    public static final double angleKFF = 0.0;
+    public static final double kMaxOutput = 0.95;
+    public static final double kTolerance = .5;
+  
+    public static final IdleMode angleNeutralMode = IdleMode.kBrake;
   }
 
   public class FieldConstants {
@@ -277,7 +268,7 @@ public final class Constants {
                                                                                 0);
 
     public static final AdvancedPose2D blueProcessor = new AdvancedPose2D(autonLineDistance - Units.inchesToMeters(61.76), 
-                                                                          DriveConstants.trackWidth / 2 + AutoAimConstants.algaePosBackset,
+                                                                          SwerveConstants.trackWidth / 2 + AutoAimConstants.algaePosBackset,
                                                                          -90);
     public static final AdvancedPose2D redProcessor = blueProcessor.flipBoth();
 
@@ -306,7 +297,7 @@ public final class Constants {
       put(Position.HP, new double[] {ElevatorConstants.HPPos, AffectorConstants.coralWristHP});
     }};
             
-    public static final double centerOfReefToRobotDistance = Units.inchesToMeters(32.75) + DriveConstants.trackWidth / 2;
+    public static final double centerOfReefToRobotDistance = Units.inchesToMeters(32.75) + SwerveConstants.trackWidth / 2;
 
     public static final double coralAffectorOffsetFromRobotCenter = Units.inchesToMeters(2);
     public static final double leftCoralReefOffset = -(Units.inchesToMeters(6.47) + coralAffectorOffsetFromRobotCenter);
@@ -317,7 +308,7 @@ public final class Constants {
     public static final double LLDefaultOffsetDegrees = 2.3;
     public static final double LCToBumperEdgeOffsetMeters = Units.inchesToMeters(4.85);
 
-    public static final double coralStationToRobotDistance = DriveConstants.trackWidth / 2;
+    public static final double coralStationToRobotDistance = SwerveConstants.trackWidth / 2;
     public static final double coralStationSideOffsetDistance = Units.inchesToMeters(76) / 4 - coralAffectorOffsetFromRobotCenter;
 
     public static final HashMap<Alignment, Double> offsetFromAlignment = new HashMap<Alignment, Double> () {{
@@ -478,13 +469,13 @@ public final class Constants {
     public static final double inRangeThreshold = 2.15; //2.15
 
     public static final AdvancedPose2D initialPoseBlueRight = new AdvancedPose2D(FieldConstants.autonLineDistance,
-                                                                                 DriveConstants.trackWidth / 2,
+                                                                                 SwerveConstants.trackWidth / 2,
                                                                                  90);
     public static final AdvancedPose2D initialPoseRedRight = initialPoseBlueRight.flipBoth();
 
     public static final AdvancedPose2D initialPoseBlueLeft = new AdvancedPose2D(FieldConstants.autonLineDistance, 
                                                                                 FieldConstants.fieldWidth - 
-                                                                                        (DriveConstants.trackWidth / 2), 
+                                                                                        (SwerveConstants.trackWidth / 2), 
                                                                                 -90);
     public static final AdvancedPose2D initialPoseRedLeft = initialPoseBlueLeft.flipBoth();
 

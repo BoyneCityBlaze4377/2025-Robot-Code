@@ -83,10 +83,10 @@ public class SwerveModule {
     configDriveMotorDefault();
     
     /** PIDController */
-    turningController = new PIDController(SwerveConstants.angleKP, 
-                                          SwerveConstants.angleKD, 
-                                          SwerveConstants.angleKI);
-    turningController.setTolerance(SwerveConstants.kTolerance);
+    turningController = new PIDController(ModuleConstants.angleKP, 
+                                          ModuleConstants.angleKD, 
+                                          ModuleConstants.angleKI);
+    turningController.setTolerance(ModuleConstants.kTolerance);
     turningController.enableContinuousInput(-180, 180);
 
     /** Absolute Encoder */
@@ -149,10 +149,10 @@ public class SwerveModule {
   public void setAngle(SwerveModuleState desiredState, boolean isNeutral) {
     // Prevent rotating module if speed is less then 1%. Prevents jittering.
     Rotation2d angle = 
-        (Math.abs(desiredState.speedMetersPerSecond) <= (SwerveConstants.maxSpeed * .01)) ? lastAngle : desiredState.angle;
+        (Math.abs(desiredState.speedMetersPerSecond) <= (DriveConstants.maxSpeedMetersPerSecond * .01)) ? lastAngle : desiredState.angle;
     
     turningFactor = MathUtil.clamp(turningController.calculate(getAbsoluteEncoder(), angle.getDegrees()), 
-                                   -SwerveConstants.kMaxOutput, SwerveConstants.kMaxOutput);
+                                   -ModuleConstants.kMaxOutput, ModuleConstants.kMaxOutput);
     
     m_turningMotor.set(isNeutral || turningController.atSetpoint() ? 0 : -turningFactor);
     lastAngle = angle;
@@ -222,10 +222,10 @@ public class SwerveModule {
 
   /** Sets the default configuration of the angle motor. */
   private void configAngleMotorDefault() {
-    m_turnConfig.idleMode(SwerveConstants.angleNeutralMode);
+    m_turnConfig.idleMode(ModuleConstants.angleNeutralMode);
     m_turnConfig.inverted(turnReversed);
-    m_turnConfig.smartCurrentLimit(SwerveConstants.angleContinuousCurrentLimit);
-    m_turnConfig.voltageCompensation(SwerveConstants.voltageComp);
+    m_turnConfig.smartCurrentLimit(ModuleConstants.angleContinuousCurrentLimit);
+    m_turnConfig.voltageCompensation(ModuleConstants.voltageComp);
 
     configAngleMotor();
     Timer.delay(1);
@@ -257,7 +257,7 @@ public class SwerveModule {
     m_driveMotor.set(0);
     turningFactor = turningController.calculate(getAbsoluteEncoder(), lockedState.angle.getDegrees());
 
-    turningFactor = MathUtil.clamp(turningFactor, -SwerveConstants.kMaxOutput, SwerveConstants.kMaxOutput);
+    turningFactor = MathUtil.clamp(turningFactor, -ModuleConstants.kMaxOutput, ModuleConstants.kMaxOutput);
 
     m_turningMotor.set(turningController.atSetpoint() ? 0 : -turningFactor);
     lastAngle = lockedState.angle;

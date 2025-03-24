@@ -7,7 +7,10 @@ import java.util.Map;
 import java.util.Optional;
 
 import frc.Lib.AdvancedPose2D;
+import frc.Lib.Elastic;
 import frc.Lib.LimelightHelpers;
+import frc.Lib.Elastic.Notification;
+import frc.Lib.Elastic.Notification.NotificationLevel;
 import frc.Lib.LimelightHelpers.PoseEstimate;
 
 import com.studica.frc.AHRS;
@@ -48,26 +51,15 @@ import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.Constants.ModuleConstants;
 import frc.robot.Constants.SensorConstants;
+import frc.robot.Constants.SwerveConstants;
 
 public class DriveTrain extends SubsystemBase {
-  private int periodicTimer = 1;
-
-  // Robot swerve modules
   private final SwerveModule m_frontLeft, m_frontRight, m_backLeft, m_backRight;
-
-  // The gyro sensor
   private final AHRS m_gyro;
-  private boolean fieldOrientation = true,
-                  isLocked = false, slow = false, 
-                  isBrake = true, autonInRange = false, useScalers = false, 
-                  straightDriveBackwards = false, isBlue = true;
-  private double speedScaler, heading, x, y, omega,  elevatorHeight;
-
-  private AprilTagFieldLayout fieldLayout;
 
   private final SwerveDrivePoseEstimator poseEstimator;
-
   private final Field2d estimateField;
+  private AprilTagFieldLayout fieldLayout;
 
   private final Elevator m_elevator;
 
@@ -86,15 +78,20 @@ public class DriveTrain extends SubsystemBase {
                                                                     AutoAimConstants.turnkI,
                                                                     AutoAimConstants.turnkD);
 
-  private AdvancedPose2D initialPose = new AdvancedPose2D();
-
-  // From AAS
-  private double tx, ty, ta, tID;
   private final String cameraName;
   private Alliance m_alliance;
+
+  private AdvancedPose2D initialPose = AutonConstants.initialPoseBlueRight;
   private AdvancedPose2D desiredPose;
   private Alignment desiredAlignment;
   private ReefStation estimatedStation;
+
+  private boolean fieldOrientation = true, isLocked = false, slow = false, 
+                  isBrake = true, autonInRange = false, useScalers = false, 
+                  straightDriveBackwards = false, isBlue = true, notified = false;
+
+  private double tx, ty, ta, tID, speedScaler, heading, x, y, omega,  elevatorHeight;
+  private int periodicTimer = 1;
     
   /** Creates a new DriveTrain. */
   public DriveTrain(Elevator elevator, String limelightName) {
@@ -140,7 +137,7 @@ public class DriveTrain extends SubsystemBase {
 
     /* Pose Estimation Stuff */
     estimateField = new Field2d();
-    poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.driveKinematics, m_gyro.getRotation2d(), 
+    poseEstimator = new SwerveDrivePoseEstimator(SwerveConstants.driveKinematics, m_gyro.getRotation2d(), 
                                                  getSwerveModulePositions(), initialPose,
                                                  AutoAimConstants.poseEstimateOdometryStdDev,
                                                  AutoAimConstants.poseEstimateVisionStdDev);            
@@ -283,6 +280,14 @@ public class DriveTrain extends SubsystemBase {
     matchTime.setDouble(DriverStation.getMatchTime());
     orientationSender.setBoolean(fieldOrientation);
 
+    // Tell if gyro disconnects
+    if (!m_gyro.isConnected() && !notified) {
+      Elastic.sendNotification(new Notification(NotificationLevel.ERROR, "NAVX", "GYRO DISCONNECTED"));
+      notified = true;
+    }
+    if (notified && m_gyro.isConnected()) notified = false;
+
+
     // Determine whether the StraightDrive function is inverted based on elevator position
     switch (m_elevator.getCurrentPosition()) {
       case processor:
@@ -340,7 +345,7 @@ public class DriveTrain extends SubsystemBase {
   }
 
   /**
-   * The function that sets the raw speeds of the DriveTrain
+   * The function that sets the raw speeds of the {@link DriveTrain}
    * 
    * @param xSpeed Speed on the x-axis in Meters per Second
    * @param ySpeed Speed on the y-axis in Meters per Second
@@ -355,7 +360,7 @@ public class DriveTrain extends SubsystemBase {
       omega *= calcRotHeightScaler(elevatorHeight);
     }
 
-    var swerveModuleStates = DriveConstants.driveKinematics.toSwerveModuleStates(fieldOrientation
+    var swerveModuleStates = SwerveConstants.driveKinematics.toSwerveModuleStates(fieldOrientation
                            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, omega, m_gyro.getRotation2d()) 
                            : new ChassisSpeeds(xSpeed, ySpeed, omega));
 
@@ -414,7 +419,7 @@ public class DriveTrain extends SubsystemBase {
   /**
    * Drive based on a ChassisSpeeds object
    * 
-   * @param speeds The desired ChassisSpeeds of the DriveTrain
+   * @param speeds The desired ChassisSpeeds of the {@link DriveTrain}
    */
   public void chassisSpeedDrive(ChassisSpeeds speeds) {
     brakeAll();
@@ -509,14 +514,14 @@ public class DriveTrain extends SubsystemBase {
     m_backRight.setLockedState(new SwerveModuleState(0, Rotation2d.fromDegrees(225)));
   }
 
-  /** @return The current ChassisSpeeds of the DriveTrain */
+  /** @return The current ChassisSpeeds of the {@link DriveTrain} */
   public ChassisSpeeds getChassisSpeeds() {
     return fieldOrientation ? ChassisSpeeds.fromFieldRelativeSpeeds(x, y, omega, m_gyro.getRotation2d()) 
                             : new ChassisSpeeds(-x, -y, omega);
   }
 
   /** 
-   * Sets whether or not the DriveTrain is in the Locked Pose. 
+   * Sets whether or not the {@link DriveTrain} is in the Locked Pose. 
    *
    * @param locked Whether or not the robot is in the Locked Pose.
    */
@@ -533,7 +538,7 @@ public class DriveTrain extends SubsystemBase {
     speedScaler *= scaler;
   }
 
-  /** @return The Drivetrain's current SpeedScaler */
+  /** @return The current SpeedScaler of the {@link DriveTrain} */
   public synchronized double getSpeedScaler() {
     return speedScaler;
   }
@@ -561,7 +566,7 @@ public class DriveTrain extends SubsystemBase {
     return poseEstimator.getEstimatedPosition();
   }
 
-  /** Display the trajectory from the DriveTrain's current pose to its AutoAimPose on the DashBoard */
+  /** Display the trajectory from the {@link DriveTrain}'s current pose to its AutoAimPose on the DashBoard */
   public void displayTrajectory() {
     List<State> poses = new ArrayList<>();
     poses.add(new State(0, 0, 0, getPoseEstimate().get().pose, 0));
@@ -569,7 +574,7 @@ public class DriveTrain extends SubsystemBase {
     estimateField.getObject("Traj").setTrajectory(new Trajectory(poses));
   }
 
-  /** Hide the trajectory from the DriveTrain's current pose to its AutoAimPose from the DashBoard */
+  /** Hide the trajectory from the {@link DriveTrain}'s current pose to its AutoAimPose from the DashBoard */
   public void unDisplayTrajectory() {
     estimateField.getObject("Traj").setTrajectory(null);
   }
@@ -599,15 +604,15 @@ public class DriveTrain extends SubsystemBase {
     m_backRight.coast();
   }
 
-  /** @return The current IdleMode of the DriveTrain */
+  /** @return The current IdleMode of the {@link DriveTrain} */
   public synchronized IdleMode getIdleMode() {
     return m_frontLeft.getIdleMode();
   }
 
   /**
-   * Sets the IdleMode of the DriveTrain.
+   * Sets the IdleMode of the {@link DriveTrain}
    * 
-   * @param mode The desired IdleMode for the DriveTrain.
+   * @param mode The desired IdleMode for the {@link DriveTrain}
    */
   public synchronized void setIdleMode(IdleMode mode) {
     m_frontLeft.setIdleMode(mode);
@@ -649,7 +654,7 @@ public class DriveTrain extends SubsystemBase {
     fieldOrientation = isFieldOriented;
   }
 
-  /** @return Whether or not the DriveTrain is field oriented */
+  /** @return Whether or not the {@link DriveTrain} is field oriented */
   public synchronized boolean isFieldOriented() {
     return fieldOrientation;
   }
@@ -724,7 +729,7 @@ public class DriveTrain extends SubsystemBase {
   }
 
   /**
-   * Calculate the amount by which to scale the DriveTrain's translational speed based on the elevator's height
+   * Calculate the amount by which to scale the {@link DriveTrain}'s translational speed based on the elevator's height
    * 
    * @param height The current height of the elevator
    * @return The calculated translational speed scaler
@@ -736,7 +741,7 @@ public class DriveTrain extends SubsystemBase {
   }
 
   /**
-   * Calculate the amount by which to scale the DriveTrain's rotational speed based on the elevator's height
+   * Calculate the amount by which to scale the {@link DriveTrain}'s rotational speed based on the elevator's height
    * 
    * @param height The current height of the elevator
    * @return The calculated rotational speed scaler
@@ -748,9 +753,9 @@ public class DriveTrain extends SubsystemBase {
   }
 
   /**
-   * Determine the estimated ReefStation of the DriveTrain for AutoAim
+   * Determine the estimated ReefStation of the {@link DriveTrain} for AutoAim
    * 
-   * @return The angle of the estimated ReefStation of the DriveTrain
+   * @return The angle of the estimated ReefStation of the {@link DriveTrain}
    */
   public double getEstimatedStationAngle() {
     double prevError = 180;
@@ -824,7 +829,7 @@ public class DriveTrain extends SubsystemBase {
   }
 
   /**
-   * Set the desired position of the DriveTrain
+   * Set the desired position of the {@link DriveTrain}
    * 
    * @param pose The desired position
    */
@@ -833,7 +838,7 @@ public class DriveTrain extends SubsystemBase {
   }
 
   /**
-   * Set the desired alignment of the desired pose for the DriveTrain
+   * Set the desired alignment of the desired pose for the {@link DriveTrain}
    * 
    * @param alignment
    */
@@ -841,12 +846,12 @@ public class DriveTrain extends SubsystemBase {
     desiredAlignment = alignment;
   }
 
-  /** @return The desired position of the DriveTrain */
+  /** @return The desired position of the {@link DriveTrain} */
   public synchronized AdvancedPose2D getDesiredPose() {
     return desiredPose;
   }
 
-  /** @return The desired alignment of the desired pose for the DriveTrain */
+  /** @return The desired alignment of the desired pose for the {@link DriveTrain} */
   public synchronized Alignment getDesiredAlignment() {
     return desiredAlignment;
   }
@@ -858,9 +863,9 @@ public class DriveTrain extends SubsystemBase {
   }
 
   /**
-   * Set the initial pose of the DriveTrain
+   * Set the initial pose of the {@link DriveTrain}
    * 
-   * @param pose The initial pose
+   * @param pose The initial pose to be set
    */
   public synchronized void setInitialPose(AdvancedPose2D pose) {
     poseEstimator.resetPose(pose);
@@ -876,7 +881,7 @@ public class DriveTrain extends SubsystemBase {
   /**
    * Set the Alliance for the match
    * 
-   * @param alliance The Alliance
+   * @param alliance The Alliance to be set
    */
   public synchronized void setAlliance(Alliance alliance) {
     m_alliance = alliance;
