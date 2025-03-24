@@ -266,6 +266,7 @@ public class DriveTrain extends SubsystemBase {
     if (getPoseEstimate().get().tagCount >= 1) {
       poseEstimator.addVisionMeasurement(getPoseEstimate().get().pose, 
                                          getPoseEstimate().get().timestampSeconds);
+      if (periodicTimer > 5) poseEstimator.resetTranslation(getPoseEstimate().get().pose.getTranslation());
     }
 
     estimateField.setRobotPose(poseEstimator.getEstimatedPosition());
