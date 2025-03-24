@@ -70,7 +70,7 @@ public class CoralAffector extends SubsystemBase {
     hasCoralSender.setBoolean(hasCoral());
     lockedSender.setBoolean(locked);
 
-    coralWrist.set(wristSpeed);
+    //coralWrist.set(wristSpeed);
   }
 
   private void configMotorControllerDefaults() {

@@ -196,7 +196,7 @@ public final class Constants {
 
     public static final double maxSpeedMetersPerSecond = 4.25; //4.5 true max
     public static final double maxAccelerationMetersPerSecondSquared = 1;
-    public static final double maxRotationSpeedRadiansPerSecond = Math.PI;
+    public static final double maxRotationSpeedRadiansPerSecond = Math.PI * .8;
 
     public static final double xyDeadband = .1;
     public static final double zDeadband = .4;

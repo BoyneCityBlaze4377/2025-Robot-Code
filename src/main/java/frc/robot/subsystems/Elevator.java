@@ -77,13 +77,13 @@ public class Elevator extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if (atUpperLimit()) {
-      elevatorMotor.set(-ElevatorConstants.correctionSpeed);
-    } else if (atLowerLimit()) {
-      elevatorMotor.set(ElevatorConstants.correctionSpeed);
-    } else {
-      elevatorMotor.set(elevatorSpeed);
-    }
+    // if (atUpperLimit()) {
+    //   elevatorMotor.set(-ElevatorConstants.correctionSpeed);
+    // } else if (atLowerLimit()) {
+    //   elevatorMotor.set(ElevatorConstants.correctionSpeed);
+    // } else {
+    //   elevatorMotor.set(elevatorSpeed);
+    // }
     
     elevatorHeight.setDouble(getEncoderVal());
     elevatorSpeedSender.setDouble(elevatorSpeed);
