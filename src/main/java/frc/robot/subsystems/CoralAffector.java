@@ -82,7 +82,6 @@ public class CoralAffector extends SubsystemBase {
     lockedSender.setBoolean(locked);
   }
 
-  /** Collect coral */
   public void collect() {
     coralAffector.set(AffectorConstants.coralAffectorInSpeed);
   }
