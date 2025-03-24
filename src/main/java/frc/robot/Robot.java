@@ -4,9 +4,7 @@ import edu.wpi.first.net.WebServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.IOConstants;
@@ -20,7 +18,6 @@ import au.grapplerobotics.CanBridge;
  */
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
-  // private double periodicCounter = 0;
 
   private RobotContainer m_robotContainer;
 
@@ -54,17 +51,20 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
-    //m_robotContainer.robotRelative();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
-  public void disabledInit() {
-    // m_robotContainer.setDriveOrientation(true);
-  }
+  public void disabledInit() {}
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    IOConstants.ConfigTab.add("FMSInfo", 0)
+                         .withWidget("FMSInfo")
+                         .getEntry();
+
+    m_robotContainer.setAliance(DriverStation.getAlliance().get());
+  }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
@@ -72,7 +72,6 @@ public class Robot extends TimedRobot {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     m_robotContainer.zeroWrist();
     Shuffleboard.selectTab(IOConstants.AutonTab.getTitle());
-    // m_robotContainer.setDriveTrainPoseEstimate();
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
@@ -90,18 +89,11 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-
-    // m_robotContainer.setDriveTrainPoseEstimate();
-    m_robotContainer.setDriveOrientation(true);
   }
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {
-    // m_robotContainer.setDriveOrientation(true);
-    // if (periodicCounter > 20) m_robotContainer.setDriveTrainPoseEstimate(); periodicCounter = 0;
-    // periodicCounter++;
-  }
+  public void teleopPeriodic() {}
 
   @Override
   public void testInit() {

@@ -4,11 +4,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.DriveTrain;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class ROBOTORIENT extends Command {
+public class ForceRobotOrientation extends Command {
   private final DriveTrain m_driveTrain;
 
-  /** Creates a new ROBOTORIENT. */
-  public ROBOTORIENT(DriveTrain driveTrain) {
+  /** Creates a new ForceRobotOrientation. */
+  public ForceRobotOrientation(DriveTrain driveTrain) {
     m_driveTrain = driveTrain;
     // Use addRequirements() here to declare subsystem dependencies.
   }

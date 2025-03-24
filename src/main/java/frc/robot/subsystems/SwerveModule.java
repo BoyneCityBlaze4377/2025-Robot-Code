@@ -19,6 +19,7 @@ import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
+
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IOConstants;
@@ -30,28 +31,22 @@ public class SwerveModule {
   private final SparkMax m_driveMotor;
   private final SparkMax m_turningMotor;
 
-  private SparkMaxConfig m_driveConfig, m_turnConfig;
+  private final RelativeEncoder m_driveEncoder, m_turningEncoder;
 
-  private AnalogInput absoluteEncoder;
+  private final SparkMaxConfig m_driveConfig, m_turnConfig;
+
+  private final AnalogInput absoluteEncoder;
 
   private double AnalogEncoderOffset, turningFactor;
-  private boolean driveInverted, turnReversed, absReversed;
+  private final boolean driveInverted, turnReversed, absReversed;
 
   private Rotation2d lastAngle;
-
-  private final RelativeEncoder m_driveEncoder, m_turningEncoder;
 
   private final SlewRateLimiter filter = new SlewRateLimiter(ModuleConstants.moduleDriveSlewRate);
   
   private final PIDController turningController;
 
   private final GenericEntry desiredStateSender, wheelAngle;
-  
-  // // Using a TrapezoidProfile PIDController to allow for smooth turning
-  // private final ProfiledPIDController m_turningPIDController = new ProfiledPIDController(
-  //     ModuleConstants.moduleTurningController, 0, 0, 
-  //         new TrapezoidProfile.Constraints(ModuleConstants.maxModuleAngularSpeedDegreesPerSecond,
-  //                                          ModuleConstants.maxModuleAngularAccelerationDegreesPerSecondSquared));
 
   /**
    * Constructs a SwerveModule.
@@ -68,16 +63,10 @@ public class SwerveModule {
   public SwerveModule(String name, int driveMotorChannel, int turningMotorChannel, 
                       int turningEncoderChannel, boolean driveMotorReversed, boolean turningMotorReversed, 
                       double encoderOffset, boolean absoluteEncoderReversed) {
-  
-    AnalogEncoderOffset = encoderOffset;
-    absoluteEncoder = new AnalogInput(turningEncoderChannel);
-    absReversed = absoluteEncoderReversed;
-
+    /** Name */
     m_name = name;
-
-    driveInverted = driveMotorReversed;
-    turnReversed = turningMotorReversed;
-
+    
+    /** Motors */
     m_driveMotor = new SparkMax(driveMotorChannel, MotorType.kBrushless);
     m_turningMotor = new SparkMax(turningMotorChannel, MotorType.kBrushless);
 
@@ -86,19 +75,30 @@ public class SwerveModule {
 
     m_driveEncoder = m_driveMotor.getEncoder();
     m_turningEncoder = m_turningMotor.getEncoder();
-
+    
+    driveInverted = driveMotorReversed;
+    turnReversed = turningMotorReversed;
+    
+    configAngleMotorDefault();
+    configDriveMotorDefault();
+    
+    /** PIDController */
     turningController = new PIDController(SwerveConstants.angleKP, 
                                           SwerveConstants.angleKD, 
                                           SwerveConstants.angleKI);
     turningController.setTolerance(SwerveConstants.kTolerance);
     turningController.enableContinuousInput(-180, 180);
 
-    configAngleMotorDefault();
-    configDriveMotorDefault();
+    /** Absolute Encoder */
+    absoluteEncoder = new AnalogInput(turningEncoderChannel);
+    AnalogEncoderOffset = encoderOffset;
+    absReversed = absoluteEncoderReversed;
 
+    /** DashBoard Initialization */
     wheelAngle = IOConstants.DiagnosticTab.add(m_name + "'s angle", getAbsoluteEncoder()).getEntry();
     desiredStateSender = IOConstants.DiagnosticTab.add(m_name + "'s desired state", getState().toString()).getEntry();
 
+    // LastAngle
     lastAngle = getState().angle;
   }
 

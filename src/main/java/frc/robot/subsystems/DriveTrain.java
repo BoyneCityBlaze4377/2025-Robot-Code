@@ -1,15 +1,18 @@
 package frc.robot.subsystems;
 
-import com.studica.frc.AHRS;
-import com.studica.frc.AHRS.NavXComType;
-
-import au.grapplerobotics.interfaces.LaserCanInterface;
-
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.ctre.phoenix6.hardware.Pigeon2;
+import frc.Lib.AdvancedPose2D;
+import frc.Lib.LimelightHelpers;
+import frc.Lib.LimelightHelpers.PoseEstimate;
+
+import com.studica.frc.AHRS;
+import com.studica.frc.AHRS.NavXComType;
+
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -20,15 +23,13 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.shuffleboard.ComplexWidget;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -38,13 +39,9 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import frc.Lib.AdvancedPose2D;
-import frc.Lib.LimelightHelpers;
-import frc.Lib.LimelightHelpers.PoseEstimate;
+
 import frc.robot.Constants.AutoAimConstants;
-import frc.robot.Constants.AutoAimConstants.Alignment;
-import frc.robot.Constants.AutoAimConstants.Position;
-import frc.robot.Constants.AutoAimConstants.ReefStation;
+import frc.robot.Constants.AutoAimConstants.*;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
@@ -59,7 +56,6 @@ public class DriveTrain extends SubsystemBase {
   private final SwerveModule m_frontLeft, m_frontRight, m_backLeft, m_backRight;
 
   // The gyro sensor
-  //private final AHRS m_gyro;
   private final AHRS m_gyro;
   private boolean fieldOrientation = true,
                   isLocked = false, slow = false, 
@@ -69,22 +65,16 @@ public class DriveTrain extends SubsystemBase {
 
   private AprilTagFieldLayout fieldLayout;
 
-  private final AutoAimSubsystem m_autoAimSubsystem;
-
-  // Odometry class for tracking robot pose
-  private final SwerveDriveOdometry m_odometry;
   private final SwerveDrivePoseEstimator poseEstimator;
 
   private final Field2d estimateField;
 
   private final Elevator m_elevator;
 
-  private final GenericEntry robotHeading, 
-                             //poseEstimate, 
-                             xSpeedSender, 
+  private final GenericEntry robotHeading, xSpeedSender, 
                              ySpeedSender, omegaSender, matchTime,
                              desPoseSender, desAlignSender, desStationSender,
-                             atDesPose, fmsInfo, orientationSender;
+                             atDesPose, orientationSender;
 
   private final PIDController xController = new PIDController(AutoAimConstants.transkP,
                                                               AutoAimConstants.transkI,
@@ -99,17 +89,16 @@ public class DriveTrain extends SubsystemBase {
   private AdvancedPose2D initialPose = new AdvancedPose2D();
 
   // From AAS
-  private double tx, ty, ta, tID, dis;
+  private double tx, ty, ta, tID;
   private final String cameraName;
   private Alliance m_alliance;
-  //private final LaserCan laserCan;
-  private LaserCanInterface.Measurement lcMeasurement;
   private AdvancedPose2D desiredPose;
   private Alignment desiredAlignment;
   private ReefStation estimatedStation;
     
   /** Creates a new DriveTrain. */
-  public DriveTrain(Elevator elevator, AutoAimSubsystem autoAimSubsystem, String limelightName) {
+  public DriveTrain(Elevator elevator, String limelightName) {
+    /* Swerve Modules */
     m_frontLeft = new SwerveModule("frontLeft", ModuleConstants.frontLeftDriveMotorPort, 
                                                      ModuleConstants.frontLeftTurningMotorPort,
                                                      ModuleConstants.frontLeftTurningEncoderPort, 
@@ -142,37 +131,39 @@ public class DriveTrain extends SubsystemBase {
                                                      ModuleConstants.backRightAnalogEncoderOffset, 
                                                      ModuleConstants.backRightAbsReversed);
 
-    //m_gyro = new Pigeon2(SensorConstants.gyroID);
+    brakeAll();
+    resetEncoders();
+
+    // DriveTrain GyroScope
     m_gyro = new AHRS(NavXComType.kMXP_SPI);
+    zeroHeading();
 
+    /* Pose Estimation Stuff */
     estimateField = new Field2d();
-
-    m_autoAimSubsystem = autoAimSubsystem;
-    desiredAlignment = Alignment.left;
-    desiredPose = new AdvancedPose2D();
-    estimatedStation = ReefStation.front;
-
-    m_odometry = new SwerveDriveOdometry(DriveConstants.driveKinematics, m_gyro.getRotation2d(),
-                                         getSwerveModulePositions());
     poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.driveKinematics, m_gyro.getRotation2d(), 
                                                  getSwerveModulePositions(), initialPose,
                                                  AutoAimConstants.poseEstimateOdometryStdDev,
-                                                 AutoAimConstants.poseEstimateVisionStdDev);
-                                                 
+                                                 AutoAimConstants.poseEstimateVisionStdDev);            
     estimateField.setRobotPose(poseEstimator.getEstimatedPosition());
-
     try {
       fieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2025Reefscape.m_resourceFile);
       fieldLayout.setOrigin(new Pose3d());
     } catch (IOException e) {}
 
+    // AutoAiming
+    estimatedStation = isBlue ? AutoAimConstants.blueReefStationFromAngle.get(getEstimatedStationAngle()) 
+                              : AutoAimConstants.redReefStationFromAngle.get(getEstimatedStationAngle());
+    desiredPose = isBlue ? AutoAimConstants.blueReef.get(estimatedStation) 
+                         : AutoAimConstants.redReef.get(estimatedStation);
+    desiredAlignment = Alignment.left;
+
+    /* DashBoard Initialization */
     robotHeading = IOConstants.TeleopTab.add("Robot Heading", heading)
                                         .withWidget("Radial Gauge")
                                         .withProperties(Map.of("start_angle", -180, "end_angle", 180,
                                                                "min_value", -180, "max_value", 180,
                                                                "wrap_value", true, "show_pointer", true))
                                         .getEntry();
-    SmartDashboard.putData("Field Position", estimateField);
     xSpeedSender = IOConstants.TeleopTab.add("xSpeed", 0)
                                         .withWidget("Number Slider")
                                         .withProperties(Map.of("min_value", -1, "max_value", 1))
@@ -201,51 +192,12 @@ public class DriveTrain extends SubsystemBase {
     atDesPose = IOConstants.TeleopTab.add("At Desired Pose", false)
                                      .withWidget("Boolean Box")
                                      .getEntry();
-    fmsInfo = IOConstants.ConfigTab.add("FMSInfo", 0)
-                                   .withWidget("FMSInfo")
-                                   .getEntry();
     orientationSender = IOConstants.TeleopTab.add("Field Oriented?", true)
                                              .withWidget("Boolean Box")
                                              .getEntry();
+    SmartDashboard.putData("Field Position", estimateField);
 
-    // zeroHeading();
-    brakeAll();
-    fieldOrientation = true;
-    isLocked = false;
-    useScalers = false;
-    speedScaler = DriveConstants.speedScaler;
-    slow = false;
-    resetEncoders();
-
-    m_elevator = elevator;
-    elevatorHeight = m_elevator.getEncoderVal();
-
-    m_gyro.reset();
-
-    xController.setTolerance(AutoAimConstants.transkTolerance);
-    yController.setTolerance(AutoAimConstants.transkTolerance);
-    headingController.setTolerance(AutoAimConstants.turnkTolerance);
-    headingController.enableContinuousInput(-Math.PI, Math.PI);
-
-    x = 0;
-    y = 0;
-    omega = 0;
-
-    //From AAS
-    cameraName = limelightName;
-    m_alliance = Alliance.Blue;
-    // laserCan = new LaserCan(17);
-
-    // try {laserCan.setRangingMode(RangingMode.SHORT);} catch (ConfigurationFailedException e) {}
-
-    // lcMeasurement = laserCan.getMeasurement();
-    // dis = -1;
-
-    LimelightHelpers.SetRobotOrientation(cameraName, initialPose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
-
-    // NetworkTableInstance.getDefault().getTable("limelight").getEntry("camera_robotspace_set")
-    //                 .setDoubleArray(SensorConstants.limelightRobotSpacePose);
-
+    //SwerveDrive Widget
     SmartDashboard.putData("Swerve Drive", new Sendable() {
       @Override
       public void initSendable(SendableBuilder builder) {
@@ -266,6 +218,36 @@ public class DriveTrain extends SubsystemBase {
         builder.addDoubleProperty("Robot Angle", () -> m_gyro.getRotation2d().getRadians(), null);
       }
     });
+
+    /* PID Controllers */
+    xController.setTolerance(AutoAimConstants.transkTolerance);
+    yController.setTolerance(AutoAimConstants.transkTolerance);
+    headingController.setTolerance(AutoAimConstants.turnkTolerance);
+    headingController.enableContinuousInput(-Math.PI, Math.PI);
+
+    /* LimeLight Initialization */
+    cameraName = limelightName;
+
+    LimelightHelpers.SetRobotOrientation(cameraName, initialPose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
+
+    // NetworkTableInstance.getDefault().getTable("limelight").getEntry("camera_robotspace_set")
+    //                 .setDoubleArray(SensorConstants.limelightRobotSpacePose);
+
+    fieldOrientation = true;
+    isLocked = false;
+    useScalers = false;
+    slow = false;
+
+    m_elevator = elevator;
+    elevatorHeight = m_elevator.getEncoderVal();
+
+    x = 0;
+    y = 0;
+    omega = 0;
+
+    speedScaler = DriveConstants.speedScaler;
+
+    m_alliance = Alliance.Blue;
   }
 
   @Override
@@ -281,11 +263,16 @@ public class DriveTrain extends SubsystemBase {
 
     heading = m_gyro.getAngle();
 
-    isBrake = m_frontLeft.getIdleMode() == IdleMode.kBrake;
-
-    updateOdometry();
+    /* Pose Estimation */
     estimateField.setRobotPose(poseEstimator.getEstimatedPosition());
-    elevatorHeight = m_elevator.getEncoderVal();
+    poseEstimator.update(m_gyro.getRotation2d(), getSwerveModulePositions());
+    if (getPoseEstimate().get().tagCount >= 1) {
+      poseEstimator.addVisionMeasurement(getPoseEstimate().get().pose, 
+                                         getPoseEstimate().get().timestampSeconds);
+    }
+
+    estimateField.setRobotPose(poseEstimator.getEstimatedPosition());
+    estimateField.getObject("desired").setPose(desiredPose.withReefAlignment(desiredAlignment, false));
 
     /** Dashboard Posting */
     robotHeading.setDouble(heading);
@@ -296,34 +283,7 @@ public class DriveTrain extends SubsystemBase {
     matchTime.setDouble(DriverStation.getMatchTime());
     orientationSender.setBoolean(fieldOrientation);
 
-    // Update the odometry in the periodic block
-    m_odometry.update(m_gyro.getRotation2d(), getSwerveModulePositions());
-    poseEstimator.update(m_gyro.getRotation2d(), getSwerveModulePositions());
-    if (getPoseEstimate().get().pose != Pose2d.kZero) {
-      poseEstimator.addVisionMeasurement(getPoseEstimate().get().pose, 
-                                         getPoseEstimate().get().timestampSeconds);
-    }
-
-    //poseEstimate.setValue(poseEstimator.getEstimatedPosition().toString());
-    estimateField.setRobotPose(poseEstimator.getEstimatedPosition());
-    estimateField.getObject("desired").setPose(desiredPose.withReefAlignment(desiredAlignment, 
-                                                    m_elevator.getCurrentPosition() == Position.L4));
-
-
-    //drive
-    rawDrive(x , y, omega, fieldOrientation, useScalers);
-
-    periodicTimer ++;
-
-    // SmartDashboard.putBoolean("INRANGE", autonInRange);
-    // SmartDashboard.putBoolean("Orientation", fieldOrientation);
-    // SmartDashboard.putBoolean("NAVX", m_gyro.isConnected());
-    // SmartDashboard.putBoolean("CAlib", m_gyro.isCalibrating());
-
-    heading = m_gyro.getAngle();
-
-    autonInRange = Math.hypot(xController.getError(), yController.getError()) <= AutonConstants.inRangeThreshold;
-
+    // Determine whether the StraightDrive function is inverted based on elevator position
     switch (m_elevator.getCurrentPosition()) {
       case processor:
         straightDriveBackwards = true;
@@ -351,7 +311,6 @@ public class DriveTrain extends SubsystemBase {
         break;
     }
 
-    //From AAS
     /* LIMELIGHT */
     NetworkTable table = NetworkTableInstance.getDefault().getTable(SensorConstants.limeLightName);
     tx = table.getEntry("tx").getDouble(0);
@@ -359,19 +318,36 @@ public class DriveTrain extends SubsystemBase {
     ta = table.getEntry("ta").getDouble(0);
     tID = table.getEntry("fID").getDouble(0);
 
-    /* LaserCAN */
-    // lcMeasurement = laserCan.getMeasurement();
-    // dis = lcMeasurement != null && lcMeasurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT 
-    //       ? lcMeasurement.distance_mm : -1;
+    LimelightHelpers.SetRobotOrientation(cameraName, m_gyro.getRotation2d().getDegrees(), 
+                                         0, 0, 0, 0, 0);
 
     estimatedStation = isBlue ? AutoAimConstants.blueReefStationFromAngle.get(getEstimatedStationAngle()) 
                               : AutoAimConstants.redReefStationFromAngle.get(getEstimatedStationAngle());
     desiredPose = isBlue ? AutoAimConstants.blueReef.get(estimatedStation) 
                          : AutoAimConstants.redReef.get(estimatedStation);
+    
+    // Update random stuff
+    autonInRange = Math.hypot(xController.getError(), yController.getError()) <= AutonConstants.inRangeThreshold;
 
-    LimelightHelpers.SetRobotOrientation(cameraName, heading, 0, 0, 0, 0, 0);
+    isBrake = m_frontLeft.getIdleMode() == IdleMode.kBrake;
+
+    elevatorHeight = m_elevator.getEncoderVal();
+
+    // Drive Robot
+    rawDrive(x , y, omega, fieldOrientation, useScalers);
+
+    periodicTimer++;
   }
 
+  /**
+   * The function that sets the raw speeds of the DriveTrain
+   * 
+   * @param xSpeed Speed on the x-axis in Meters per Second
+   * @param ySpeed Speed on the y-axis in Meters per Second
+   * @param omega Rotational speed in Radians per Second
+   * @param fieldRelative Whether to drive field oriented or not
+   * @param scale Whether to use Elevator Height Scalers
+   */
   private void rawDrive(double xSpeed, double ySpeed, double omega, boolean fieldRelative, boolean scale) {
     if (scale) {
       xSpeed *= calcTransHeightScaler(elevatorHeight);
@@ -390,6 +366,12 @@ public class DriveTrain extends SubsystemBase {
     omegaSender.setDouble(omega);
   }
 
+
+  /**
+   * Drive the robot back and forth
+   * 
+   * @param xSpeed The speed at which to drive
+   */
   public void straightDrive(double xSpeed) {
     x = xSpeed * (straightDriveBackwards ? -1 : 1);
     y = 0;
@@ -410,7 +392,7 @@ public class DriveTrain extends SubsystemBase {
     y = ySpeed * DriveConstants.maxSpeedMetersPerSecond * speedScaler;
     omega = rot * DriveConstants.maxRotationSpeedRadiansPerSecond * speedScaler;
 
-    useScalers = true;
+    setUseScalers(true);
   }
 
   /**
@@ -419,28 +401,57 @@ public class DriveTrain extends SubsystemBase {
    * @param xSpeed Speed of the robot in the x direction (forward).
    * @param ySpeed Speed of the robot in the y direction (sideways).
    * @param rot Angular rate of the robot.
+   * @param scale Whether to use Height Speed Scalers
    */
-  public void autonDrive(double xSpeed, double ySpeed, double rot) {
+  public void autonDrive(double xSpeed, double ySpeed, double rot, boolean scale) {
     brakeAll();
     x = xSpeed;
     y = ySpeed;
     omega = rot;
+    setUseScalers(scale);
   }
 
+  /**
+   * Drive based on a ChassisSpeeds object
+   * 
+   * @param speeds The desired ChassisSpeeds of the DriveTrain
+   */
   public void chassisSpeedDrive(ChassisSpeeds speeds) {
     brakeAll();
     x = speeds.vxMetersPerSecond;
     y = speeds.vyMetersPerSecond;
     omega = speeds.omegaRadiansPerSecond;
-    useScalers = true;
+    setUseScalers(true);
   }
 
+  /**
+   * Set the setpoints of all drive PIDControllers
+   * 
+   * @param xSetpoint The setpoint for the controller of the x-coordinate
+   * @param ySetpoint The setpoint for the controller of the y-coordinate
+   * @param headingSetpoint The setpoint for the controller of the robot's heading
+   */
   public void setPIDSetpoints(double xSetpoint, double ySetpoint, double headingSetpoint) {
     xController.setSetpoint(xSetpoint);
     yController.setSetpoint(ySetpoint);
     headingController.setSetpoint(headingSetpoint);
   }
 
+  /**
+   * Set the setpoints of all drive PIDControllers from a desired position on the field
+   * 
+   * @param pose The desired position
+   */
+  public void setPoseSetpoints(AdvancedPose2D pose) {
+    setPIDSetpoints(pose.getX(), pose.getY(), pose.getRotation().getRadians());
+  }
+
+  /** Set the setpoints of all drive PIDControllers based on the currently determined AutoAimDrive pose */
+  public void setAutoAimDriveSetpoints() {
+    setPoseSetpoints(getAutoAimPose());
+  }
+
+  /** Drive the robot based on PIDController outputs */
   public void PIDDrive() {
     x = MathUtil.clamp(xController.calculate(getPose().getX()), -AutoAimConstants.maxPIDDriveSpeed, 
                                                                  AutoAimConstants.maxPIDDriveSpeed);
@@ -450,9 +461,10 @@ public class DriveTrain extends SubsystemBase {
                                                       -AutoAimConstants.maxPIDRot, 
                                                        AutoAimConstants.maxPIDRot);
 
-    useScalers = false;
+    setUseScalers(false);
   }
 
+  /** @return Whether or not the robot is at its desired position based on PIDController setpoints and tolerances */
   public boolean atSetpoints() {
     return xController.atSetpoint() && yController.atSetpoint() && headingController.atSetpoint();
   }
@@ -471,6 +483,7 @@ public class DriveTrain extends SubsystemBase {
     m_backRight.setDesiredState(desiredStates[3], isNeutral);
   }
 
+  /** @return An array of the modules' positions */
   public SwerveModulePosition[] getSwerveModulePositions() {
     return new SwerveModulePosition[] {m_frontLeft.getPosition(), m_frontRight.getPosition(),
                                        m_backLeft.getPosition(), m_backRight.getPosition()};
@@ -488,9 +501,7 @@ public class DriveTrain extends SubsystemBase {
     m_backRight.setAngle(desiredStates[3], false);
   }
 
-  /** 
-   * Sets the pose of the robot to be locked: all modules' angles form an X
-   */
+  /** Sets the pose of the robot to be locked: all modules' angles form an X */
   public void lockPose() {
     m_frontLeft.setLockedState(new SwerveModuleState(0, Rotation2d.fromDegrees(225)));
     m_frontRight.setLockedState(new SwerveModuleState(0, Rotation2d.fromDegrees(315)));
@@ -498,6 +509,7 @@ public class DriveTrain extends SubsystemBase {
     m_backRight.setLockedState(new SwerveModuleState(0, Rotation2d.fromDegrees(225)));
   }
 
+  /** @return The current ChassisSpeeds of the DriveTrain */
   public ChassisSpeeds getChassisSpeeds() {
     return fieldOrientation ? ChassisSpeeds.fromFieldRelativeSpeeds(x, y, omega, m_gyro.getRotation2d()) 
                             : new ChassisSpeeds(-x, -y, omega);
@@ -521,7 +533,7 @@ public class DriveTrain extends SubsystemBase {
     speedScaler *= scaler;
   }
 
-  /**@return The Drivetrain's current SpeedScaler */
+  /** @return The Drivetrain's current SpeedScaler */
   public synchronized double getSpeedScaler() {
     return speedScaler;
   }
@@ -535,31 +547,31 @@ public class DriveTrain extends SubsystemBase {
     slow = isSlow;
   }
 
+  /**
+   * Set the angle offset of the drive gyroscope
+   * 
+   * @param offsetDeg The desired offset for the gyro
+   */
   public void setOffset(double offsetDeg) {
     m_gyro.setAngleAdjustment(offsetDeg);
   }
 
-  /**
-   * Returns the currently-estimated pose of the robot.
-   *
-   * @return The pose.
-   */
+  /** @return The pose */
   public synchronized Pose2d getPose() {
     return poseEstimator.getEstimatedPosition();
-    //return m_odometry.getPoseMeters();
   }
 
-  /**
-   * Resets the odometry to the specified pose.
-   *
-   * @param pose The pose to which to set the odometry.
-   */
-  public void setOdometry(Pose2d pose) {
-    m_odometry.resetPosition(m_gyro.getRotation2d(), getSwerveModulePositions(), pose);
+  /** Display the trajectory from the DriveTrain's current pose to its AutoAimPose on the DashBoard */
+  public void displayTrajectory() {
+    List<State> poses = new ArrayList<>();
+    poses.add(new State(0, 0, 0, getPoseEstimate().get().pose, 0));
+    poses.add(new State(0, 0, 0, desiredPose.withReefAlignment(desiredAlignment, false), 0));
+    estimateField.getObject("Traj").setTrajectory(new Trajectory(poses));
   }
 
-  private void updateOdometry() {
-    m_odometry.update(m_gyro.getRotation2d(), getSwerveModulePositions());
+  /** Hide the trajectory from the DriveTrain's current pose to its AutoAimPose from the DashBoard */
+  public void unDisplayTrajectory() {
+    estimateField.getObject("Traj").setTrajectory(null);
   }
 
    /** Switches the idle modes of all modlues' drive motors */
@@ -637,55 +649,62 @@ public class DriveTrain extends SubsystemBase {
     fieldOrientation = isFieldOriented;
   }
 
+  /** @return Whether or not the DriveTrain is field oriented */
   public synchronized boolean isFieldOriented() {
     return fieldOrientation;
   }
 
-  // /**
-  //  * Sets the offset of the gyro.
-  //  * 
-  //  * @param offsetDegrees The number of degrees to offset by.
-  //  */
-  // public void setGyroOffset(double offsetDegrees) {
-  //   m_gyro.setAngleAdjustment(offsetDegrees);
-  // }
-
-  // /** Zeroes the heading of the robot */
-  // public void zeroHeading() {
-  //   m_gyro.setYaw(0);
-  // }
+  /**
+   * Set whether or not to use the Height Speed Scalers
+   * 
+   * @param scale
+   */
+  public synchronized void setUseScalers(boolean scale) {
+    useScalers = scale;
+  }
 
   /**
-   * Returns the heading of the robot.
-   *
-   * @return The robot's heading in degrees, from -180 to 180
+   * Sets the offset of the gyro.
+   * 
+   * @param offsetDegrees The number of degrees to offset by.
    */
+  public void setGyroOffset(double offsetDegrees) {
+    m_gyro.setAngleAdjustment(offsetDegrees);
+  }
+
+  /** Zeroes the heading of the robot */
+  public void zeroHeading() {
+    m_gyro.reset();
+  }
+
+  /** @return The filtered robot heading in degrees, from -180 to 180 */
   public synchronized double getHeading() {
     return heading;
   }
 
+  /** @return The unfiltered heading of the robot */
   public synchronized double getRawHeading() {
     return m_gyro.getAngle();
   }
 
-  //  /** @return The roll of the gyro */
-  //  public double getRoll(){
-  //   return m_gyro.getRoll();
-  // }
+   /** @return The roll of the gyro */
+   public double getRoll(){
+    return m_gyro.getRoll();
+  }
   
-  // /** @return The pitch of the gyro */
-  // public double getPitch(){
-  //   return m_gyro.getPitch();
-  // }
+  /** @return The pitch of the gyro */
+  public double getPitch(){
+    return m_gyro.getPitch();
+  }
 
-  // /**
-  //  * Returns the turn rate of the robot.
-  //  *
-  //  * @return The turn rate of the robot, in degrees per second.
-  //  */
-  // public double getTurnRate() {
-  //   return m_gyro.getAngularVelocityZWorld().getValueAsDouble() * (DriveConstants.gyroReversed ? -1.0 : 1.0);
-  // }
+  /**
+   * Returns the turn rate of the robot.
+   *
+   * @return The turn rate of the robot, in degrees per second.
+   */
+  public double getTurnRate() {
+    return m_gyro.getRate() * (DriveConstants.gyroReversed ? -1.0 : 1.0);
+  }
 
   /** @return The average distance of all modules */
   public double getAverageDistance(){
@@ -694,26 +713,45 @@ public class DriveTrain extends SubsystemBase {
     
   }
 
+  /** @return Whether or not the robot is close enough to bring up the elevator in auton */
   public boolean getInRange() {
     return autonInRange;
   }
 
+  /** Set whether or not the robot is close enough to bring up the elevator in auton */
   public void setInRange(boolean isInRange) {
     autonInRange = isInRange;
   }
 
+  /**
+   * Calculate the amount by which to scale the DriveTrain's translational speed based on the elevator's height
+   * 
+   * @param height The current height of the elevator
+   * @return The calculated translational speed scaler
+   */
   public double calcTransHeightScaler(double height) {
     return ((DriveConstants.minDriveSpeed - DriveConstants.maxDriveSpeed) / 
              Math.pow(ElevatorConstants.upperLimit - ElevatorConstants.lowerLimit, 2)) * 
              Math.pow(height - ElevatorConstants.lowerLimit, 2) + DriveConstants.maxDriveSpeed;
   }
 
+  /**
+   * Calculate the amount by which to scale the DriveTrain's rotational speed based on the elevator's height
+   * 
+   * @param height The current height of the elevator
+   * @return The calculated rotational speed scaler
+   */
   public double calcRotHeightScaler(double height) {
     return ((DriveConstants.minRotSpeed - DriveConstants.maxRotSpeed) / 
              Math.pow(ElevatorConstants.upperLimit - ElevatorConstants.lowerLimit, 2)) * 
              Math.pow(height - ElevatorConstants.lowerLimit, 2) + DriveConstants.maxRotSpeed;
   }
 
+  /**
+   * Determine the estimated ReefStation of the DriveTrain for AutoAim
+   * 
+   * @return The angle of the estimated ReefStation of the DriveTrain
+   */
   public double getEstimatedStationAngle() {
     double prevError = 180;
     double selectedAngle = 0;
@@ -728,39 +766,46 @@ public class DriveTrain extends SubsystemBase {
     return selectedAngle;
   }
 
+  // private Optional<Pose2d> getEstimatedPose2dBlue() {
+  //   LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue(cameraName);
+  //   return Optional.of(new Pose3d(new Translation3d(mt2.pose.getTranslation()), new Rotation3d(mt2.pose.getRotation())).toPose2d());
+  // }
 
-  //FromAAS
-  private Optional<Pose2d> getEstimatedPose2dBlue() {
-    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue(cameraName);
-    return Optional.of(new Pose3d(new Translation3d(mt2.pose.getTranslation()), new Rotation3d(mt2.pose.getRotation())).toPose2d());
-  }
-
+  /**
+   * Get the LimeLight-based PoseEstimate of the robot while on the Blue Alliance
+   * 
+   * @return The PoseEstimate for the Blue Alliance
+   */
   private Optional<PoseEstimate> getPoseEstimateBlue() {
     return Optional.of(LimelightHelpers.getBotPoseEstimate_wpiBlue(cameraName));
   }
 
-  private Optional<Pose2d> getEstimatedPose2dRed() {
-    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiRed(cameraName);
-    return Optional.of(new Pose3d(new Translation3d(mt2.pose.getTranslation()), new Rotation3d(mt2.pose.getRotation())).toPose2d());
-  }
+  // private Optional<Pose2d> getEstimatedPose2dRed() {
+  //   LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiRed(cameraName);
+  //   return Optional.of(new Pose3d(new Translation3d(mt2.pose.getTranslation()), new Rotation3d(mt2.pose.getRotation())).toPose2d());
+  // }
 
+  /**
+   * Get the LimeLight-based PoseEstimate of the robot while on the Red Alliance
+   * 
+   * @return The PoseEstimate for the Red Alliance
+   */
   private Optional<PoseEstimate> getPoseEstimateRed() {
     return Optional.of(LimelightHelpers.getBotPoseEstimate_wpiRed(cameraName));
   }
 
-  public Optional<Pose2d> getEstimatedPose2d() {
-    return isBlue ? getEstimatedPose2dBlue() : getEstimatedPose2dRed();
-  }
+  // public Optional<Pose2d> getEstimatedPose2d() {
+  //   return isBlue ? getEstimatedPose2dBlue() : getEstimatedPose2dRed();
+  // }
 
+  /**
+   * Get the Vision Estimated Position of the robot
+   * 
+   * @return The Vision Estimated Position of the Robot
+   */
   public Optional<PoseEstimate> getPoseEstimate() {
     return isBlue ? getPoseEstimateBlue() : getPoseEstimateRed();
   }
-
-  // public double getDistanceMeasurementmm() {
-  //   return lcMeasurement != null && lcMeasurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT 
-  //                                   ? (((dis / 1000) - AutoAimConstants.LCToBumperEdgeOffsetMeters) * 1000) 
-  //                                   : -1;
-  // }
 
   public double getTX() {
     return tx;
@@ -778,46 +823,73 @@ public class DriveTrain extends SubsystemBase {
     return tID;
   }
 
+  /**
+   * Set the desired position of the DriveTrain
+   * 
+   * @param pose The desired position
+   */
   public synchronized void setDesiredPose(AdvancedPose2D pose) {
     desiredPose = pose;
   }
 
+  /**
+   * Set the desired alignment of the desired pose for the DriveTrain
+   * 
+   * @param alignment
+   */
   public synchronized void setDesiredAlignment(Alignment alignment) {
     desiredAlignment = alignment;
   }
 
+  /** @return The desired position of the DriveTrain */
   public synchronized AdvancedPose2D getDesiredPose() {
     return desiredPose;
   }
 
+  /** @return The desired alignment of the desired pose for the DriveTrain */
   public synchronized Alignment getDesiredAlignment() {
     return desiredAlignment;
   }
 
+  
+  /** @return The current AutoAimPose of the robot */
+  public synchronized AdvancedPose2D getAutoAimPose() {
+    return desiredPose.withReefAlignment(desiredAlignment, false);
+  }
+
+  /**
+   * Set the initial pose of the DriveTrain
+   * 
+   * @param pose The initial pose
+   */
   public synchronized void setInitialPose(AdvancedPose2D pose) {
     poseEstimator.resetPose(pose);
     m_gyro.setAngleAdjustment(pose.getRotation().getDegrees());
     initialPose = pose;
   }
 
-  public synchronized AdvancedPose2D getAutoAimPose() {
-    return desiredPose.withReefAlignment(desiredAlignment, false);
-  }
-
+  /** @return The desired ReefStation of the robot */
   public synchronized ReefStation getDesiredStation() {
     return estimatedStation;
   }
 
+  /**
+   * Set the Alliance for the match
+   * 
+   * @param alliance The Alliance
+   */
   public synchronized void setAlliance(Alliance alliance) {
     m_alliance = alliance;
     isBlue = m_alliance == Alliance.Blue;
   }
 
+  /** @return The Alliance for the current match */
   public synchronized Alliance getAlliance() {
     return m_alliance;
   }
 
-  public synchronized void setUseScalers(boolean scale) {
-    useScalers = scale;
+  /** @return The height of the elevator */
+  public Position elevatorPos() {
+    return m_elevator.getCurrentPosition();
   }
 }

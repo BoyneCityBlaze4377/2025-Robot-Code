@@ -39,11 +39,11 @@ public final class Constants {
     /* Driver */
     public static final int quickBrakeButtonID = 6; //6
     public static final int slowModeButtonID = 3; //3
-    // public static final int switchBrakeButtonID = 5; //5
     public static final int switchOrientationButtonID = 4; //4
     public static final int lockPoseButtonID = 5; //5
     public static final int straightDriveButtonID = 2; //2
     public static final int autoDriveButtonID = 1; //1
+    public static final int robotOrientButtonID = 0; //
 
     //Alignments left,11 right,12 center,10
     public static final int leftAlignButtonID = 11;
@@ -279,7 +279,7 @@ public final class Constants {
     public static final AdvancedPose2D blueProcessor = new AdvancedPose2D(autonLineDistance - Units.inchesToMeters(61.76), 
                                                                           DriveConstants.trackWidth / 2 + AutoAimConstants.algaePosBackset,
                                                                          -90);
-    public static final AdvancedPose2D redprocessor = blueProcessor.flipBoth();
+    public static final AdvancedPose2D redProcessor = blueProcessor.flipBoth();
 
     public static final double coralStationWidth = Units.inchesToMeters(79.76);
     public static final double coralStationTotalX = autonLineDistance - Units.inchesToMeters(231.66); //65.84

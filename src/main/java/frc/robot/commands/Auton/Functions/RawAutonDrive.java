@@ -46,7 +46,7 @@ public class RawAutonDrive extends Command {
       rot = 0;
     }
 
-    m_driveTrain.autonDrive(xSpeed, ySpeed, rot);
+    m_driveTrain.autonDrive(xSpeed, ySpeed, rot, false);
   }
 
   // Called once the command ends or is interrupted.

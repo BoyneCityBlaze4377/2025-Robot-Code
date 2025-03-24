@@ -19,6 +19,6 @@ public class SetGyroOffset extends InstantCommand {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    //m_driveTrain.setGyroOffset(m_offset);
+    m_driveTrain.setGyroOffset(m_offset);
   }
 }
