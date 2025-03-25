@@ -34,17 +34,21 @@ public class AdvancedPose2D extends Pose2d {
                                                     this.getTranslation().getY()),
                                   Rotation2d.fromDegrees((this.getRotation().getDegrees() > 0) ?
                                                           180 - this.getRotation().getDegrees() :
-                                                          -(180 + this.getRotation().getDegrees())));
+                                                        -(180 + this.getRotation().getDegrees())));
     }
 
     public AdvancedPose2D verticallyFlip() {
         return new AdvancedPose2D(new Translation2d(this.getTranslation().getX(),
                                                     FieldConstants.fieldWidth - this.getTranslation().getY()), 
-                                                    this.getRotation());
+                                                    Rotation2d.fromDegrees(-this.getRotation().getDegrees()));
     }
 
     public AdvancedPose2D flipBoth() {
-        return this.horizontallyFlip().verticallyFlip();
+        return new AdvancedPose2D(new Translation2d(FieldConstants.fieldLength - this.getTranslation().getX(),
+                                                    FieldConstants.fieldWidth - this.getTranslation().getY()),
+                                  Rotation2d.fromDegrees((this.getRotation().getDegrees() > 0) ?
+                                                          this.getRotation().getDegrees() - 180 :
+                                                          this.getRotation().getDegrees() + 180));
     }
 
     /**
@@ -67,15 +71,16 @@ public class AdvancedPose2D extends Pose2d {
      * @return the transformed {@link AdvancedPose2D} object
      */
     public AdvancedPose2D withRobotRelativeTransformation(Translation2d transformation) {
-        return this.withVector(this.getRotation().minus(Rotation2d.fromDegrees(90)), transformation, this.getRotation()); // minus 90 because 0 axis changes to Y
+        return this.withVector(this.getRotation(), transformation, this.getRotation());
     }
 
     public AdvancedPose2D withReefAlignment(Alignment alignment, boolean isL4) {
         double backset = alignment == Alignment.center ? AutoAimConstants.algaePosBackset : -AutoAimConstants.coralPosBackset;
+        if (alignment == Alignment.blank) backset = 0;
         return new AdvancedPose2D(this.withRobotRelativeTransformation(new Translation2d(AutoAimConstants.offsetFromAlignment.get(alignment),
                                                                        (isL4 ? -.003 : backset))).getTranslation(),
                                                                        Rotation2d.fromDegrees(this.getRotation().getDegrees() +
-                                                                       (alignment == Alignment.center ? 180 : 0)));
+                                                                       (alignment == Alignment.center ? (this.getRotation().getDegrees() <= -180 ? 180 : -180) : 0)));
     }
 
     public double getDistance(AdvancedPose2D other) {

@@ -59,11 +59,11 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
-    IOConstants.ConfigTab.add("FMSInfo", 0)
-                         .withWidget("FMSInfo")
-                         .getEntry();
+    // IOConstants.ConfigTab.add("FMSInfo", 0)
+    //                      .withWidget("FMSInfo")
+    //                      .getEntry();
 
-    m_robotContainer.setAliance(DriverStation.getAlliance().get());
+    m_robotContainer.setAliance(DriverStation.getAlliance());
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */

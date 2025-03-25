@@ -93,6 +93,8 @@ public class SwerveModule {
     AnalogEncoderOffset = encoderOffset;
     absReversed = absoluteEncoderReversed;
 
+    resetEncoders();
+
     /** DashBoard Initialization */
     wheelAngle = IOConstants.DiagnosticTab.add(m_name + "'s angle", getAbsoluteEncoder()).getEntry();
     desiredStateSender = IOConstants.DiagnosticTab.add(m_name + "'s desired state", getState().toString()).getEntry();
@@ -228,7 +230,6 @@ public class SwerveModule {
 
     configAngleMotor();
     Timer.delay(1);
-    resetEncoders();
   }
 
   /** Sets the default configuration of the drive motor. */

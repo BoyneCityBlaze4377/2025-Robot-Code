@@ -10,6 +10,7 @@ import frc.robot.subsystems.DriveTrain;
 public class SelectDesiredAlignment extends InstantCommand {
   private final DriveTrain m_driveTrain;
   private final Alignment desired;
+  
   public SelectDesiredAlignment(DriveTrain driveTrain, Alignment desiredAlignment) {
     m_driveTrain = driveTrain;
     desired = desiredAlignment;

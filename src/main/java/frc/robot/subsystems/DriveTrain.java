@@ -48,6 +48,7 @@ import frc.robot.Constants.AutoAimConstants.*;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.Constants.ModuleConstants;
 import frc.robot.Constants.SensorConstants;
@@ -81,14 +82,14 @@ public class DriveTrain extends SubsystemBase {
   private final String cameraName;
   private Alliance m_alliance;
 
-  private AdvancedPose2D initialPose = AutonConstants.initialPoseBlueRight;
+  private AdvancedPose2D initialPose = AutonConstants.initialPoseBlueLeft;
   private AdvancedPose2D desiredPose;
   private Alignment desiredAlignment;
   private ReefStation estimatedStation;
 
   private boolean fieldOrientation = true, isLocked = false, slow = false, 
                   isBrake = true, autonInRange = false, useScalers = false, 
-                  straightDriveBackwards = false, isBlue = true, notified = false;
+                  straightDriveBackwards = false, isBlue = false, notified = false;
 
   private double tx, ty, ta, tID, speedScaler, heading, x, y, omega,  elevatorHeight;
   private int periodicTimer = 1;
@@ -133,12 +134,14 @@ public class DriveTrain extends SubsystemBase {
 
     // DriveTrain GyroScope
     m_gyro = new AHRS(NavXComType.kMXP_SPI);
-    zeroHeading();
+    m_gyro.setAngleAdjustment(initialPose.getRotation().getDegrees());
+    heading = MathUtil.angleModulus(m_gyro.getAngle() * Math.PI / 180) * 180 / Math.PI;
 
     /* Pose Estimation Stuff */
     estimateField = new Field2d();
-    poseEstimator = new SwerveDrivePoseEstimator(SwerveConstants.driveKinematics, m_gyro.getRotation2d(), 
-                                                 getSwerveModulePositions(), initialPose,
+    poseEstimator = new SwerveDrivePoseEstimator(SwerveConstants.driveKinematics, Rotation2d.fromDegrees(heading), 
+                                                 getSwerveModulePositions(), 
+                                                 initialPose,
                                                  AutoAimConstants.poseEstimateOdometryStdDev,
                                                  AutoAimConstants.poseEstimateVisionStdDev);            
     estimateField.setRobotPose(poseEstimator.getEstimatedPosition());
@@ -150,9 +153,9 @@ public class DriveTrain extends SubsystemBase {
     // AutoAiming
     estimatedStation = isBlue ? AutoAimConstants.blueReefStationFromAngle.get(getEstimatedStationAngle()) 
                               : AutoAimConstants.redReefStationFromAngle.get(getEstimatedStationAngle());
-    desiredPose = isBlue ? AutoAimConstants.blueReef.get(estimatedStation) 
+    desiredPose = isBlue ? AutoAimConstants.redReef.get(estimatedStation) 
                          : AutoAimConstants.redReef.get(estimatedStation);
-    desiredAlignment = Alignment.left;
+    desiredAlignment = Alignment.blank;
 
     /* DashBoard Initialization */
     robotHeading = IOConstants.TeleopTab.add("Robot Heading", heading)
@@ -244,7 +247,7 @@ public class DriveTrain extends SubsystemBase {
 
     speedScaler = DriveConstants.speedScaler;
 
-    m_alliance = Alliance.Blue;
+    m_alliance = Alliance.Red;
   }
 
   @Override
@@ -258,11 +261,10 @@ public class DriveTrain extends SubsystemBase {
       periodicTimer = 0;
     }
 
-    heading = m_gyro.getAngle();
+    heading = MathUtil.angleModulus(m_gyro.getAngle() * Math.PI / 180) * 180 / Math.PI;
 
     /* Pose Estimation */
-    estimateField.setRobotPose(poseEstimator.getEstimatedPosition());
-    poseEstimator.update(m_gyro.getRotation2d(), getSwerveModulePositions());
+    poseEstimator.update(Rotation2d.fromDegrees(heading), getSwerveModulePositions());
     if (getPoseEstimate().get().tagCount >= 1) {
       poseEstimator.addVisionMeasurement(getPoseEstimate().get().pose, 
                                          getPoseEstimate().get().timestampSeconds);
@@ -271,6 +273,7 @@ public class DriveTrain extends SubsystemBase {
 
     estimateField.setRobotPose(poseEstimator.getEstimatedPosition());
     estimateField.getObject("desired").setPose(desiredPose.withReefAlignment(desiredAlignment, false));
+    estimateField.getObject("heading").setPose(new Pose2d(7.5, 4, Rotation2d.fromDegrees(heading)));
 
     /** Dashboard Posting */
     robotHeading.setDouble(heading);
@@ -336,6 +339,8 @@ public class DriveTrain extends SubsystemBase {
     autonInRange = Math.hypot(xController.getError(), yController.getError()) <= AutonConstants.inRangeThreshold;
 
     isBrake = m_frontLeft.getIdleMode() == IdleMode.kBrake;
+
+    isBlue = m_alliance == Alliance.Blue;
 
     elevatorHeight = m_elevator.getEncoderVal();
 

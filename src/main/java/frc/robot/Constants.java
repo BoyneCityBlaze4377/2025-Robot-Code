@@ -37,6 +37,7 @@ public final class Constants {
 
     /* BUTTON IDS */
     /* Driver */
+    //Main Functions
     public static final int quickBrakeButtonID = 6; //6
     public static final int slowModeButtonID = 3; //3
     public static final int switchOrientationButtonID = 4; //4
@@ -45,7 +46,7 @@ public final class Constants {
     public static final int autoDriveButtonID = 1; //1
     public static final int robotOrientButtonID = 0; //
 
-    //Alignments left,11 right,12 center,10
+    //Alignments
     public static final int leftAlignButtonID = 11;
     public static final int centerAlignButtonID = 10;
     public static final int rightAlignButtonID = 12;
@@ -61,8 +62,6 @@ public final class Constants {
     public static final int L4PosButtonID = 8;
     public static final int HPPosButtonID = 3;
 
-    public static final int elevatorOverrideButtonID = 12;
-
     // Affectors
     public static final int coralCollectButtonID = 1;
     public static final int coralScoreButtonID = 2;
@@ -73,7 +72,9 @@ public final class Constants {
     public static final int unClimbButtonID = 8;
     public static final int climbButtonID = 7;
 
+    //Overrides
     public static final int wristOverrideButtonID = 12;
+    public static final int elevatorOverrideButtonID = 12;
   }
 
   public class ElevatorConstants {
@@ -150,10 +151,10 @@ public final class Constants {
 
   public static final class SwerveConstants {
     // Distance between centers of right and left wheels on robot in meters
-    public static final double trackWidth = Units.inchesToMeters(36);
+    public static final double trackWidth = Units.inchesToMeters(36); //.9144
     
     // Distance between front and back wheels on robot in meters
-    public static final double wheelBase = Units.inchesToMeters(36);
+    public static final double wheelBase = Units.inchesToMeters(36); //.9144
     
     public static final SwerveDriveKinematics driveKinematics =
         new SwerveDriveKinematics(new Translation2d(wheelBase / 2, trackWidth / 2),
@@ -330,12 +331,12 @@ public final class Constants {
     }};
 
     public static final HashMap<ReefStation, AdvancedPose2D> redReef = new HashMap<ReefStation, AdvancedPose2D> () {{
-      put(ReefStation.front, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(0), new Translation2d(0, -centerOfReefToRobotDistance), Rotation2d.fromDegrees(0)));
-      put(ReefStation.frontRight, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(-120), new Translation2d(0, centerOfReefToRobotDistance), Rotation2d.fromDegrees(60)));
-      put(ReefStation.backRight, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(-60), new Translation2d(0, centerOfReefToRobotDistance), Rotation2d.fromDegrees(120)));
-      put(ReefStation.back, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(0), new Translation2d(0, centerOfReefToRobotDistance), Rotation2d.fromDegrees(180)));
-      put(ReefStation.backLeft, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(60), new Translation2d(0, centerOfReefToRobotDistance), Rotation2d.fromDegrees(-120)));
-      put(ReefStation.backRight, FieldConstants.blueReefCenterPos.horizontallyFlip().withVector(Rotation2d.fromDegrees(120), new Translation2d(0, centerOfReefToRobotDistance), Rotation2d.fromDegrees(-60)));
+      put(ReefStation.front, blueReef.get(ReefStation.front).flipBoth());
+      put(ReefStation.frontRight, blueReef.get(ReefStation.frontRight).flipBoth());
+      put(ReefStation.backRight, blueReef.get(ReefStation.backRight).flipBoth());
+      put(ReefStation.back, blueReef.get(ReefStation.back).flipBoth());
+      put(ReefStation.backLeft, blueReef.get(ReefStation.backLeft).flipBoth());
+      put(ReefStation.frontLeft, blueReef.get(ReefStation.frontLeft).flipBoth());
     }};
 
     public static final HashMap<Double, ReefStation> blueReefStationFromAngle = new HashMap<Double, ReefStation> () {{
