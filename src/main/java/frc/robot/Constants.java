@@ -269,8 +269,7 @@ public final class Constants {
                                                                                 0);
 
     public static final AdvancedPose2D blueProcessor = new AdvancedPose2D(autonLineDistance - Units.inchesToMeters(61.76), 
-                                                                          SwerveConstants.trackWidth / 2 + AutoAimConstants.algaePosBackset,
-                                                                         -90);
+                                                                          SwerveConstants.trackWidth / 2, -90);
     public static final AdvancedPose2D redProcessor = blueProcessor.flipBoth();
 
     public static final double coralStationWidth = Units.inchesToMeters(79.76);
@@ -279,7 +278,7 @@ public final class Constants {
     public static final double coralStationXMid = coralStationTotalX / 2;
     public static final double coralStationYMid = coralStationTotalY / 2;
     public static final double coralStationAngle = Units.radiansToDegrees(Math.atan(coralStationTotalX / coralStationTotalY));
-    public static final double coralStationDesiredHeading = 90 - coralStationAngle;
+    public static final double coralStationDesiredHeading = 180 - coralStationAngle;
   }
 
   public class AutoAimConstants{
@@ -309,7 +308,7 @@ public final class Constants {
     public static final double LLDefaultOffsetDegrees = 2.3;
     public static final double LCToBumperEdgeOffsetMeters = Units.inchesToMeters(4.85);
 
-    public static final double coralStationToRobotDistance = SwerveConstants.trackWidth / 2;
+    public static final double coralStationToRobotDistance = SwerveConstants.trackWidth / 2 + coralPosBackset;
     public static final double coralStationSideOffsetDistance = Units.inchesToMeters(76) / 4 - coralAffectorOffsetFromRobotCenter;
 
     public static final HashMap<Alignment, Double> offsetFromAlignment = new HashMap<Alignment, Double> () {{
@@ -422,10 +421,10 @@ public final class Constants {
 
     public static final AdvancedPose2D blueLeftCoralStationPos = new AdvancedPose2D(FieldConstants.coralStationXMid, 
                                                                                     FieldConstants.fieldWidth - FieldConstants.coralStationYMid, 
-                                                                                    FieldConstants.coralStationDesiredHeading);
-    public static final AdvancedPose2D blueRightCoralStationPos = new AdvancedPose2D(FieldConstants.coralStationXMid, 
-                                                                                     FieldConstants.coralStationYMid, 
-                                                                                     FieldConstants.coralStationDesiredHeading);
+                                                                                    FieldConstants.coralStationDesiredHeading)
+                                                                                    .withRobotRelativeTransformation(
+                                                                                      new Translation2d(0, -coralStationToRobotDistance));
+    public static final AdvancedPose2D blueRightCoralStationPos = blueLeftCoralStationPos.verticallyFlip();
     public static final AdvancedPose2D redLeftCoralStationPos = blueLeftCoralStationPos.flipBoth();
     public static final AdvancedPose2D redRightCoralStationPos = blueRightCoralStationPos.flipBoth();
 

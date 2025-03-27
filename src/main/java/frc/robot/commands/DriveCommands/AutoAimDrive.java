@@ -17,7 +17,6 @@ public class AutoAimDrive extends Command {
   @Override
   public void initialize() {
     m_driveTrain.setAutoAimDriveSetpoints();
-    m_driveTrain.displayTrajectory();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -25,14 +24,12 @@ public class AutoAimDrive extends Command {
   public void execute() {
     m_driveTrain.setAutoAimDriveSetpoints();
     m_driveTrain.PIDDrive();
-    m_driveTrain.displayTrajectory();
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     if (!interrupted) m_driveTrain.stop();
-    m_driveTrain.unDisplayTrajectory();
   }
 
   // Returns true when the command should end.

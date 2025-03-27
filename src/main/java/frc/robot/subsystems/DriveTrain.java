@@ -1,8 +1,6 @@
 package frc.robot.subsystems;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -30,8 +28,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.Trajectory.State;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -82,8 +79,7 @@ public class DriveTrain extends SubsystemBase {
   private final String cameraName;
   private Alliance m_alliance;
 
-  private AdvancedPose2D initialPose = AutonConstants.initialPoseBlueLeft;
-  private AdvancedPose2D desiredPose;
+  private AdvancedPose2D desiredPose, initialPose = FieldConstants.redProcessor;
   private Alignment desiredAlignment;
   private ReefStation estimatedStation;
 
@@ -135,11 +131,11 @@ public class DriveTrain extends SubsystemBase {
     // DriveTrain GyroScope
     m_gyro = new AHRS(NavXComType.kMXP_SPI);
     m_gyro.setAngleAdjustment(initialPose.getRotation().getDegrees());
-    heading = MathUtil.angleModulus(m_gyro.getAngle() * Math.PI / 180) * 180 / Math.PI;
+    heading = Units.radiansToDegrees(MathUtil.angleModulus(Units.degreesToRadians(m_gyro.getAngle())));
 
-    /* Pose Estimation Stuff */
+    /* Pose Estimation */
     estimateField = new Field2d();
-    poseEstimator = new SwerveDrivePoseEstimator(SwerveConstants.driveKinematics, Rotation2d.fromDegrees(heading), 
+    poseEstimator = new SwerveDrivePoseEstimator(SwerveConstants.driveKinematics, getHeading(), 
                                                  getSwerveModulePositions(), 
                                                  initialPose,
                                                  AutoAimConstants.poseEstimateOdometryStdDev,
@@ -150,19 +146,19 @@ public class DriveTrain extends SubsystemBase {
       fieldLayout.setOrigin(new Pose3d());
     } catch (IOException e) {}
 
-    // AutoAiming
+    /** AutoAim */
+    // Determine desired ReefStation
     estimatedStation = isBlue ? AutoAimConstants.blueReefStationFromAngle.get(getEstimatedStationAngle()) 
                               : AutoAimConstants.redReefStationFromAngle.get(getEstimatedStationAngle());
+    // Calculate desired pose
     desiredPose = isBlue ? AutoAimConstants.redReef.get(estimatedStation) 
                          : AutoAimConstants.redReef.get(estimatedStation);
     desiredAlignment = Alignment.blank;
 
     /* DashBoard Initialization */
     robotHeading = IOConstants.TeleopTab.add("Robot Heading", heading)
-                                        .withWidget("Radial Gauge")
-                                        .withProperties(Map.of("start_angle", -180, "end_angle", 180,
-                                                               "min_value", -180, "max_value", 180,
-                                                               "wrap_value", true, "show_pointer", true))
+                                        .withWidget("Gyro")
+                                        .withProperties(Map.of("counter_clockwise_positive", true))
                                         .getEntry();
     xSpeedSender = IOConstants.TeleopTab.add("xSpeed", 0)
                                         .withWidget("Number Slider")
@@ -228,7 +224,8 @@ public class DriveTrain extends SubsystemBase {
     /* LimeLight Initialization */
     cameraName = limelightName;
 
-    LimelightHelpers.SetRobotOrientation(cameraName, initialPose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
+    LimelightHelpers.SetRobotOrientation(cameraName, initialPose.getRotation().getDegrees(), 
+                                         0, 0, 0, 0, 0);
 
     // NetworkTableInstance.getDefault().getTable("limelight").getEntry("camera_robotspace_set")
     //                 .setDoubleArray(SensorConstants.limelightRobotSpacePose);
@@ -261,22 +258,23 @@ public class DriveTrain extends SubsystemBase {
       periodicTimer = 0;
     }
 
-    heading = MathUtil.angleModulus(m_gyro.getAngle() * Math.PI / 180) * 180 / Math.PI;
+    heading = Units.radiansToDegrees(MathUtil.angleModulus(Units.degreesToRadians(m_gyro.getAngle())));
 
     /* Pose Estimation */
-    poseEstimator.update(Rotation2d.fromDegrees(heading), getSwerveModulePositions());
+    poseEstimator.update(getHeading(), getSwerveModulePositions());
     if (getPoseEstimate().get().tagCount >= 1) {
       poseEstimator.addVisionMeasurement(getPoseEstimate().get().pose, 
                                          getPoseEstimate().get().timestampSeconds);
       if (periodicTimer > 5) poseEstimator.resetTranslation(getPoseEstimate().get().pose.getTranslation());
     }
 
+    // Field Displaying
     estimateField.setRobotPose(poseEstimator.getEstimatedPosition());
     estimateField.getObject("desired").setPose(desiredPose.withReefAlignment(desiredAlignment, false));
-    estimateField.getObject("heading").setPose(new Pose2d(7.5, 4, Rotation2d.fromDegrees(heading)));
+    // estimateField.getObject("heading").setPose(FieldConstants.fieldLength / 2, FieldConstants.fieldWidth / 2, getHeading());
 
     /** Dashboard Posting */
-    robotHeading.setDouble(heading);
+    robotHeading.setDouble(getHeading().getDegrees());
     desPoseSender.setString(desiredPose.toString());
     desAlignSender.setString(desiredAlignment.toString());
     desStationSender.setString(estimatedStation.toString());
@@ -286,11 +284,14 @@ public class DriveTrain extends SubsystemBase {
 
     // Tell if gyro disconnects
     if (!m_gyro.isConnected() && !notified) {
-      Elastic.sendNotification(new Notification(NotificationLevel.ERROR, "NAVX", "GYRO DISCONNECTED"));
+      Elastic.sendNotification(new Notification(NotificationLevel.ERROR, "NAVX", "GYRO DISCONNECTED")
+                                               .withDisplaySeconds(10));
       notified = true;
+    } else if (notified && m_gyro.isConnected()) {
+      Elastic.sendNotification(new Notification(NotificationLevel.INFO, "NAVX", "GYRO RECONNECTED")
+                                               .withDisplaySeconds(5));
+      notified = false;
     }
-    if (notified && m_gyro.isConnected()) notified = false;
-
 
     // Determine whether the StraightDrive function is inverted based on elevator position
     switch (m_elevator.getCurrentPosition()) {
@@ -327,11 +328,13 @@ public class DriveTrain extends SubsystemBase {
     ta = table.getEntry("ta").getDouble(0);
     tID = table.getEntry("fID").getDouble(0);
 
-    LimelightHelpers.SetRobotOrientation(cameraName, m_gyro.getRotation2d().getDegrees(), 
+    LimelightHelpers.SetRobotOrientation(cameraName, getHeading().getDegrees(), 
                                          0, 0, 0, 0, 0);
 
+    // Determine desired ReefStation
     estimatedStation = isBlue ? AutoAimConstants.blueReefStationFromAngle.get(getEstimatedStationAngle()) 
                               : AutoAimConstants.redReefStationFromAngle.get(getEstimatedStationAngle());
+    // Calculate desired pose
     desiredPose = isBlue ? AutoAimConstants.blueReef.get(estimatedStation) 
                          : AutoAimConstants.redReef.get(estimatedStation);
     
@@ -468,7 +471,7 @@ public class DriveTrain extends SubsystemBase {
                                                                  AutoAimConstants.maxPIDDriveSpeed);
     y = MathUtil.clamp(yController.calculate(getPose().getY()), -AutoAimConstants.maxPIDDriveSpeed, 
                                                                  AutoAimConstants.maxPIDDriveSpeed);
-    omega = MathUtil.clamp(headingController.calculate(m_gyro.getRotation2d().getRadians()),
+    omega = MathUtil.clamp(headingController.calculate(getHeading().getRadians()),
                                                       -AutoAimConstants.maxPIDRot, 
                                                        AutoAimConstants.maxPIDRot);
 
@@ -570,19 +573,6 @@ public class DriveTrain extends SubsystemBase {
   /** @return The pose */
   public synchronized Pose2d getPose() {
     return poseEstimator.getEstimatedPosition();
-  }
-
-  /** Display the trajectory from the {@link DriveTrain}'s current pose to its AutoAimPose on the DashBoard */
-  public void displayTrajectory() {
-    List<State> poses = new ArrayList<>();
-    poses.add(new State(0, 0, 0, getPoseEstimate().get().pose, 0));
-    poses.add(new State(0, 0, 0, desiredPose.withReefAlignment(desiredAlignment, false), 0));
-    estimateField.getObject("Traj").setTrajectory(new Trajectory(poses));
-  }
-
-  /** Hide the trajectory from the {@link DriveTrain}'s current pose to its AutoAimPose from the DashBoard */
-  public void unDisplayTrajectory() {
-    estimateField.getObject("Traj").setTrajectory(null);
   }
 
    /** Switches the idle modes of all modlues' drive motors */
@@ -688,9 +678,9 @@ public class DriveTrain extends SubsystemBase {
     m_gyro.reset();
   }
 
-  /** @return The filtered robot heading in degrees, from -180 to 180 */
-  public synchronized double getHeading() {
-    return heading;
+  /** @return The filtered robot heading as a {@link Rotation2d} */
+  public synchronized Rotation2d getHeading() {
+    return Rotation2d.fromDegrees(heading);
   }
 
   /** @return The unfiltered heading of the robot */
@@ -759,16 +749,16 @@ public class DriveTrain extends SubsystemBase {
   }
 
   /**
-   * Determine the estimated ReefStation of the {@link DriveTrain} for AutoAim
+   * Determine the estimated {@link ReefStation} angle of the {@link DriveTrain} for AutoAim
    * 
-   * @return The angle of the estimated ReefStation of the {@link DriveTrain}
+   * @return The angle of the estimated {@link ReefStation} of the {@link DriveTrain}
    */
   public double getEstimatedStationAngle() {
     double prevError = 180;
     double selectedAngle = 0;
 
     for (int i = 0; i < AutoAimConstants.reefStationAngles.length; i++) {
-      double error = Math.abs(getHeading() - AutoAimConstants.reefStationAngles[i]);
+      double error = Math.abs(getHeading().getDegrees() - AutoAimConstants.reefStationAngles[i]);
       if (error < prevError){
         prevError = error;
         selectedAngle = AutoAimConstants.reefStationAngles[i];
