@@ -79,13 +79,13 @@ public class DriveTrain extends SubsystemBase {
   private final String cameraName;
   private Alliance m_alliance;
 
-  private AdvancedPose2D desiredPose, initialPose = FieldConstants.redProcessor;
+  private AdvancedPose2D desiredPose, initialPose = AutonConstants.initialPoseBlueBack;
   private Alignment desiredAlignment;
   private ReefStation estimatedStation;
 
   private boolean fieldOrientation = true, isLocked = false, slow = false, 
                   isBrake = true, autonInRange = false, useScalers = false, 
-                  straightDriveBackwards = false, isBlue = false, notified = false;
+                  straightDriveBackwards = false, isBlue = true, notified = false;
 
   private double tx, ty, ta, tID, speedScaler, heading, x, y, omega,  elevatorHeight;
   private int periodicTimer = 1;
@@ -244,7 +244,7 @@ public class DriveTrain extends SubsystemBase {
 
     speedScaler = DriveConstants.speedScaler;
 
-    m_alliance = Alliance.Red;
+    m_alliance = Alliance.Blue;
   }
 
   @Override
