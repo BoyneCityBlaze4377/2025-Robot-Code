@@ -1,7 +1,5 @@
 package frc.robot.commands.Auton.Sequences;
 
-import java.util.HashMap;
-
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
@@ -62,7 +60,7 @@ public class TwoL4AndProcessorRed extends SequentialCommandGroup {
                 new ParallelCommandGroup(new AutonAllToPosition(elevator, coralAffector, driveTrain, Position.processor),
                                          new SequentialCommandGroup(new AutonDriveToPosition(driveTrain, AutoAimConstants.redReef.get(ReefStation.frontRight).withReefAlignment(Alignment.center, false)),
                                                                     new AutonDriveToPosition(driveTrain, processor.withRobotRelativeTransformation(new Translation2d(0, -.5))),
-                                                                    new AutonDriveToPosition(driveTrain, processor)),
+                                                                    new AutonDriveToPosition(driveTrain, processor))),
                 new AutonAlgaeScore(algaeAffector),
                 new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, coralStation.withRobotRelativeTransformation(
                                                                                   new Translation2d(-AutoAimConstants.coralStationSideOffsetDistance, 
@@ -71,6 +69,6 @@ public class TwoL4AndProcessorRed extends SequentialCommandGroup {
                 new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, AutoAimConstants.redReef.get(ReefStation.frontRight).withReefAlignment(Alignment.left, true)),
                                          new SequentialCommandGroup(new AutonAllToPosition(elevator, coralAffector, driveTrain, Position.floor),
                                                                     new InRangeAllToPosition(elevator, coralAffector, driveTrain, Position.L4))),
-                new AutonCoralScore(coralAffector)));
+                new AutonCoralScore(coralAffector));
   }
 }

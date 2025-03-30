@@ -92,37 +92,37 @@ public class RobotContainer {
   //Neutral
   private final NoAuton NoAuton = new NoAuton(m_driveTrain, AutonConstants.customInitialPose);
 
-  // /* Blue */
-  // //Right
-  // private final FourCoralL3RightBlue FourL3RightBlue = new FourCoralL3RightBlue(m_driveTrain, m_coralAffector, m_elevator);
-  // private final ThreeCoralL4RightRed ThreeL4RightBlue = new ThreeCoralL4RightRed(m_driveTrain, m_elevator, m_coralAffector);
-  // //private final TwoL4AndProcessor TwoL4Processor = new TwoL4AndProcessor(m_driveTrain, m_elevator, m_coralAffector, m_algaeAffector);
+  /* Blue */
+  //Right
+  private final FourCoralL3RightBlue FourL3RightBlue = new FourCoralL3RightBlue(m_driveTrain, m_coralAffector, m_elevator);
+  private final ThreeCoralL4RightRed ThreeL4RightBlue = new ThreeCoralL4RightRed(m_driveTrain, m_elevator, m_coralAffector);
+  private final TwoL4AndProcessorBlue TwoL4ProcessorBlue = new TwoL4AndProcessorBlue(m_driveTrain, m_elevator, m_coralAffector, m_algaeAffector);
 
-  // //Left
-  // private final FourCoralL3LeftBlue FourL3LeftBlue = new FourCoralL3LeftBlue(m_driveTrain, m_coralAffector, m_elevator);
-  // private final ThreeCoralL4LeftBlue ThreeL4LeftBlue = new ThreeCoralL4LeftBlue(m_driveTrain, m_elevator, m_coralAffector);
+  //Left
+  private final FourCoralL3LeftBlue FourL3LeftBlue = new FourCoralL3LeftBlue(m_driveTrain, m_coralAffector, m_elevator);
+  private final ThreeCoralL4LeftBlue ThreeL4LeftBlue = new ThreeCoralL4LeftBlue(m_driveTrain, m_elevator, m_coralAffector);
 
-  // //Back
-  // private final PlaceOnBackAndProcessorBlue BackRightAndProcessBlue = new PlaceOnBackAndProcessorBlue(m_driveTrain, m_coralAffector, 
-  //                                                                                      m_elevator, m_algaeAffector, Alignment.right);
-  // private final PlaceOnBackAndProcessorBlue BackLeftAndProcessBlue = new PlaceOnBackAndProcessorBlue(m_driveTrain, m_coralAffector, 
-  //                                                                                      m_elevator, m_algaeAffector, Alignment.left);
+  //Back
+  private final PlaceOnBackAndProcessorBlue BackRightAndProcessBlue = new PlaceOnBackAndProcessorBlue(m_driveTrain, m_coralAffector, 
+                                                                                       m_elevator, m_algaeAffector, Alignment.right);
+  private final PlaceOnBackAndProcessorBlue BackLeftAndProcessBlue = new PlaceOnBackAndProcessorBlue(m_driveTrain, m_coralAffector, 
+                                                                                       m_elevator, m_algaeAffector, Alignment.left);
 
-  // /* Red */
-  // //Right
-  // private final FourCoralL3RightRed FourL3RightRed = new FourCoralL3RightRed(m_driveTrain, m_coralAffector, m_elevator);
-  // private final ThreeCoralL4RightRed ThreeL4RightRed = new ThreeCoralL4RightRed(m_driveTrain, m_elevator, m_coralAffector);
-  // //private final TwoL4AndProcessor TwoL4Processor = new TwoL4AndProcessor(m_driveTrain, m_elevator, m_coralAffector, m_algaeAffector);
+  /* Red */
+  //Right
+  private final FourCoralL3RightRed FourL3RightRed = new FourCoralL3RightRed(m_driveTrain, m_coralAffector, m_elevator);
+  private final ThreeCoralL4RightRed ThreeL4RightRed = new ThreeCoralL4RightRed(m_driveTrain, m_elevator, m_coralAffector);
+  private final TwoL4AndProcessorRed TwoL4ProcessorRed = new TwoL4AndProcessorRed(m_driveTrain, m_elevator, m_coralAffector, m_algaeAffector);
 
-  // //Left
-  // private final FourCoralL3LeftRed FourL3LeftRed = new FourCoralL3LeftRed(m_driveTrain, m_coralAffector, m_elevator);
-  // private final ThreeCoralL4LeftRed ThreeL4LeftRed = new ThreeCoralL4LeftRed(m_driveTrain, m_elevator, m_coralAffector);
+  //Left
+  private final FourCoralL3LeftRed FourL3LeftRed = new FourCoralL3LeftRed(m_driveTrain, m_coralAffector, m_elevator);
+  private final ThreeCoralL4LeftRed ThreeL4LeftRed = new ThreeCoralL4LeftRed(m_driveTrain, m_elevator, m_coralAffector);
 
-  // //Back
-  // private final PlaceOnBackAndProcessorRed BackRightAndProcessRed = new PlaceOnBackAndProcessorRed(m_driveTrain, m_coralAffector, m_elevator, 
-  //                                                                                  m_algaeAffector, Alignment.right);
-  // private final PlaceOnBackAndProcessorRed BackLeftAndProcessRed = new PlaceOnBackAndProcessorRed(m_driveTrain, m_coralAffector, m_elevator, 
-  //                                                                        m_algaeAffector, Alignment.left);
+  //Back
+  private final PlaceOnBackAndProcessorRed BackRightAndProcessRed = new PlaceOnBackAndProcessorRed(m_driveTrain, m_coralAffector, m_elevator, 
+                                                                                   m_algaeAffector, Alignment.right);
+  private final PlaceOnBackAndProcessorRed BackLeftAndProcessRed = new PlaceOnBackAndProcessorRed(m_driveTrain, m_coralAffector, m_elevator, 
+                                                                         m_algaeAffector, Alignment.left);
 
   private final AdvancedPose2D initialPoseBLUE = new AdvancedPose2D(FieldConstants.autonLineDistance, FieldConstants.blueReefCenterPos.getY(), 180);
   private final AdvancedPose2D initialPoseRED = new AdvancedPose2D(FieldConstants.fieldLength - FieldConstants.autonLineDistance, 
@@ -170,33 +170,33 @@ public class RobotContainer {
   public void configAutonChooser() {
     autonChooser.setDefaultOption("No Auton", NoAuton);
 
-    // autonChooser.addOption("BLUE Three Coral on L4, right side", ThreeL4RightBlue);
-    // autonChooser.addOption("BLUE Four Coral on L3, right side", FourL3RightBlue);
-    // //autonChooser.addOption("Two on L4 and Processor (right side)", "TwoL4Processor");
-    // autonChooser.addOption("BLUE Four Coral on L3, left side", FourL3LeftBlue);
-    // autonChooser.addOption("BLUE Three Coral on L4, left side", ThreeL4LeftBlue);
-    // autonChooser.addOption("BLUE Back and Process, first L4 on right", BackRightAndProcessBlue);
-    // autonChooser.addOption("BLUE Back and Process, first L4 on left", BackLeftAndProcessBlue);
+    autonChooser.addOption("BLUE Three Coral on L4, right side", ThreeL4RightBlue);
+    autonChooser.addOption("BLUE Four Coral on L3, right side", FourL3RightBlue);
+    autonChooser.addOption("BLUE Two on L4 and Processor (right side)", TwoL4ProcessorBlue);
+    autonChooser.addOption("BLUE Four Coral on L3, left side", FourL3LeftBlue);
+    autonChooser.addOption("BLUE Three Coral on L4, left side", ThreeL4LeftBlue);
+    autonChooser.addOption("BLUE Back and Process, first L4 on right", BackRightAndProcessBlue);
+    autonChooser.addOption("BLUE Back and Process, first L4 on left", BackLeftAndProcessBlue);
 
-    // autonChooser.addOption("RED Three Coral on L4, right side", ThreeL4RightRed);
-    // autonChooser.addOption("RED Four Coral on L3, right side", FourL3RightRed);
-    // //autonChooser.addOption("Two on L4 and Processor (right side)", "TwoL4Processor");
-    // autonChooser.addOption("RED Four Coral on L3, left side", FourL3LeftRed);
-    // autonChooser.addOption("RED Three Coral on L4, left side", ThreeL4LeftRed);
-    // autonChooser.addOption("RED Back and Process, first L4 on right", BackRightAndProcessRed);
-    // autonChooser.addOption("RED Back and Process, first L4 on left", BackLeftAndProcessRed);
+    autonChooser.addOption("RED Three Coral on L4, right side", ThreeL4RightRed);
+    autonChooser.addOption("RED Four Coral on L3, right side", FourL3RightRed);
+    autonChooser.addOption("RED Two on L4 and Processor (right side)", TwoL4ProcessorRed);
+    autonChooser.addOption("RED Four Coral on L3, left side", FourL3LeftRed);
+    autonChooser.addOption("RED Three Coral on L4, left side", ThreeL4LeftRed);
+    autonChooser.addOption("RED Back and Process, first L4 on right", BackRightAndProcessRed);
+    autonChooser.addOption("RED Back and Process, first L4 on left", BackLeftAndProcessRed);
 
-    autonChooser.addOption("RED Drive Off Line", DriveOffLineRED);
-    autonChooser.addOption("RED Score on Back", BackScoreRED);
-    autonChooser.addOption("RED Score on Back and Collect Algae", BackScoreAlgaeRED);
-    autonChooser.addOption("RED Score on Back and Drive Right", BackScoreRightRED);
-    autonChooser.addOption("RED Score on Back and Drive Left", BackScoreLeftRED);
+    // autonChooser.addOption("RED Drive Off Line", DriveOffLineRED);
+    // autonChooser.addOption("RED Score on Back", BackScoreRED);
+    // autonChooser.addOption("RED Score on Back and Collect Algae", BackScoreAlgaeRED);
+    // autonChooser.addOption("RED Score on Back and Drive Right", BackScoreRightRED);
+    // autonChooser.addOption("RED Score on Back and Drive Left", BackScoreLeftRED);
 
-    autonChooser.setDefaultOption("BLUE Drive Off Line", DriveOffLineBLUE);
-    autonChooser.addOption("BLUE Score on Back", BackScoreBLUE);
-    autonChooser.addOption("BLUE Score on Back and Collect Algae", BackScoreAlgaeBLUE);
-    autonChooser.addOption("BLUE Score on Back and Drive Right", BackScoreRightBLUE);
-    autonChooser.addOption("BLUE Score on Back and Drive Left", BackScoreLeftBLUE);
+    // autonChooser.setDefaultOption("BLUE Drive Off Line", DriveOffLineBLUE);
+    // autonChooser.addOption("BLUE Score on Back", BackScoreBLUE);
+    // autonChooser.addOption("BLUE Score on Back and Collect Algae", BackScoreAlgaeBLUE);
+    // autonChooser.addOption("BLUE Score on Back and Drive Right", BackScoreRightBLUE);
+    // autonChooser.addOption("BLUE Score on Back and Drive Left", BackScoreLeftBLUE);
   }
 
   /**

@@ -401,8 +401,8 @@ public class DriveTrain extends SubsystemBase {
   public void teleopDrive(double xSpeed, double ySpeed, double rot) {
     rot = Math.pow(rot, 3);
 
-    x = xSpeed * DriveConstants.maxSpeedMetersPerSecond * speedScaler;
-    y = ySpeed * DriveConstants.maxSpeedMetersPerSecond * speedScaler;
+    x = xSpeed * DriveConstants.maxSpeedMetersPerSecond * speedScaler * (isBlue ? 1 : -1);
+    y = ySpeed * DriveConstants.maxSpeedMetersPerSecond * speedScaler * (isBlue ? 1 : -1);
     omega = rot * DriveConstants.maxRotationSpeedRadiansPerSecond * speedScaler;
 
     setUseScalers(true);
