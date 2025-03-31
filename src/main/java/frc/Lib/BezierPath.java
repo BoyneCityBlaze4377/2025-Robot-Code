@@ -3,9 +3,9 @@ package frc.Lib;
 import java.util.ArrayList;
 
 /** Add your docs here. */
-public class Bezier {
+public class BezierPath {
     private final AdvancedPose2D[] m_points;
-    public Bezier(AdvancedPose2D... points) {
+    public BezierPath(AdvancedPose2D... points) {
         m_points = points;
     }
 
