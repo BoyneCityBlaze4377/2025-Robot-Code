@@ -78,7 +78,7 @@ public class DriveTrain extends SubsystemBase {
   private final String cameraName;
   private Alliance m_alliance;
 
-  private AdvancedPose2D desiredPose, initialPose = new AdvancedPose2D();
+  private AdvancedPose2D desiredPose, initialPose = new AdvancedPose2D(), average = new AdvancedPose2D();
   private Alignment desiredAlignment;
   private ReefStation estimatedStation;
 
@@ -264,7 +264,6 @@ public class DriveTrain extends SubsystemBase {
     if (getPoseEstimate().get().tagCount >= 1) {
       poseEstimator.addVisionMeasurement(getPoseEstimate().get().pose, 
                                          getPoseEstimate().get().timestampSeconds);
-      if (periodicTimer > 5) poseEstimator.resetTranslation(getPoseEstimate().get().pose.getTranslation());
     }
 
     // Field Displaying

@@ -17,6 +17,10 @@ public class AdvancedPose2D extends Pose2d {
         super(translation, rotation);
     }
 
+    public AdvancedPose2D(double x, double y) {
+        super(x, y, new Rotation2d());
+    }
+
     public AdvancedPose2D(double x, double y, Rotation2d rotation){
         super(new Translation2d(x, y), rotation);
     }
@@ -27,6 +31,10 @@ public class AdvancedPose2D extends Pose2d {
 
     public AdvancedPose2D(Pose2d pose2d) {
         super(pose2d.getTranslation().getX(), pose2d.getTranslation().getY(), pose2d.getRotation());
+    }
+
+    public double getHeadingDegrees() {
+        return this.getRotation().getDegrees();
     }
 
     public AdvancedPose2D horizontallyFlip(){
@@ -85,5 +93,11 @@ public class AdvancedPose2D extends Pose2d {
 
     public double getDistance(AdvancedPose2D other) {
         return this.getTranslation().getDistance(other.getTranslation());
+    }
+
+    public AdvancedPose2D average(AdvancedPose2D other, boolean averageHeading) {
+        return new AdvancedPose2D((this.getX() + other.getX()) / 2, (this.getY() + other.getY()) / 2, 
+                                  averageHeading ? Rotation2d.fromDegrees((this.getHeadingDegrees() + other.getHeadingDegrees()) / 2)
+                                                 : this.getRotation());
     }
 }
