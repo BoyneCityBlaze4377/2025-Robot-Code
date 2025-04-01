@@ -257,7 +257,7 @@ public final class Constants {
 
     public static final double autonLineDistance = Units.inchesToMeters(297.5);
 
-    public static AdvancedPose2D blueReefCenterPos = new AdvancedPose2D(4.48945, fieldWidth / 2, Rotation2d.fromDegrees(0));
+    public static final AdvancedPose2D blueReefCenterPos = new AdvancedPose2D(4.48945, fieldWidth / 2, Rotation2d.fromDegrees(0));
 
     public static final AdvancedPose2D blueLeftStartAlgae = new AdvancedPose2D(Units.inchesToMeters(48), 
                                                                                blueReefCenterPos.getY() + Units.inchesToMeters(72), 

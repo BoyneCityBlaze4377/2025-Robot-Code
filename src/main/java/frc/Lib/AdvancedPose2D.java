@@ -33,6 +33,10 @@ public class AdvancedPose2D extends Pose2d {
         super(pose2d.getTranslation().getX(), pose2d.getTranslation().getY(), pose2d.getRotation());
     }
 
+    public AdvancedPose2D rotateBy(Rotation2d rotation) {
+        return new AdvancedPose2D(this.getTranslation(), Rotation2d.fromDegrees(this.getHeadingDegrees() + rotation.getDegrees()));
+    }
+
     public double getHeadingDegrees() {
         return this.getRotation().getDegrees();
     }

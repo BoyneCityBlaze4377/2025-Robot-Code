@@ -1,10 +1,12 @@
 package frc.robot.subsystems;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
 
 import frc.Lib.AdvancedPose2D;
+import frc.Lib.BezierPath;
 import frc.Lib.Elastic;
 import frc.Lib.LimelightHelpers;
 import frc.Lib.Elastic.Notification;
@@ -45,6 +47,7 @@ import frc.robot.Constants.AutoAimConstants.*;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.Constants.ModuleConstants;
 import frc.robot.Constants.SensorConstants;
@@ -139,7 +142,8 @@ public class DriveTrain extends SubsystemBase {
                                                  initialPose,
                                                  AutoAimConstants.poseEstimateOdometryStdDev,
                                                  AutoAimConstants.poseEstimateVisionStdDev);            
-    estimateField.setRobotPose(poseEstimator.getEstimatedPosition());
+    estimateField.setRobotPose(initialPose);
+
     try {
       fieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2025Reefscape.m_resourceFile);
       fieldLayout.setOrigin(new Pose3d());
@@ -267,8 +271,8 @@ public class DriveTrain extends SubsystemBase {
     }
 
     // Field Displaying
-    estimateField.setRobotPose(poseEstimator.getEstimatedPosition());
-    estimateField.getObject("desired").setPose(desiredPose.withReefAlignment(desiredAlignment, false));
+    // estimateField.setRobotPose(poseEstimator.getEstimatedPosition());
+    // estimateField.getObject("desired").setPose(desiredPose.withReefAlignment(desiredAlignment, false));
     // estimateField.getObject("heading").setPose(FieldConstants.fieldLength / 2, FieldConstants.fieldWidth / 2, getHeading());
 
     /** Dashboard Posting */
