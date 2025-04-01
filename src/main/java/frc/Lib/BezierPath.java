@@ -40,10 +40,10 @@ public class BezierPath {
         return new AdvancedPose2D(x, y);
     }
 
-    public ArrayList<AdvancedPose2D> outputPath(double numPoints) {
+    public ArrayList<AdvancedPose2D> outputPath(double numIntermediatePoints) {
         ArrayList<AdvancedPose2D> path = new ArrayList<AdvancedPose2D>();
 
-        double interval = 1 / (numPoints + 1);
+        double interval = 1 / (numIntermediatePoints + 1);
         int n = m_points.length - 1;
         double x = 0;
         double y = 0;

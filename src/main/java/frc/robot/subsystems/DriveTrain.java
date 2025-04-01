@@ -1,17 +1,8 @@
 package frc.robot.subsystems;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
-
-import frc.Lib.AdvancedPose2D;
-import frc.Lib.BezierPath;
-import frc.Lib.Elastic;
-import frc.Lib.LimelightHelpers;
-import frc.Lib.Elastic.Notification;
-import frc.Lib.Elastic.Notification.NotificationLevel;
-import frc.Lib.LimelightHelpers.PoseEstimate;
 
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
@@ -42,12 +33,18 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 
+import frc.Lib.AdvancedPose2D;
+import frc.Lib.Elastic;
+import frc.Lib.LimelightHelpers;
+import frc.Lib.Elastic.Notification;
+import frc.Lib.Elastic.Notification.NotificationLevel;
+import frc.Lib.LimelightHelpers.PoseEstimate;
+
 import frc.robot.Constants.AutoAimConstants;
 import frc.robot.Constants.AutoAimConstants.*;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
-import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.Constants.ModuleConstants;
 import frc.robot.Constants.SensorConstants;
@@ -81,7 +78,7 @@ public class DriveTrain extends SubsystemBase {
   private final String cameraName;
   private Alliance m_alliance;
 
-  private AdvancedPose2D desiredPose, initialPose = new AdvancedPose2D(), average = new AdvancedPose2D();
+  private AdvancedPose2D desiredPose, initialPose = AutonConstants.initialPoseBlueRight;
   private Alignment desiredAlignment;
   private ReefStation estimatedStation;
 
