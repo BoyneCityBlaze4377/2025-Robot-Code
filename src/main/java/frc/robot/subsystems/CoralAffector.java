@@ -139,13 +139,13 @@ public class CoralAffector extends SubsystemBase {
   
   /** Lock the wrist into its PID setpoint */
   public void PIDLockWrist() {
-    wristSpeed = (.071 - .0000052 * Math.pow(wristController.getSetpoint() - 90, 2));
+    wristSpeed = (.05 - .0000052 * Math.pow(wristController.getSetpoint() - 90, 2));
     locked = true;
   }
 
   /** Lock the wrist to where it is */
   public void overrideLockWrist() {
-    wristSpeed = (.071 - .0000052 * Math.pow(getWristDegrees() - 90, 2));
+    wristSpeed = (.05 - .0000052 * Math.pow(getWristDegrees() - 90, 2));
     locked = true;
   }
 

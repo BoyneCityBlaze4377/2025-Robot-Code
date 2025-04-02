@@ -84,6 +84,7 @@ public final class Constants {
     public static final double startingHeight = 0;
 
     public static final double conversionFactor = 1;
+    public static final double voltageComp = 12;
 
     public static final double lowerLimit = 5;
     public static final double upperLimit = 215;

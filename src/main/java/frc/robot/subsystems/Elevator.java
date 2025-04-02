@@ -148,6 +148,7 @@ public class Elevator extends SubsystemBase {
   private void configMotorControllerDefaults() {
     elevatorMotorConfig.inverted(false);
     elevatorMotorConfig.idleMode(IdleMode.kBrake);
+    elevatorMotorConfig.voltageCompensation(ElevatorConstants.voltageComp);
     elevatorMotorConfig.encoder.positionConversionFactor(ElevatorConstants.conversionFactor);
 
     elevatorMotor.configure(elevatorMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
