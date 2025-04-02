@@ -2,13 +2,15 @@ package frc.Lib;
 
 import java.util.ArrayList;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 /** Add your docs here. */
 public class BezierPath {
-    public final AdvancedPose2D[] m_points;
-    public BezierPath(AdvancedPose2D... points) {
-        m_points = points;
+    private final AdvancedPose2D[] m_points;
+    public BezierPath(AdvancedPose2D... Points) {
+        m_points = Points;
+    }
+
+    public AdvancedPose2D[] getControlPoints() {
+        return m_points;
     }
 
     public static double factorial(int k) {
@@ -26,15 +28,11 @@ public class BezierPath {
     public AdvancedPose2D outputPoint(double t) {
         double x = 0;
         double y = 0;
-
-        //degree of curve
         int n = m_points.length - 1;
-        for (int i = 0; i < n; i++) {
-            x += binomialCoefficient(n, i) * Math.pow((1 - t), (n - i)) * Math.pow(t, i) * m_points[i].getX();// + m_points[0].getX();
-            y += binomialCoefficient(n, i) * Math.pow((1 - t), (n - i)) * Math.pow(t, i) * m_points[i].getY();// + m_points[0].getY();
-
-            SmartDashboard.putNumber("XDiff" + t, binomialCoefficient(n, i) * Math.pow((1 - t), (n - i)) * Math.pow(t, i) * m_points[i].getX());
-            SmartDashboard.putNumber("YDiff" + t, binomialCoefficient(n, i) * Math.pow((1 - t), (n - i)) * Math.pow(t, i) * m_points[i].getY());
+            
+        for (int i = 0; i <= n; i++) {
+            x += binomialCoefficient(n, i) * Math.pow((1 - t), (n - i)) * Math.pow(t, i) * m_points[i].getX();
+            y += binomialCoefficient(n, i) * Math.pow((1 - t), (n - i)) * Math.pow(t, i) * m_points[i].getY();
         }
 
         return new AdvancedPose2D(x, y);

@@ -16,7 +16,6 @@ import frc.robot.Constants.AutoAimConstants.Position;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.subsystems.*;
 import frc.robot.commands.AllToSetPosition;
-import frc.robot.commands.ClimberCommands.*;
 import frc.robot.commands.DriveCommands.*;
 import frc.robot.commands.ElevatorCommands.*;
 import frc.robot.commands.PieceAffectorsCommands.*;
@@ -39,7 +38,6 @@ public class RobotContainer {
   /** SUBSYSTEMS */
   private final CoralAffector m_coralAffector = new CoralAffector();
   private final AlgaeAffector m_algaeAffector = new AlgaeAffector();
-  private final Climber m_climber = new Climber();
   private final Elevator m_elevator = new Elevator();
   private final DriveTrain m_driveTrain = new DriveTrain(m_elevator, SensorConstants.limeLightName);
 
@@ -83,10 +81,6 @@ public class RobotContainer {
   private final Command CoralScore = new CoralScore(m_coralAffector);
   private final Command AlgaeCollect = new AlgaeCollect(m_algaeAffector);
   private final Command AlgaeScore = new AlgaeScore(m_algaeAffector);
-
-  //Climber
-  private final Command Climb = new Climb(m_climber);
-  private final Command UnClimb = new UnClimb(m_climber);
 
   /** AUTONS */
   //Neutral
@@ -214,7 +208,7 @@ public class RobotContainer {
     new JoystickButton(m_driverStick, IOConstants.switchOrientationButtonID).onTrue(SwitchOrientation);
     new JoystickButton(m_driverStick, IOConstants.straightDriveButtonID).whileTrue(StraightDrive);
     new JoystickButton(m_driverStick, IOConstants.autoDriveButtonID).whileTrue(AutoAimDrive);
-    new JoystickButton(m_driverStick, IOConstants.robotOrientButtonID).whileTrue(RobotOrient);
+    //new JoystickButton(m_driverStick, IOConstants.robotOrientButtonID).whileTrue(RobotOrient);
 
     //Alignments
     new JoystickButton(m_driverStick, IOConstants.leftAlignButtonID).onTrue(SelectAlignmentLeft);
@@ -241,10 +235,6 @@ public class RobotContainer {
     new JoystickButton(m_operatorStick2, IOConstants.coralScoreButtonID).whileTrue(CoralScore);
     new JoystickButton(m_operatorStick2, IOConstants.algaeCollectButtonID).whileTrue(AlgaeCollect);
     new JoystickButton(m_operatorStick2, IOConstants.algaeScoreButtonID).whileTrue(AlgaeScore);
-
-    //Climber
-    new JoystickButton(m_operatorStick2, IOConstants.unClimbButtonID).whileTrue(UnClimb);
-    new JoystickButton(m_operatorStick2, IOConstants.climbButtonID).whileTrue(Climb);
 
     //Testing
   }

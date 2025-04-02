@@ -119,27 +119,27 @@ public final class Constants {
     public static final int coralWristID = 12;
 
     public static final double startingAngle = 2;
+    public static final double voltageComp = 12;
 
     public static final double coralWristConversionFactor = (360 / 64);
     public static final double wristScoringThreshold = 90;
 
     public static final double coralWristDefaultPos = 0;
-    // public static final double coralWristL1 = 22;
     public static final double coralWristL23 = 23;
     public static final double coralWristL4 = 104;
     public static final double coralWristHP = 32;
 
-    public static final double wristOverrideSpeed = .4;
+    public static final double wristOverrideSpeed = .2;
 
-    public static final double coralWristKP = .042; //.01
-    public static final double coralWristKI = .000; //.0001
-    public static final double coralWristKD = .000; //.0002
+    public static final double coralWristKP = .014; //.01
+    public static final double coralWristKI = .000; //.000
+    public static final double coralWristKD = .000; //.000
     public static final double coralWristKTolerance = .5;
 
     public static final double coralAffectorInSpeed = .25;
     public static final double coralAffectorOutSpeed = .75;
 
-    public static final double maxCoralWristUpSpeed = .52;
+    public static final double maxCoralWristUpSpeed = .4;
     public static final double maxCoralWristDownSpeed = -.175;
 
     /** ALGAE */
@@ -427,26 +427,16 @@ public final class Constants {
     public static final AdvancedPose2D blueRightCoralStationPos = blueLeftCoralStationPos.verticallyFlip();
     public static final AdvancedPose2D redLeftCoralStationPos = blueLeftCoralStationPos.flipBoth();
     public static final AdvancedPose2D redRightCoralStationPos = blueRightCoralStationPos.flipBoth();
-
-    public static final double horizkP = .05;
-    public static final double horizkI = 0;
-    public static final double horizkD = .002;
-    public static final double horizkTolerance = 1.6;
-
-    public static final double diskP = .004;
-    public static final double diskI = .0008;
-    public static final double diskD = 0;
-    public static final double diskTolerance = 80;
+    
+    public static final double transkP = 2; //1.5
+    public static final double transkI = 0; //.013
+    public static final double transkD = 0; //0
+    public static final double transkTolerance = .025;
 
     public static final double turnkP = 4.5; //4.5
     public static final double turnkI = .355; //.355
     public static final double turnkD = 0; //0
     public static final double turnkTolerance = .03;
-
-    public static final double transkP = 1.5; //1.5
-    public static final double transkI = .013; //.013
-    public static final double transkD = 0; //0
-    public static final double transkTolerance = .025;
 
     public static final Vector<N3> poseEstimateOdometryStdDev = VecBuilder.fill(.12, .12, Units.degreesToRadians(0));
     public static final Vector<N3> poseEstimateVisionStdDev = VecBuilder.fill(.02, .02, Units.degreesToRadians(9000));

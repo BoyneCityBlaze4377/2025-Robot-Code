@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
 
@@ -34,6 +35,7 @@ import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 
 import frc.Lib.AdvancedPose2D;
+import frc.Lib.BezierPath;
 import frc.Lib.Elastic;
 import frc.Lib.LimelightHelpers;
 import frc.Lib.Elastic.Notification;
@@ -45,6 +47,7 @@ import frc.robot.Constants.AutoAimConstants.*;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.Constants.ModuleConstants;
 import frc.robot.Constants.SensorConstants;
@@ -78,7 +81,7 @@ public class DriveTrain extends SubsystemBase {
   private final String cameraName;
   private Alliance m_alliance;
 
-  private AdvancedPose2D desiredPose, initialPose = AutonConstants.initialPoseBlueRight;
+  private AdvancedPose2D desiredPose, initialPose = new AdvancedPose2D();
   private Alignment desiredAlignment;
   private ReefStation estimatedStation;
 
@@ -128,9 +131,9 @@ public class DriveTrain extends SubsystemBase {
     resetEncoders();
 
     // DriveTrain GyroScope
-    m_gyro = new AHRS(NavXComType.kMXP_SPI);
+    m_gyro = new AHRS(NavXComType.kUSB1);
     m_gyro.setAngleAdjustment(initialPose.getRotation().getDegrees());
-    heading = Units.radiansToDegrees(MathUtil.angleModulus(Units.degreesToRadians(m_gyro.getAngle())));
+    heading = -MathUtil.inputModulus(m_gyro.getAngle(), -180, 180);
 
     /* Pose Estimation */
     estimateField = new Field2d();
@@ -138,7 +141,7 @@ public class DriveTrain extends SubsystemBase {
                                                  getSwerveModulePositions(), 
                                                  initialPose,
                                                  AutoAimConstants.poseEstimateOdometryStdDev,
-                                                 AutoAimConstants.poseEstimateVisionStdDev);            
+                                                 AutoAimConstants.poseEstimateVisionStdDev);        
     estimateField.setRobotPose(initialPose);
 
     try {
@@ -258,7 +261,7 @@ public class DriveTrain extends SubsystemBase {
       periodicTimer = 0;
     }
 
-    heading = Units.radiansToDegrees(MathUtil.angleModulus(Units.degreesToRadians(m_gyro.getAngle())));
+    heading = -MathUtil.inputModulus(m_gyro.getAngle(), -180, 180);
 
     /* Pose Estimation */
     poseEstimator.update(getHeading(), getSwerveModulePositions());
@@ -268,8 +271,8 @@ public class DriveTrain extends SubsystemBase {
     }
 
     // Field Displaying
-    // estimateField.setRobotPose(poseEstimator.getEstimatedPosition());
-    // estimateField.getObject("desired").setPose(desiredPose.withReefAlignment(desiredAlignment, false));
+    estimateField.setRobotPose(poseEstimator.getEstimatedPosition());
+    estimateField.getObject("desired").setPose(desiredPose.withReefAlignment(desiredAlignment, false));
     // estimateField.getObject("heading").setPose(FieldConstants.fieldLength / 2, FieldConstants.fieldWidth / 2, getHeading());
 
     /** Dashboard Posting */
@@ -760,7 +763,8 @@ public class DriveTrain extends SubsystemBase {
       double error = Math.abs(getHeading().getDegrees() - AutoAimConstants.reefStationAngles[i]);
       if (error < prevError){
         prevError = error;
-        selectedAngle = AutoAimConstants.reefStationAngles[i];
+        selectedAngle = MathUtil.inputModulus(AutoAimConstants.reefStationAngles[i] + (desiredAlignment == Alignment.center ? 180 : 0),
+                                              -180, 180);
       }
     }
     return selectedAngle;

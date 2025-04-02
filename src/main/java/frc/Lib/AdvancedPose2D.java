@@ -1,5 +1,6 @@
 package frc.Lib;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -34,7 +35,7 @@ public class AdvancedPose2D extends Pose2d {
     }
 
     public AdvancedPose2D rotateBy(Rotation2d rotation) {
-        return new AdvancedPose2D(this.getTranslation(), Rotation2d.fromDegrees(this.getHeadingDegrees() + rotation.getDegrees()));
+        return new AdvancedPose2D(this.getTranslation(), Rotation2d.fromDegrees(MathUtil.inputModulus(this.getHeadingDegrees() + rotation.getDegrees(), -180, 180)));
     }
 
     public double getHeadingDegrees() {

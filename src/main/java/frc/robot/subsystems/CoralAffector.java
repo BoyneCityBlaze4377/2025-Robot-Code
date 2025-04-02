@@ -26,7 +26,7 @@ public class CoralAffector extends SubsystemBase {
   private final RelativeEncoder wristEncoder;
 
   private final DigitalInput coralDetector;
-  private final GenericEntry wristValSender, hasCoralSender, lockedSender;
+  private final GenericEntry wristValSender, hasCoralSender, lockedSender, wristSpeedSender;
   private final PIDController wristController;
 
   private final double dA;
@@ -65,6 +65,7 @@ public class CoralAffector extends SubsystemBase {
     hasCoralSender = IOConstants.TeleopTab.add("HasCoral", hasCoral()).withWidget("Boolean Box").getEntry();
     lockedSender = IOConstants.DiagnosticTab.add("CoralWrist Locked", false)
                                             .withWidget("Boolean Box").getEntry();
+    wristSpeedSender = IOConstants.DiagnosticTab.add("CoralWrist Speed", wristSpeed).getEntry();
 
     /** Other Initializations */                                        
     dA = AffectorConstants.startingAngle - wristEncoder.getPosition() * AffectorConstants.coralWristConversionFactor;
@@ -80,6 +81,7 @@ public class CoralAffector extends SubsystemBase {
     wristValSender.setDouble(getWristDegrees());
     hasCoralSender.setBoolean(hasCoral());
     lockedSender.setBoolean(locked);
+    wristSpeedSender.setDouble(wristSpeed);
   }
 
   public void collect() {
@@ -106,7 +108,7 @@ public class CoralAffector extends SubsystemBase {
    * @param setPoint
    */
   public void setSetpoint(double setPoint) {
-    wristController.setSetpoint(setPoint);
+    wristController.setSetpoint(setPoint + (setPoint == AffectorConstants.coralWristDefaultPos ? 0 : 3));
   }
 
   /** Move the wrist based on PID output */
@@ -166,6 +168,7 @@ public class CoralAffector extends SubsystemBase {
 
     coralWristConfig.inverted(false);
     coralWristConfig.idleMode(IdleMode.kBrake);
+    coralWristConfig.voltageCompensation(AffectorConstants.voltageComp);
 
     configMotorControllers();
   }
