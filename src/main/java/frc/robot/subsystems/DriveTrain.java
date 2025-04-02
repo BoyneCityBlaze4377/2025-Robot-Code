@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
 
@@ -22,7 +21,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -35,7 +33,6 @@ import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 
 import frc.Lib.AdvancedPose2D;
-import frc.Lib.BezierPath;
 import frc.Lib.Elastic;
 import frc.Lib.LimelightHelpers;
 import frc.Lib.Elastic.Notification;
@@ -132,16 +129,19 @@ public class DriveTrain extends SubsystemBase {
 
     // DriveTrain GyroScope
     m_gyro = new AHRS(NavXComType.kUSB1);
+    m_gyro.reset();
     m_gyro.setAngleAdjustment(initialPose.getRotation().getDegrees());
-    heading = -MathUtil.inputModulus(m_gyro.getAngle(), -180, 180);
+    heading = -MathUtil.inputModulus(m_gyro.getYaw() + initialPose.getHeadingDegrees(), -180, 180);
 
     /* Pose Estimation */
     estimateField = new Field2d();
-    poseEstimator = new SwerveDrivePoseEstimator(SwerveConstants.driveKinematics, getHeading(), 
+    poseEstimator = new SwerveDrivePoseEstimator(SwerveConstants.driveKinematics, 
+                                                 getHeading(), 
                                                  getSwerveModulePositions(), 
                                                  initialPose,
                                                  AutoAimConstants.poseEstimateOdometryStdDev,
-                                                 AutoAimConstants.poseEstimateVisionStdDev);        
+                                                 AutoAimConstants.poseEstimateVisionStdDev);   
+    setInitialPose(initialPose); 
     estimateField.setRobotPose(initialPose);
 
     try {
@@ -261,7 +261,7 @@ public class DriveTrain extends SubsystemBase {
       periodicTimer = 0;
     }
 
-    heading = -MathUtil.inputModulus(m_gyro.getAngle(), -180, 180);
+    heading = -MathUtil.inputModulus(m_gyro.getYaw() + initialPose.getHeadingDegrees(), -180, 180);
 
     /* Pose Estimation */
     poseEstimator.update(getHeading(), getSwerveModulePositions());
@@ -295,33 +295,7 @@ public class DriveTrain extends SubsystemBase {
       notified = false;
     }
 
-    // Determine whether the StraightDrive function is inverted based on elevator position
-    switch (m_elevator.getCurrentPosition()) {
-      case processor:
-        straightDriveBackwards = true;
-        break;
-      case L2:
-        straightDriveBackwards = false;
-        break;
-      case L2algae:
-        straightDriveBackwards = true;
-        break;
-      case L3:
-        straightDriveBackwards = false;
-        break;
-      case L3algae:
-        straightDriveBackwards = true;
-        break;
-      case L4:
-        straightDriveBackwards = false;
-        break;
-      case HP:
-        straightDriveBackwards = false;
-        break;
-      default:
-        straightDriveBackwards = false;
-        break;
-    }
+    straightDriveBackwards = desiredAlignment == Alignment.center;
 
     /* LIMELIGHT */
     NetworkTable table = NetworkTableInstance.getDefault().getTable(SensorConstants.limeLightName);
@@ -379,7 +353,7 @@ public class DriveTrain extends SubsystemBase {
 
     xSpeedSender.setDouble(xSpeed);
     ySpeedSender.setDouble(ySpeed);
-    omegaSender.setDouble(omega);
+    omegaSender.setDouble(-omega);
   }
 
 
@@ -869,6 +843,8 @@ public class DriveTrain extends SubsystemBase {
   public synchronized void setInitialPose(AdvancedPose2D pose) {
     poseEstimator.resetPose(pose);
     m_gyro.setAngleAdjustment(pose.getRotation().getDegrees());
+    m_gyro.reset();
+    m_gyro.zeroYaw();
     initialPose = pose;
   }
 

@@ -36,6 +36,7 @@ public class InRangeAllToPosition extends Command {
   public void initialize() {
     m_elevator.setSetpoint(elevatorTarget);
     m_coralAffector.setSetpoint(coralWristTarget);
+    m_coralAffector.setIsOverride(false);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -46,7 +47,7 @@ public class InRangeAllToPosition extends Command {
       m_coralAffector.PIDMoveWrist();
     } else {
       m_elevator.lockElevator();
-      m_coralAffector.overrideLockWrist();
+      m_coralAffector.lockWrist();
     }
   }
 
@@ -54,7 +55,7 @@ public class InRangeAllToPosition extends Command {
   @Override
   public void end(boolean interrupted) {
     m_elevator.lockElevator();
-    m_coralAffector.PIDLockWrist();
+    m_coralAffector.lockWrist();
   }
 
   // Returns true when the command should end.

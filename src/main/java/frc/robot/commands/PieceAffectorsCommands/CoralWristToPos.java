@@ -23,6 +23,7 @@ public class CoralWristToPos extends Command {
   @Override
   public void initialize() {
     m_affector.setSetpoint(desiredPos);
+    m_affector.setIsOverride(false);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -34,7 +35,7 @@ public class CoralWristToPos extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_affector.PIDLockWrist(); 
+    m_affector.lockWrist(); 
   }
 
   // Returns true when the command should end.

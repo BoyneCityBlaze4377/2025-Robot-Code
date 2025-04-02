@@ -29,6 +29,7 @@ public class AllToSetPosition extends Command {
   @Override
   public void initialize() {
     m_coralAffector.setSetpoint(coralWristTarget);
+    m_coralAffector.setIsOverride(false);
     m_elevator.setSetpoint(elevatorTarget);
 
     m_elevator.setPositionString("Going to " + position.toString());
@@ -47,7 +48,7 @@ public class AllToSetPosition extends Command {
   @Override
   public void end(boolean interrupted) {
     m_elevator.lockElevator();
-    m_coralAffector.PIDLockWrist();
+    m_coralAffector.lockWrist();
 
     m_elevator.setPositionString("At " + position.toString());
     m_elevator.setAtPos(true);

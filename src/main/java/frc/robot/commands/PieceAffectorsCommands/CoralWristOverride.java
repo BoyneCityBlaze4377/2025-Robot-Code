@@ -24,6 +24,7 @@ public class CoralWristOverride extends Command {
   @Override
   public void initialize() {
     input = 0;
+    m_coralAffector.setIsOverride(true);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -31,7 +32,7 @@ public class CoralWristOverride extends Command {
   public void execute() {
     input = m_stick.getRawAxis(0) * AffectorConstants.wristOverrideSpeed;
     if (Math.abs(input) < .2) {
-      m_coralAffector.overrideLockWrist();
+      m_coralAffector.lockWrist();
     } else {
       m_coralAffector.overrideWrist(-input);
     }
@@ -40,7 +41,7 @@ public class CoralWristOverride extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_coralAffector.overrideLockWrist();
+    m_coralAffector.lockWrist();
   }
 
   // Returns true when the command should end.

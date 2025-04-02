@@ -31,7 +31,7 @@ public class CoralAffector extends SubsystemBase {
 
   private final double dA;
 
-  private boolean locked;
+  private boolean locked, override;
   private double wristSpeed;
 
   /** Creates a new CoralAffector. */
@@ -70,6 +70,7 @@ public class CoralAffector extends SubsystemBase {
     /** Other Initializations */                                        
     dA = AffectorConstants.startingAngle - wristEncoder.getPosition() * AffectorConstants.coralWristConversionFactor;
     wristSpeed = 0;
+    override = false;
   }
   
   @Override
@@ -82,6 +83,10 @@ public class CoralAffector extends SubsystemBase {
     hasCoralSender.setBoolean(hasCoral());
     lockedSender.setBoolean(locked);
     wristSpeedSender.setDouble(wristSpeed);
+
+    if (wristController.getSetpoint() == AffectorConstants.coralWristDefaultPos && wristController.atSetpoint() && !override) {
+      wristEncoder.setPosition(AffectorConstants.coralWristDefaultPos);
+    }
   }
 
   public void collect() {
@@ -108,7 +113,7 @@ public class CoralAffector extends SubsystemBase {
    * @param setPoint
    */
   public void setSetpoint(double setPoint) {
-    wristController.setSetpoint(setPoint + (setPoint == AffectorConstants.coralWristDefaultPos ? 0 : 3));
+    wristController.setSetpoint(setPoint);// + (setPoint == AffectorConstants.coralWristDefaultPos ? 0 : 3));
   }
 
   /** Move the wrist based on PID output */
@@ -138,16 +143,20 @@ public class CoralAffector extends SubsystemBase {
     wristSpeed = 0;
     locked = false;
   }
+
+  public void lockWrist() {
+    wristSpeed = .05;
+  }
   
   /** Lock the wrist into its PID setpoint */
-  public void PIDLockWrist() {
-    wristSpeed = (.05 - .0000052 * Math.pow(wristController.getSetpoint() - 90, 2));
+  private void PIDLockWrist() {
+    wristSpeed = (.054 - .000006 * Math.pow(wristController.getSetpoint() - 90, 2));
     locked = true;
   }
 
   /** Lock the wrist to where it is */
-  public void overrideLockWrist() {
-    wristSpeed = (.05 - .0000052 * Math.pow(getWristDegrees() - 90, 2));
+  private void overrideLockWrist() {
+    wristSpeed = (.054 - .0000052 * Math.pow(getWristDegrees() - 90, 2));
     locked = true;
   }
 
@@ -182,5 +191,9 @@ public class CoralAffector extends SubsystemBase {
   /** @return Whether or not the CoralAffector is holding a piece of coral */
   public boolean hasCoral() {
     return !coralDetector.get();
+  }
+
+  public void setIsOverride(boolean isOverride) {
+    override = isOverride;
   }
 }

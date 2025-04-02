@@ -103,13 +103,13 @@ public final class Constants {
     public static final double maxDownSpeed = -.93;
     public static final double correctionSpeed = .2;
 
-    public static final double defaultPos = lowerLimit;
-    public static final double floorPos = lowerLimit;
+    public static final double defaultPos = lowerLimit + 1;
+    public static final double floorPos = lowerLimit + 1;
     public static final double processorPos = 37;
     public static final double L2AlgaePos = 111;
-    public static final double L2Pos = 89;
+    public static final double L2Pos = 83;
     public static final double L3AlgaePos = 177;
-    public static final double L3Pos = 210;
+    public static final double L3Pos = 204;
     public static final double L4Pos = 208;
     public static final double HPPos = 124;
   }
@@ -119,20 +119,20 @@ public final class Constants {
     public static final int coralAffectorID = 11;
     public static final int coralWristID = 12;
 
-    public static final double startingAngle = 2;
+    public static final double startingAngle = 1;
     public static final double voltageComp = 12;
 
     public static final double coralWristConversionFactor = (360 / 64);
     public static final double wristScoringThreshold = 90;
 
-    public static final double coralWristDefaultPos = 0;
-    public static final double coralWristL23 = 23;
+    public static final double coralWristDefaultPos = startingAngle;
+    public static final double coralWristL23 = 18;
     public static final double coralWristL4 = 104;
-    public static final double coralWristHP = 32;
+    public static final double coralWristHP = 35;
 
     public static final double wristOverrideSpeed = .2;
 
-    public static final double coralWristKP = .014; //.01
+    public static final double coralWristKP = .016; //.01
     public static final double coralWristKI = .000; //.000
     public static final double coralWristKD = .000; //.000
     public static final double coralWristKTolerance = .5;
@@ -166,9 +166,10 @@ public final class Constants {
 
   public static final class DriveConstants {
     public static final double speedScaler = 1;
-    public static final double maxDriveSpeed = .96;
+
+    public static final double maxDriveSpeed = 1;
     public static final double minDriveSpeed = .35;
-    public static final double maxRotSpeed = .9;
+    public static final double maxRotSpeed = 1;
     public static final double minRotSpeed = .3;
 
     public static final double maxSpeedMetersPerSecond = 4.25; //4.5 true max
