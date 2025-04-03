@@ -68,10 +68,6 @@ public final class Constants {
     public static final int algaeCollectButtonID = 3;
     public static final int algaeScoreButtonID = 4;
 
-    //Climber
-    public static final int unClimbButtonID = 8;
-    public static final int climbButtonID = 7;
-
     //Overrides
     public static final int wristOverrideButtonID = 12;
     public static final int elevatorOverrideButtonID = 12;
@@ -447,11 +443,6 @@ public final class Constants {
     public static final double maxPIDRot = Math.PI/2;
   }
 
-  public class ClimberConstants {
-    public static final int climberControllerID = 15;
-    public static final double climberspeed = .99;
-  }
-
   public class AutonConstants {
     public static final double coralScoreTime = 1;
     public static final double alageScoreTime = .3;
@@ -488,15 +479,8 @@ public final class Constants {
                                                             Units.inchesToMeters(33.6875), 
                                                             0, 0, 0};
 
-    /** LASERCAN */
-    public static final int laserCANID = 17;
-
     /** BEAM BREAKS */
     public static final int coralBreakID = 0;
     public static final int algaeBreakID = 1;
-
-    /** Drive Gyro */
-    public static final int gyroID = 16;
-    public static final double yawOffset = 14.3;
   }
 }

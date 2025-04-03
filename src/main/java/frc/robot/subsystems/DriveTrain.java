@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
 
@@ -33,6 +34,7 @@ import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 
 import frc.Lib.AdvancedPose2D;
+import frc.Lib.BezierPath;
 import frc.Lib.Elastic;
 import frc.Lib.LimelightHelpers;
 import frc.Lib.Elastic.Notification;
@@ -157,6 +159,19 @@ public class DriveTrain extends SubsystemBase {
     desiredPose = isBlue ? AutoAimConstants.redReef.get(estimatedStation) 
                          : AutoAimConstants.redReef.get(estimatedStation);
     desiredAlignment = Alignment.blank;
+
+    BezierPath bezier = new BezierPath(FieldConstants.blueReefCenterPos,
+                                       FieldConstants.blueReefCenterPos,
+                                       FieldConstants.blueCenterStartAlgae.horizontallyFlip());
+    ArrayList<AdvancedPose2D> path = bezier.outputPath(50);
+
+    for (int i = 0; i < path.toArray().length; i++) {
+      estimateField.getObject("Point" + i).setPose(path.get(i));
+    }
+
+    for (int k = 0; k < bezier.getControlPoints().length; k++) {
+      estimateField.getObject("Control" + k).setPose(bezier.getControlPoints()[k]);
+    }
 
     /* DashBoard Initialization */
     robotHeading = IOConstants.TeleopTab.add("Robot Heading", heading)
