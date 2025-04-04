@@ -14,6 +14,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.AffectorConstants;
@@ -25,7 +26,7 @@ public class CoralAffector extends SubsystemBase {
   private final SparkMaxConfig coralAffectorConfig, coralWristConfig;
   private final RelativeEncoder wristEncoder;
 
-  private final DigitalInput coralDetector;
+  private final DigitalInput coralDetector, wristResetter;
   private final GenericEntry wristValSender, hasCoralSender, lockedSender, wristSpeedSender;
   private final PIDController wristController;
 
@@ -54,6 +55,7 @@ public class CoralAffector extends SubsystemBase {
     wristController.setTolerance(AffectorConstants.coralWristKTolerance);
 
     coralDetector = new DigitalInput(SensorConstants.coralBreakID);
+    wristResetter = new DigitalInput(SensorConstants.wristResetterID);
 
     /** DashBoard Initialization */
     wristValSender = IOConstants.TeleopTab.add("Wrist Encoder Degrees", getWristDegrees())
@@ -87,6 +89,12 @@ public class CoralAffector extends SubsystemBase {
     if (wristController.getSetpoint() == AffectorConstants.coralWristDefaultPos && wristController.atSetpoint() && !override) {
       wristEncoder.setPosition(AffectorConstants.coralWristDefaultPos);
     }
+
+    if (wristResetter.get() == false) {
+      resetWristEncoder();
+    }
+
+    SmartDashboard.putBoolean("Wrist Reset", wristResetter.get());
   }
 
   public void collect() {
@@ -154,8 +162,8 @@ public class CoralAffector extends SubsystemBase {
   }
   
   /** Set the position of the wrist's encoder to zero */
-  public void zeroWristEncoder() {
-    wristEncoder.setPosition(0);
+  public void resetWristEncoder() {
+    wristEncoder.setPosition(AffectorConstants.coralWristDefaultPos);
   }
 
   /** Set the default configuration of the CoralAffector's motor controllers */

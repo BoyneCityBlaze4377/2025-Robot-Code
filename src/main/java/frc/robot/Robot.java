@@ -63,24 +63,29 @@ public class Robot extends TimedRobot {
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    m_robotContainer.setAlliance(DriverStation.getAlliance());
+  }
 
   @Override
   public void disabledPeriodic() {
-    m_robotContainer.setAliance(DriverStation.getAlliance());
+    m_robotContainer.setAlliance(DriverStation.getAlliance());
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-    m_robotContainer.zeroWrist();
+    m_robotContainer.resetWrist();
+    m_robotContainer.setAlliance(DriverStation.getAlliance());
     Shuffleboard.selectTab(IOConstants.AutonTab.getTitle());
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
+
+    m_robotContainer.setToVisionPos();
   }
 
   /** This function is called periodically during autonomous. */
@@ -90,14 +95,23 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     Shuffleboard.selectTab(IOConstants.TeleopTab.getTitle());
+    m_robotContainer.setAlliance(DriverStation.getAlliance());
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+
+    m_robotContainer.setToVisionPos();
   }
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    double c = 0;
+    if (c < 50) {
+      m_robotContainer.setToVisionPos();
+    }
+    c++;
+  }
 
   @Override
   public void testInit() {

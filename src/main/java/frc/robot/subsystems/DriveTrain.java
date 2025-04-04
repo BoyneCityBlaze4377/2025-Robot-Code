@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
 
@@ -34,7 +33,6 @@ import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 
 import frc.Lib.AdvancedPose2D;
-import frc.Lib.BezierPath;
 import frc.Lib.Elastic;
 import frc.Lib.LimelightHelpers;
 import frc.Lib.Elastic.Notification;
@@ -46,7 +44,6 @@ import frc.robot.Constants.AutoAimConstants.*;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
-import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.Constants.ModuleConstants;
 import frc.robot.Constants.SensorConstants;
@@ -160,18 +157,18 @@ public class DriveTrain extends SubsystemBase {
                          : AutoAimConstants.redReef.get(estimatedStation);
     desiredAlignment = Alignment.blank;
 
-    BezierPath bezier = new BezierPath(FieldConstants.blueReefCenterPos,
-                                       FieldConstants.blueReefCenterPos,
-                                       FieldConstants.blueCenterStartAlgae.horizontallyFlip());
-    ArrayList<AdvancedPose2D> path = bezier.outputPath(50);
+    // BezierPath bezier = new BezierPath(FieldConstants.blueReefCenterPos,
+    //                                    FieldConstants.blueReefCenterPos,
+    //                                    FieldConstants.blueCenterStartAlgae.horizontallyFlip());
+    // ArrayList<AdvancedPose2D> path = bezier.outputPath(50);
 
-    for (int i = 0; i < path.toArray().length; i++) {
-      estimateField.getObject("Point" + i).setPose(path.get(i));
-    }
+    // for (int i = 0; i < path.toArray().length; i++) {
+    //   estimateField.getObject("Point" + i).setPose(path.get(i));
+    // }
 
-    for (int k = 0; k < bezier.getControlPoints().length; k++) {
-      estimateField.getObject("Control" + k).setPose(bezier.getControlPoints()[k]);
-    }
+    // for (int k = 0; k < bezier.getControlPoints().length; k++) {
+    //   estimateField.getObject("Control" + k).setPose(bezier.getControlPoints()[k]);
+    // }
 
     /* DashBoard Initialization */
     robotHeading = IOConstants.TeleopTab.add("Robot Heading", heading)
@@ -378,7 +375,7 @@ public class DriveTrain extends SubsystemBase {
    * @param xSpeed The speed at which to drive
    */
   public void straightDrive(double xSpeed) {
-    x = xSpeed * (straightDriveBackwards ? -1 : 1);
+    x = xSpeed * (straightDriveBackwards ? -1 : 1) * (isBlue ? 1 : -1);
     y = 0;
     omega = 0;
   }
@@ -759,45 +756,13 @@ public class DriveTrain extends SubsystemBase {
     return selectedAngle;
   }
 
-  // private Optional<Pose2d> getEstimatedPose2dBlue() {
-  //   LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue(cameraName);
-  //   return Optional.of(new Pose3d(new Translation3d(mt2.pose.getTranslation()), new Rotation3d(mt2.pose.getRotation())).toPose2d());
-  // }
-
-  /**
-   * Get the LimeLight-based PoseEstimate of the robot while on the Blue Alliance
-   * 
-   * @return The PoseEstimate for the Blue Alliance
-   */
-  private Optional<PoseEstimate> getPoseEstimateBlue() {
-    return Optional.of(LimelightHelpers.getBotPoseEstimate_wpiBlue(cameraName));
-  }
-
-  // private Optional<Pose2d> getEstimatedPose2dRed() {
-  //   LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiRed(cameraName);
-  //   return Optional.of(new Pose3d(new Translation3d(mt2.pose.getTranslation()), new Rotation3d(mt2.pose.getRotation())).toPose2d());
-  // }
-
-  /**
-   * Get the LimeLight-based PoseEstimate of the robot while on the Red Alliance
-   * 
-   * @return The PoseEstimate for the Red Alliance
-   */
-  private Optional<PoseEstimate> getPoseEstimateRed() {
-    return Optional.of(LimelightHelpers.getBotPoseEstimate_wpiRed(cameraName));
-  }
-
-  // public Optional<Pose2d> getEstimatedPose2d() {
-  //   return isBlue ? getEstimatedPose2dBlue() : getEstimatedPose2dRed();
-  // }
-
   /**
    * Get the Vision Estimated Position of the robot
    * 
    * @return The Vision Estimated Position of the Robot
    */
   public Optional<PoseEstimate> getPoseEstimate() {
-    return isBlue ? getPoseEstimateBlue() : getPoseEstimateRed();
+    return Optional.of(LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(cameraName));
   }
 
   public double getTX() {
@@ -863,6 +828,10 @@ public class DriveTrain extends SubsystemBase {
     initialPose = pose;
   }
 
+  public void resetPose() {
+    poseEstimator.resetPose(initialPose);
+  }
+
   /** @return The desired ReefStation of the robot */
   public synchronized ReefStation getDesiredStation() {
     return estimatedStation;
@@ -875,7 +844,7 @@ public class DriveTrain extends SubsystemBase {
    */
   public synchronized void setAlliance(Alliance alliance) {
     m_alliance = alliance;
-    isBlue = m_alliance == Alliance.Blue;
+    isBlue = (m_alliance == Alliance.Blue);
   }
 
   /** @return The Alliance for the current match */
@@ -886,5 +855,11 @@ public class DriveTrain extends SubsystemBase {
   /** @return The height of the elevator */
   public Position elevatorPos() {
     return m_elevator.getCurrentPosition();
+  }
+
+  public void setToVisionPos() {
+    if (getPoseEstimate().get().tagCount >= 1) {
+    poseEstimator.resetTranslation(getPoseEstimate().get().pose.getTranslation());
+    }
   }
 }

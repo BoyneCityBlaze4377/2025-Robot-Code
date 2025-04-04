@@ -13,16 +13,27 @@ import frc.Lib.BezierPath;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.Constants.SensorConstants;
+import frc.robot.Constants.AutoAimConstants;
 import frc.robot.Constants.AutoAimConstants.Alignment;
 import frc.robot.Constants.AutoAimConstants.Position;
+import frc.robot.Constants.AutoAimConstants.ReefStation;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.subsystems.*;
 import frc.robot.commands.AllToSetPosition;
 import frc.robot.commands.DriveCommands.*;
 import frc.robot.commands.ElevatorCommands.*;
 import frc.robot.commands.PieceAffectorsCommands.*;
+import frc.robot.commands.Auton.Functions.AutonAllToPosition;
+import frc.robot.commands.Auton.Functions.AutonCoralScore;
+import frc.robot.commands.Auton.Functions.AutonDriveToPosition;
+import frc.robot.commands.Auton.Functions.InRangeAllToPosition;
+import frc.robot.commands.Auton.Functions.RawAutonDrive;
+import frc.robot.commands.Auton.Functions.SetInitialPose;
+import frc.robot.commands.Auton.Functions.Wait;
 import frc.robot.commands.Auton.Sequences.*;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /*
@@ -151,12 +162,16 @@ public class RobotContainer {
                          .withProperties(Map.of("sort_options", true));
   }
 
-  public void setAliance(Optional<Alliance> alliance) {
+  public void setAlliance(Optional<Alliance> alliance) {
     m_driveTrain.setAlliance(alliance.isPresent() ? alliance.get() : Alliance.Blue);
   }
 
-  public void zeroWrist() {
-    m_coralAffector.zeroWristEncoder();
+  public void resetWrist() {
+    m_coralAffector.resetWristEncoder();
+  }
+
+  public void setToVisionPos() {
+    m_driveTrain.setToVisionPos();
   }
 
   public void setDriveOrientation(boolean fieldOriented) {
@@ -182,17 +197,17 @@ public class RobotContainer {
     autonChooser.addOption("RED Back and Process, first L4 on right", BackRightAndProcessRed);
     autonChooser.addOption("RED Back and Process, first L4 on left", BackLeftAndProcessRed);
 
-    // autonChooser.addOption("RED Drive Off Line", DriveOffLineRED);
-    // autonChooser.addOption("RED Score on Back", BackScoreRED);
-    // autonChooser.addOption("RED Score on Back and Collect Algae", BackScoreAlgaeRED);
-    // autonChooser.addOption("RED Score on Back and Drive Right", BackScoreRightRED);
-    // autonChooser.addOption("RED Score on Back and Drive Left", BackScoreLeftRED);
+    autonChooser.addOption("RED Drive Off Line", DriveOffLineRED);
+    autonChooser.addOption("RED Score on Back", BackScoreRED);
+    autonChooser.addOption("RED Score on Back and Collect Algae", BackScoreAlgaeRED);
+    autonChooser.addOption("RED Score on Back and Drive Right", BackScoreRightRED);
+    autonChooser.addOption("RED Score on Back and Drive Left", BackScoreLeftRED);
 
-    // autonChooser.setDefaultOption("BLUE Drive Off Line", DriveOffLineBLUE);
-    // autonChooser.addOption("BLUE Score on Back", BackScoreBLUE);
-    // autonChooser.addOption("BLUE Score on Back and Collect Algae", BackScoreAlgaeBLUE);
-    // autonChooser.addOption("BLUE Score on Back and Drive Right", BackScoreRightBLUE);
-    // autonChooser.addOption("BLUE Score on Back and Drive Left", BackScoreLeftBLUE);
+    autonChooser.setDefaultOption("BLUE Drive Off Line", DriveOffLineBLUE);
+    autonChooser.addOption("BLUE Score on Back", BackScoreBLUE);
+    autonChooser.addOption("BLUE Score on Back and Collect Algae", BackScoreAlgaeBLUE);
+    autonChooser.addOption("BLUE Score on Back and Drive Right", BackScoreRightBLUE);
+    autonChooser.addOption("BLUE Score on Back and Drive Left", BackScoreLeftBLUE);
   }
 
   /**
@@ -210,7 +225,7 @@ public class RobotContainer {
     new JoystickButton(m_driverStick, IOConstants.switchOrientationButtonID).onTrue(SwitchOrientation);
     new JoystickButton(m_driverStick, IOConstants.straightDriveButtonID).whileTrue(StraightDrive);
     new JoystickButton(m_driverStick, IOConstants.autoDriveButtonID).whileTrue(AutoAimDrive);
-    //new JoystickButton(m_driverStick, IOConstants.robotOrientButtonID).whileTrue(RobotOrient);
+    new JoystickButton(m_driverStick, IOConstants.robotOrientButtonID).whileTrue(RobotOrient);
 
     //Alignments
     new JoystickButton(m_driverStick, IOConstants.leftAlignButtonID).onTrue(SelectAlignmentLeft);
@@ -239,6 +254,7 @@ public class RobotContainer {
     new JoystickButton(m_operatorStick2, IOConstants.algaeScoreButtonID).whileTrue(AlgaeScore);
 
     //Testing
+    new JoystickButton(m_driverStick, 8).onTrue(new ResetPose(m_driveTrain));
   }
 
   /**
@@ -247,6 +263,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autonChooser.getSelected();
+    return new RawAutonDrive(m_driveTrain, .5, 0, 0, 2, 0);
   }
 }

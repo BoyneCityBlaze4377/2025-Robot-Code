@@ -43,11 +43,10 @@ public class PlaceOnBackAndProcessorBlue extends SequentialCommandGroup {
                                          new SequentialCommandGroup(new Wait(AutonConstants.awayFromReefTime), 
                                                                     new AutonAllToPosition(elevator, coralAffector, driveTrain, Position.L2algae))),
                 new ParallelDeadlineGroup(new AutonAlgaeCollect(algaeAffector),
-                                          new AutonDriveToPosition(driveTrain, AutoAimConstants.blueReef.get(ReefStation.back).withReefAlignment(Alignment.center, false)
-                                                                                                         .withRobotRelativeTransformation(new Translation2d(0, -AutoAimConstants.algaePosBackset)))),
+                                          new AutonDriveToPosition(driveTrain, AutoAimConstants.blueReef.get(ReefStation.back).withReefAlignment(Alignment.center, false))),
                 new ParallelCommandGroup(new AutonAllToPosition(elevator, coralAffector, driveTrain, Position.processor),
                                          new SequentialCommandGroup(new AutonDriveToPosition(driveTrain, AutoAimConstants.blueReef.get(ReefStation.back).withReefAlignment(Alignment.center, false)),
-                                                                    new AutonDriveToPosition(driveTrain, FieldConstants.blueProcessor.withRobotRelativeTransformation(new Translation2d(0, -.5))),
+                                                                    new AutonDriveToPosition(driveTrain, FieldConstants.blueProcessor.withRobotRelativeTransformation(new Translation2d(0, -AutoAimConstants.algaePosBackset))),
                                                                     new AutonDriveToPosition(driveTrain, FieldConstants.blueProcessor))),
                 new AutonAlgaeScore(algaeAffector));
   }
