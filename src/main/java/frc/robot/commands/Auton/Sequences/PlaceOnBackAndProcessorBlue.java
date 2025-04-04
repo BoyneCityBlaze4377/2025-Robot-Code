@@ -36,8 +36,9 @@ public class PlaceOnBackAndProcessorBlue extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(new SetInitialPose(driveTrain, AutonConstants.initialPoseBlueBack),
-                new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, AutoAimConstants.blueReef.get(ReefStation.back).withReefAlignment(coralAlignment, true))),
-                                         new InRangeAllToPosition(elevator, coralAffector, driveTrain, Position.L4),
+                new Wait(2), 
+                new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, AutoAimConstants.blueReef.get(ReefStation.back).withReefAlignment(coralAlignment, true)),
+                                         new InRangeAllToPosition(elevator, coralAffector, driveTrain, Position.L4)).withTimeout(5),
                 new AutonCoralScore(coralAffector),
                 new ParallelCommandGroup(new AutonDriveToPosition(driveTrain, AutoAimConstants.blueReef.get(ReefStation.back).withReefAlignment(Alignment.center, false)),
                                          new SequentialCommandGroup(new Wait(AutonConstants.awayFromReefTime), 

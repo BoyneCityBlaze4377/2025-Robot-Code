@@ -82,13 +82,13 @@ public class Elevator extends SubsystemBase {
   @Override
   public void periodic() {
     /** Move the elevator unless at a limit */
-    if (atUpperLimit()) {
-      elevatorMotor.set(-ElevatorConstants.correctionSpeed);
-    } else if (atLowerLimit()) {
-      elevatorMotor.set(ElevatorConstants.correctionSpeed);
-    } else {
-      elevatorMotor.set(elevatorSpeed);
-    }
+    // if (atUpperLimit()) {
+    //   elevatorMotor.set(-ElevatorConstants.correctionSpeed);
+    // } else if (atLowerLimit()) {
+    //   elevatorMotor.set(ElevatorConstants.correctionSpeed);
+    // } else {
+    //   elevatorMotor.set(elevatorSpeed);
+    // }
     
     /** DashBoard updates */
     elevatorHeight.setDouble(getEncoderVal());

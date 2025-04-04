@@ -1,9 +1,11 @@
 package frc.robot.commands.Auton.Sequences;
 
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.Lib.AdvancedPose2D;
-import frc.robot.commands.Auton.Functions.RawAutonDrive;
+import frc.robot.Constants.AutonConstants;
+import frc.robot.commands.Auton.Functions.AutonDriveToPosition;
 import frc.robot.commands.Auton.Functions.SetInitialPose;
 import frc.robot.subsystems.DriveTrain;
 
@@ -12,11 +14,12 @@ import frc.robot.subsystems.DriveTrain;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class DriveOffLine extends SequentialCommandGroup {
   /** Creates a new DriveOffLine. */
-  public DriveOffLine(DriveTrain driveTrain, AdvancedPose2D initialPose) {
+  public DriveOffLine(DriveTrain driveTrain, Alliance alliance) {
+    AdvancedPose2D initialPose = alliance == Alliance.Red ? AutonConstants.initialPoseRedBack 
+                                                          : AutonConstants.initialPoseBlueBack;
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(new SetInitialPose(driveTrain, initialPose),
-                new ParallelCommandGroup(new RawAutonDrive(driveTrain, -.5, 0, 0, 3, 0))
-                                                          .withTimeout(3));
+                new AutonDriveToPosition(driveTrain,initialPose.withRobotRelativeTransformation(new Translation2d(0, 1))));
   }
 }

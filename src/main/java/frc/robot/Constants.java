@@ -104,11 +104,11 @@ public final class Constants {
     public static final double floorPos = lowerLimit + 1;
     public static final double processorPos = 32;
     public static final double L2AlgaePos = 115;
-    public static final double L2Pos = 83;
+    public static final double L2Pos = 87;
     public static final double L3AlgaePos = 183;
-    public static final double L3Pos = 204;
-    public static final double L4Pos = 208;
-    public static final double HPPos = 118;
+    public static final double L3Pos = 214;
+    public static final double L4Pos = 214;
+    public static final double HPPos = 88;
   }
 
   public class AffectorConstants {
@@ -120,12 +120,12 @@ public final class Constants {
     public static final double voltageComp = 12;
 
     public static final double coralWristConversionFactor = (360 / 64);
-    public static final double wristScoringThreshold = 90;
+    public static final double wristScoringThreshold = 60;
 
     public static final double coralWristDefaultPos = startingAngle;
-    public static final double coralWristL23 = 8;
-    public static final double coralWristL4 = 80;
-    public static final double coralWristHP = 15;
+    public static final double coralWristL23 = 19;
+    public static final double coralWristL4 = 100;
+    public static final double coralWristHP = 36;
 
     public static final double wristOverrideSpeed = .2;
 
@@ -298,11 +298,11 @@ public final class Constants {
             
     public static final double centerOfReefToRobotDistance = Units.inchesToMeters(32.75) + SwerveConstants.trackWidth / 2;
 
-    public static final double coralAffectorOffsetFromRobotCenter = Units.inchesToMeters(2);
-    public static final double leftCoralReefOffset = -(Units.inchesToMeters(6.47) + coralAffectorOffsetFromRobotCenter);
-    public static final double rightCoralReefOffset = Units.inchesToMeters(6.47) - coralAffectorOffsetFromRobotCenter;
-    public static final double algaePosBackset = Units.inchesToMeters(6);
-    public static final double coralPosBackset = Units.inchesToMeters(4);
+    public static final double coralAffectorOffsetFromRobotCenter = Units.inchesToMeters(1.5);
+    public static final double leftCoralReefOffset = -(Units.inchesToMeters(2) + coralAffectorOffsetFromRobotCenter);
+    public static final double rightCoralReefOffset = Units.inchesToMeters(2) - coralAffectorOffsetFromRobotCenter;
+    public static final double algaePosBackset = Units.inchesToMeters(9); 
+    public static final double coralPosBackset = Units.inchesToMeters(3);
 
     public static final double LLDefaultOffsetDegrees = 2.3;
     public static final double LCToBumperEdgeOffsetMeters = Units.inchesToMeters(4.85);
@@ -440,7 +440,7 @@ public final class Constants {
     public static final Vector<N3> poseEstimateOdometryStdDev = VecBuilder.fill(.1, .1, Units.degreesToRadians(.2));
     public static final Vector<N3> poseEstimateVisionStdDev = VecBuilder.fill(.1, .1, Units.degreesToRadians(3));
 
-    public static final double maxPIDDriveSpeed = 3.1;
+    public static final double maxPIDDriveSpeed = .7;
     public static final double maxPIDRot = Math.PI/2;
   }
 

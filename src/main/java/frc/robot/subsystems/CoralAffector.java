@@ -78,17 +78,13 @@ public class CoralAffector extends SubsystemBase {
   @Override
   public void periodic() {
     /** Move Wrist */
-    coralWrist.set(wristSpeed);
+    //coralWrist.set(wristSpeed);
 
     /** DashBoard Updates */
     wristValSender.setDouble(getWristDegrees());
     hasCoralSender.setBoolean(hasCoral());
     lockedSender.setBoolean(locked);
     wristSpeedSender.setDouble(wristSpeed);
-
-    if (wristController.getSetpoint() == AffectorConstants.coralWristDefaultPos && wristController.atSetpoint() && !override) {
-      wristEncoder.setPosition(AffectorConstants.coralWristDefaultPos);
-    }
 
     if (wristResetter.get() == false) {
       resetWristEncoder();

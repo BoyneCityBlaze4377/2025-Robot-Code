@@ -88,7 +88,7 @@ public class AdvancedPose2D extends Pose2d {
     }
 
     public AdvancedPose2D withReefAlignment(Alignment alignment, boolean isL4) {
-        double backset = alignment == Alignment.center ? AutoAimConstants.algaePosBackset : -AutoAimConstants.coralPosBackset;
+        double backset = alignment == Alignment.center ? -AutoAimConstants.algaePosBackset : -AutoAimConstants.coralPosBackset;
         if (alignment == Alignment.blank) backset = 0;
         return new AdvancedPose2D(this.withRobotRelativeTransformation(new Translation2d(AutoAimConstants.offsetFromAlignment.get(alignment),
                                                                        (isL4 ? -.003 : backset))).getTranslation(),

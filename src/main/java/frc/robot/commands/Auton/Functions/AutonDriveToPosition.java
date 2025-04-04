@@ -20,7 +20,6 @@ public class AutonDriveToPosition extends Command {
   @Override
   public void initialize() {
     m_driveTrain.setPIDSetpoints(m_desiredPose.getX(), m_desiredPose.getY(), m_desiredPose.getRotation().getRadians());
-    m_driveTrain.setUseScalers(false);
   }
 
   // Called every time the scheduler runs while the command is scheduled.

@@ -44,6 +44,7 @@ import frc.robot.Constants.AutoAimConstants.*;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.Constants.ModuleConstants;
 import frc.robot.Constants.SensorConstants;
@@ -77,7 +78,7 @@ public class DriveTrain extends SubsystemBase {
   private final String cameraName;
   private Alliance m_alliance;
 
-  private AdvancedPose2D desiredPose, initialPose = new AdvancedPose2D();
+  private AdvancedPose2D desiredPose, initialPose = new AdvancedPose2D().rotateBy(Rotation2d.fromDegrees(90));
   private Alignment desiredAlignment;
   private ReefStation estimatedStation;
 
@@ -128,9 +129,8 @@ public class DriveTrain extends SubsystemBase {
 
     // DriveTrain GyroScope
     m_gyro = new AHRS(NavXComType.kUSB1);
-    m_gyro.reset();
     m_gyro.setAngleAdjustment(initialPose.getRotation().getDegrees());
-    heading = -MathUtil.inputModulus(m_gyro.getYaw() + initialPose.getHeadingDegrees(), -180, 180);
+    heading = -MathUtil.inputModulus(m_gyro.getYaw() - initialPose.getHeadingDegrees(), -180, 180);
 
     /* Pose Estimation */
     estimateField = new Field2d();
@@ -140,7 +140,9 @@ public class DriveTrain extends SubsystemBase {
                                                  initialPose,
                                                  AutoAimConstants.poseEstimateOdometryStdDev,
                                                  AutoAimConstants.poseEstimateVisionStdDev);   
-    setInitialPose(initialPose); 
+    setInitialPose(initialPose);
+    setInitialPose(initialPose);
+    setInitialPose(initialPose);
     estimateField.setRobotPose(initialPose);
 
     try {
@@ -273,7 +275,7 @@ public class DriveTrain extends SubsystemBase {
       periodicTimer = 0;
     }
 
-    heading = -MathUtil.inputModulus(m_gyro.getYaw() + initialPose.getHeadingDegrees(), -180, 180);
+    heading = -MathUtil.inputModulus(m_gyro.getYaw() - initialPose.getHeadingDegrees(), -180, 180);
 
     /* Pose Estimation */
     poseEstimator.update(getHeading(), getSwerveModulePositions());
@@ -283,7 +285,7 @@ public class DriveTrain extends SubsystemBase {
     }
 
     // Field Displaying
-    estimateField.setRobotPose(poseEstimator.getEstimatedPosition());
+    estimateField.setRobotPose(new Pose2d(poseEstimator.getEstimatedPosition().getTranslation(), getHeading()));
     estimateField.getObject("desired").setPose(desiredPose.withReefAlignment(desiredAlignment, false));
     // estimateField.getObject("heading").setPose(FieldConstants.fieldLength / 2, FieldConstants.fieldWidth / 2, getHeading());
 
@@ -339,6 +341,11 @@ public class DriveTrain extends SubsystemBase {
     rawDrive(x , y, omega, fieldOrientation, useScalers);
 
     periodicTimer++;
+
+    SmartDashboard.putBoolean("INRANGE", autonInRange);
+    SmartDashboard.putBoolean("ATSET", atSetpoints());
+
+    if (DriverStation.isTeleop()) setPoseSetpoints(desiredPose.withReefAlignment(desiredAlignment, false));
   }
 
   /**
@@ -390,8 +397,8 @@ public class DriveTrain extends SubsystemBase {
   public void teleopDrive(double xSpeed, double ySpeed, double rot) {
     rot = Math.pow(rot, 3);
 
-    x = xSpeed * DriveConstants.maxSpeedMetersPerSecond * speedScaler * (isBlue ? 1 : -1);
-    y = ySpeed * DriveConstants.maxSpeedMetersPerSecond * speedScaler * (isBlue ? 1 : -1);
+    x = xSpeed * DriveConstants.maxSpeedMetersPerSecond * speedScaler * (fieldOrientation ? (isBlue ? 1 : -1) : 1);
+    y = ySpeed * DriveConstants.maxSpeedMetersPerSecond * speedScaler * (fieldOrientation ? (isBlue ? 1 : -1) : 1);
     omega = rot * DriveConstants.maxRotationSpeedRadiansPerSecond * speedScaler;
 
     setUseScalers(true);
@@ -821,11 +828,12 @@ public class DriveTrain extends SubsystemBase {
    * @param pose The initial pose to be set
    */
   public synchronized void setInitialPose(AdvancedPose2D pose) {
-    poseEstimator.resetPose(pose);
     m_gyro.setAngleAdjustment(pose.getRotation().getDegrees());
     m_gyro.reset();
     m_gyro.zeroYaw();
     initialPose = pose;
+    heading = -MathUtil.inputModulus(m_gyro.getYaw() - initialPose.getHeadingDegrees(), -180, 180);
+    poseEstimator.resetPose(new Pose2d(pose.getTranslation(), Rotation2d.fromDegrees(heading)));
   }
 
   public void resetPose() {

@@ -1,5 +1,6 @@
 package frc.robot.commands.Auton.Functions;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.AutoAimConstants;
 import frc.robot.Constants.AutoAimConstants.Position;
@@ -49,6 +50,8 @@ public class InRangeAllToPosition extends Command {
       m_elevator.lockElevator();
       m_coralAffector.lockWrist();
     }
+
+    SmartDashboard.putBoolean("RANGE", m_driveTrain.getInRange());
   }
 
   // Called once the command ends or is interrupted.
