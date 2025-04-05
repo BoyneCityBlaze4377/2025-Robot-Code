@@ -78,7 +78,7 @@ public class DriveTrain extends SubsystemBase {
   private final String cameraName;
   private Alliance m_alliance;
 
-  private AdvancedPose2D desiredPose, initialPose = new AdvancedPose2D().rotateBy(Rotation2d.fromDegrees(90));
+  private AdvancedPose2D desiredPose, initialPose = AutonConstants.initialPoseRedBack;
   private Alignment desiredAlignment;
   private ReefStation estimatedStation;
 
@@ -157,7 +157,7 @@ public class DriveTrain extends SubsystemBase {
     // Calculate desired pose
     desiredPose = isBlue ? AutoAimConstants.redReef.get(estimatedStation) 
                          : AutoAimConstants.redReef.get(estimatedStation);
-    desiredAlignment = Alignment.blank;
+    desiredAlignment = Alignment.left;
 
     // BezierPath bezier = new BezierPath(FieldConstants.blueReefCenterPos,
     //                                    FieldConstants.blueReefCenterPos,

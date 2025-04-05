@@ -90,7 +90,9 @@ public class RobotContainer {
   private final NoAuton NoAuton = new NoAuton(m_driveTrain, AutonConstants.customInitialPose);
   private final DriveOffLine DOLRed = new DriveOffLine(m_driveTrain, Alliance.Red);
   private final DriveOffLine DOLBlue = new DriveOffLine(m_driveTrain, Alliance.Blue);
-  private final Command RawDOL = new RawAutonDrive(m_driveTrain, 0.5, 0, 0, 2, 0);
+  private final Command RawDOLRed = new RawAutonDrive(m_driveTrain, 0.5, 0, 0, 2, 0);
+  private final Command RawDOLBlue = new RawAutonDrive(m_driveTrain, -0.5, 0, 0, 2, 0);
+
 
   /* Blue */
   //Right
@@ -131,8 +133,7 @@ public class RobotContainer {
 
 
   private final AdvancedPose2D initialPoseBLUE = new AdvancedPose2D(FieldConstants.autonLineDistance, FieldConstants.blueReefCenterPos.getY(), 180);
-  private final AdvancedPose2D initialPoseRED = new AdvancedPose2D(FieldConstants.fieldLength - FieldConstants.autonLineDistance, 
-                                                                   FieldConstants.blueReefCenterPos.horizontallyFlip().getY(), 180);
+  private final AdvancedPose2D initialPoseRED = initialPoseBLUE.flipBoth();
 
   //Left
 
@@ -175,7 +176,8 @@ public class RobotContainer {
     autonChooser.addOption("BLUE Back Score on Right", BackScoreBlueRight);
     autonChooser.addOption("RED Back Score on Left", BackScoreRedLeft);
     autonChooser.addOption("RED Back Score on Right", BackScoreRedRight);
-    autonChooser.addOption("Raw DOL", RawDOL);
+    autonChooser.addOption("RED Raw DOL", RawDOLRed);
+    autonChooser.addOption("BLUE Raw DOL", RawDOLBlue);
 
     // autonChooser.addOption("BLUE Three Coral on L4, right side", ThreeL4RightBlue);
     // autonChooser.addOption("BLUE Four Coral on L3, right side", FourL3RightBlue);
@@ -248,6 +250,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autonChooser.getSelected();
+    return RawDOLRed;
   }
 }

@@ -20,6 +20,6 @@ public class DriveOffLine extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(new SetInitialPose(driveTrain, initialPose),
-                new AutonDriveToPosition(driveTrain,initialPose.withRobotRelativeTransformation(new Translation2d(0, 1))));
+                new AutonDriveToPosition(driveTrain, initialPose.withRobotRelativeTransformation(new Translation2d(0, 1))));
   }
 }
