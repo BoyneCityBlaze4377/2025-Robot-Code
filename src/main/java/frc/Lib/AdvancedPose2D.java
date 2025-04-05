@@ -93,7 +93,8 @@ public class AdvancedPose2D extends Pose2d {
         return new AdvancedPose2D(this.withRobotRelativeTransformation(new Translation2d(AutoAimConstants.offsetFromAlignment.get(alignment),
                                                                        (isL4 ? -.003 : backset))).getTranslation(),
                                                                        Rotation2d.fromDegrees(this.getRotation().getDegrees() +
-                                                                       (alignment == Alignment.center ? (this.getRotation().getDegrees() <= -180 ? 180 : -180) : 0)));
+                                                                       (alignment == Alignment.center ? (this.getRotation().getDegrees() <= -180 
+                                                                            ? 180 : -180) : 0)));
     }
 
     public double getDistance(AdvancedPose2D other) {

@@ -38,6 +38,7 @@ import frc.Lib.LimelightHelpers;
 import frc.Lib.Elastic.Notification;
 import frc.Lib.Elastic.Notification.NotificationLevel;
 import frc.Lib.LimelightHelpers.PoseEstimate;
+import frc.Lib.Terms.*;
 
 import frc.robot.Constants.AutoAimConstants;
 import frc.robot.Constants.AutoAimConstants.*;
@@ -126,6 +127,8 @@ public class DriveTrain extends SubsystemBase {
 
     brakeAll();
     resetEncoders();
+
+    SmartDashboard.putNumber("POW", new Pow(new Constant(5.), new Variable(new Constant(1.)), 2.).evaluate(1.));
 
     // DriveTrain GyroScope
     m_gyro = new AHRS(NavXComType.kUSB1);
