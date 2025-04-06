@@ -8,8 +8,16 @@ public class Variable extends Term {
         super(TermType.var, coefficient, null);
     }
 
+    public Variable(double coefficient) {
+        this(new Constant(coefficient));
+    }
+
+    public Variable() {
+        this(Term.NoCoefficient);
+    }
+
     @Override
-    public double evaluate(double x) {
+    public double eval(double x) {
         return x;
     }
 }

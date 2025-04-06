@@ -6,12 +6,12 @@ import frc.Lib.Term;
 public class Constant extends Term {
     private final double m_value;
     public Constant(double value) {
-        super(TermType.Constant, null, null);
+        super(TermType.constant, null, null);
         m_value = value;
     }
 
     @Override
-    public double evaluate(double x) {
+    public double eval(double x) {
         return m_value;
     }
 }
