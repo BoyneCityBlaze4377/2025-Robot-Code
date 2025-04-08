@@ -21,20 +21,6 @@ public class BezierPath {
     }
 
     /**
-     * Calculate the factorial of a given integer
-     * 
-     * @param k The interger to calculate the factorial of
-     * @return The calculated factorial
-     */
-    public static double factorial(int k) {
-        long m_k = 1;
-        for (int i = 1; i <= k; i++) {
-            m_k *= i;
-        }
-        return m_k;
-    }
-
-    /**
      * Calculate the coefficient of the polynomial term, similar to using pascals triangle
      * 
      * @param n The degree of the polynomial
@@ -43,7 +29,7 @@ public class BezierPath {
      * @return The calculated coefficient
      */
     public static double binomialCoefficient(int n, int i) {
-        return factorial(n) / (factorial(i) * factorial(n - i));
+        return FactorialUtil.factorial(n) / (FactorialUtil.factorial(i) * FactorialUtil.factorial(n - i));
     }
 
     /**

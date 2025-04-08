@@ -13,7 +13,7 @@ public class Variable extends Term {
     }
 
     public Variable() {
-        this(Term.NoCoefficient);
+        this(NoCoefficient);
     }
 
     @Override

@@ -6,7 +6,7 @@ import frc.Lib.Term;
 public class Constant extends Term {
     private final double m_value;
     public Constant(double value) {
-        super(TermType.constant, null, null);
+        super(TermType.constant, null);
         m_value = value;
     }
 

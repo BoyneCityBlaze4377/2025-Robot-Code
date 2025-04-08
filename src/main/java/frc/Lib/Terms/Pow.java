@@ -5,16 +5,19 @@ import frc.Lib.Term;
 /** Add your docs here. */
 public class Pow extends Term {
     private final double m_exp;
-    private final Term m_imbedded;
 
     public Pow(Term coefficient, Term imbedded, double exponent) {
         super(TermType.pow, coefficient, imbedded);
         m_exp = exponent;
-        m_imbedded = imbedded;
     }
 
     public Pow(double coefficient, Term imbedded, double exponent) {
-        this(new Constant(coefficient), imbedded, exponent);
+        super(TermType.pow, coefficient, imbedded);
+        m_exp = exponent;
+    }
+
+    public Pow(Term imbedded, double exponent) {
+        this(NoCoefficient, imbedded, exponent);
     }
 
     @Override
