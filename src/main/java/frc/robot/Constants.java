@@ -32,12 +32,18 @@ public final class Constants {
     public static final ShuffleboardTab ConfigTab = Shuffleboard.getTab("Configuration");
 
     /* CONTROLLER IDS */
-    public static final int driverControllerID = 0;
-    public static final int operatorController1ID = 1;
-    public static final int operatorController2ID = 2;
+    public static final int driverControllerID = 1;
+    public static final int operatorController1ID = 2;
+    public static final int operatorController2ID = 3;
 
     /* BUTTON IDS */
     /* Driver */
+
+    //Driving Axes
+    public static final int xAxis = 1;
+    public static final int yAxis = 0;
+    public static final int rotAxis = 2;
+
     //Main Functions
     public static final int quickBrakeButtonID = 6; //6
     public static final int slowModeButtonID = 3; //3
@@ -124,7 +130,7 @@ public final class Constants {
 
     public static final double coralWristDefaultPos = startingAngle;
     public static final double coralWristL23 = 19;
-    public static final double coralWristL4 = 100;
+    public static final double coralWristL4 = 95;
     public static final double coralWristHP = 36;
 
     public static final double wristOverrideSpeed = .2;
@@ -135,7 +141,7 @@ public final class Constants {
     public static final double coralWristKTolerance = .5;
 
     public static final double coralAffectorInSpeed = .25;
-    public static final double coralAffectorOutSpeed = .75;
+    public static final double coralAffectorOutSpeed = .65;
 
     public static final double maxCoralWristUpSpeed = .4;
     public static final double maxCoralWristDownSpeed = -.175;
@@ -219,10 +225,10 @@ public final class Constants {
     public static final boolean backLeftAbsReversed = false;
     public static final boolean backRightAbsReversed = false;
 
-    public static final double frontLeftAnalogEncoderOffset = 4.69;  
-    public static final double frontRightAnalogEncoderOffset = 75.88;
-    public static final double backLeftAnalogEncoderOffset = 162.39;
-    public static final double backRightAnalogEncoderOffset = 63.79;
+    public static final double frontLeftAnalogEncoderOffset = 5.918;  
+    public static final double frontRightAnalogEncoderOffset = 75.962;
+    public static final double backLeftAnalogEncoderOffset = 160.43;
+    public static final double backRightAnalogEncoderOffset = 64.123;
 
     public static final double maxModuleAngularSpeedDegreesPerSecond = 360;
     public static final double maxModuleAngularAccelerationDegreesPerSecondSquared = 360;

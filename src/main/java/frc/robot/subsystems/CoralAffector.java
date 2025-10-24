@@ -78,7 +78,7 @@ public class CoralAffector extends SubsystemBase {
   @Override
   public void periodic() {
     /** Move Wrist */
-    //coralWrist.set(wristSpeed);
+    coralWrist.set(wristSpeed);
 
     /** DashBoard Updates */
     wristValSender.setDouble(getWristDegrees());

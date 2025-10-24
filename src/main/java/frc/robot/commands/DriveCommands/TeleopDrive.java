@@ -3,6 +3,7 @@ package frc.robot.commands.DriveCommands;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 
 public class TeleopDrive extends Command {
@@ -36,9 +37,13 @@ public class TeleopDrive extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    x = (Math.abs(m_joystick.getY()) < DriveConstants.xyDeadband ? 0 : -m_joystick.getY());
-    y = (Math.abs(m_joystick.getX()) < DriveConstants.xyDeadband ? 0 : m_joystick.getX());
-    rot = (Math.abs(m_joystick.getZ()) < DriveConstants.zDeadband ? 0 : m_joystick.getZ());    
+    x = (Math.abs(m_joystick.getRawAxis(Constants.IOConstants.xAxis)) < DriveConstants.xyDeadband ? 0 : 
+                  -m_joystick.getRawAxis(Constants.IOConstants.xAxis));
+    y = (Math.abs(m_joystick.getRawAxis(Constants.IOConstants.yAxis)) < DriveConstants.xyDeadband ? 0 : 
+                  m_joystick.getRawAxis(Constants.IOConstants.yAxis));
+    rot = (Math.abs(m_joystick.getRawAxis(Constants.IOConstants.rotAxis)) < DriveConstants.zDeadband ? 0 : 
+                  m_joystick.getRawAxis(Constants.IOConstants.rotAxis));
+                  
     m_driveTrain.teleopDrive(x, -y, -rot);
   }
   
