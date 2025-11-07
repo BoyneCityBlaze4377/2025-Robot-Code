@@ -4,10 +4,11 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.RobotConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
-
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -18,35 +19,34 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.Odometry;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
-
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.Lib.AdvancedPose2D;
 import frc.Lib.Elastic;
-import frc.Lib.LimelightHelpers;
 import frc.Lib.Elastic.Notification;
 import frc.Lib.Elastic.Notification.NotificationLevel;
+import frc.Lib.LimelightHelpers;
 import frc.Lib.LimelightHelpers.PoseEstimate;
-import frc.Lib.Terms.*;
-import frc.Lib.Term;
-
 import frc.robot.Constants.AutoAimConstants;
-import frc.robot.Constants.AutoAimConstants.*;
+import frc.robot.Constants.AutoAimConstants.Alignment;
+import frc.robot.Constants.AutoAimConstants.Position;
+import frc.robot.Constants.AutoAimConstants.ReefStation;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
-import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.Constants.ModuleConstants;
 import frc.robot.Constants.SensorConstants;
@@ -90,7 +90,10 @@ public class DriveTrain extends SubsystemBase {
 
   private double tx, ty, ta, tID, speedScaler, heading, x, y, omega,  elevatorHeight;
   private int periodicTimer = 1;
-    
+
+  //Remy test
+  private Odometry m_Odometry;
+
   /** Creates a new DriveTrain. */
   public DriveTrain(Elevator elevator, String limelightName) {
     /* Swerve Modules */
@@ -264,6 +267,10 @@ public class DriveTrain extends SubsystemBase {
     speedScaler = DriveConstants.speedScaler;
 
     m_alliance = Alliance.Blue;
+    //Remy Test
+    AutoBuilder.configure( this :: getPose, this :: , null, null, null, null, null, null);
+
+    m_Odometry = new SwerveDriveOdometry(SwerveConstants.driveKinematics, new Rotation2d(m_gyro.getYaw()), m_frontLeft.getPosition());
   }
 
   @Override
@@ -871,5 +878,10 @@ public class DriveTrain extends SubsystemBase {
     if (getPoseEstimate().get().tagCount >= 1) {
     poseEstimator.resetTranslation(getPoseEstimate().get().pose.getTranslation());
     }
+  }
+
+  //remy Test
+  public void resetOdometry (Pose2d pose) {
+
   }
 }

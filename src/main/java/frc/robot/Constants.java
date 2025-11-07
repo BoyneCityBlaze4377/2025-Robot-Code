@@ -2,6 +2,7 @@ package frc.robot;
 
 import java.util.HashMap;
 
+import com.pathplanner.lib.config.RobotConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.VecBuilder;
