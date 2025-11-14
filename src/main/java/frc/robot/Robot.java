@@ -1,5 +1,6 @@
 package frc.robot;
 
+import choreo.auto.AutoFactory;
 import edu.wpi.first.net.WebServer;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -10,6 +11,9 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.IOConstants;
+import frc.robot.Constants.SensorConstants;
+import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.Elevator;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -21,6 +25,10 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
   private RobotContainer m_robotContainer;
   private final GenericEntry fmsInfo, voltage;
+  //Remy Test
+  private final Elevator m_elevator = new Elevator();
+  private final DriveTrain m_DriveTrain = new DriveTrain(m_elevator, SensorConstants.limeLightName);
+  private final AutoFactory autoFactory;
 
   public Robot() {
     fmsInfo = IOConstants.ConfigTab.add("FMSInfo", 0)
@@ -29,6 +37,9 @@ public class Robot extends TimedRobot {
     voltage = IOConstants.TeleopTab.add("Battery Voltage", RobotController.getBatteryVoltage())
                                    .withWidget("Voltage View")
                                    .getEntry();
+    //Remy Test Choreo Stuff
+    autoFactory = new AutoFactory(m_DriveTrain :: getPose, m_DriveTrain :: resetOdometry,
+                                  m_DriveTrain :: followTrajectory, true, m_DriveTrain);
   }
   
   /**

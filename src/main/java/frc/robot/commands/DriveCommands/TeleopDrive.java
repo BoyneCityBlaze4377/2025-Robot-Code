@@ -31,7 +31,7 @@ public class TeleopDrive extends Command {
     x = 0;
     y = 0;
     rot = 0;
-    m_driveTrain.setOrientation(false);//gotta change this back at some point to true Remy
+    m_driveTrain.setOrientation(true);
   }
 
   // Called every time the scheduler runs while the command is scheduled.

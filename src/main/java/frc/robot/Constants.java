@@ -499,4 +499,8 @@ public final class Constants {
     /** WRIST LIMIT SWITCH */
     public static final int wristResetterID = 2;
   }
+  
+  public class RemyConstants {
+   public static RobotConfig config;
+  }
 }

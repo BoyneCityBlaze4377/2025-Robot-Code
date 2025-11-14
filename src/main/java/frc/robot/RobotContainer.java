@@ -3,28 +3,62 @@ package frc.robot;
 import java.util.Map;
 import java.util.Optional;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathPlannerPath;
+
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.Lib.AdvancedPose2D;
-import frc.robot.Constants.FieldConstants;
-import frc.robot.Constants.IOConstants;
-import frc.robot.Constants.SensorConstants;
 import frc.robot.Constants.AutoAimConstants.Alignment;
 import frc.robot.Constants.AutoAimConstants.Position;
 import frc.robot.Constants.AutonConstants;
-import frc.robot.subsystems.*;
+import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.IOConstants;
+import frc.robot.Constants.SensorConstants;
 import frc.robot.commands.AllToSetPosition;
-import frc.robot.commands.DriveCommands.*;
-import frc.robot.commands.ElevatorCommands.*;
-import frc.robot.commands.PieceAffectorsCommands.*;
 import frc.robot.commands.Auton.Functions.RawAutonDrive;
 import frc.robot.commands.Auton.Functions.SetInitialPose;
-import frc.robot.commands.Auton.Sequences.*;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.Auton.Sequences.BackAndScoreBlue;
+import frc.robot.commands.Auton.Sequences.BackAndScoreRed;
+import frc.robot.commands.Auton.Sequences.DriveOffLine;
+import frc.robot.commands.Auton.Sequences.FourCoralL3LeftBlue;
+import frc.robot.commands.Auton.Sequences.FourCoralL3LeftRed;
+import frc.robot.commands.Auton.Sequences.FourCoralL3RightBlue;
+import frc.robot.commands.Auton.Sequences.FourCoralL3RightRed;
+import frc.robot.commands.Auton.Sequences.NoAuton;
+import frc.robot.commands.Auton.Sequences.PlaceOnBackAndProcessorBlue;
+import frc.robot.commands.Auton.Sequences.PlaceOnBackAndProcessorRed;
+import frc.robot.commands.Auton.Sequences.ThreeCoralL4LeftBlue;
+import frc.robot.commands.Auton.Sequences.ThreeCoralL4LeftRed;
+import frc.robot.commands.Auton.Sequences.ThreeCoralL4RightRed;
+import frc.robot.commands.Auton.Sequences.TwoL4AndProcessorBlue;
+import frc.robot.commands.Auton.Sequences.TwoL4AndProcessorRed;
+import frc.robot.commands.DriveCommands.AutoAimDrive;
+import frc.robot.commands.DriveCommands.ForceRobotOrientation;
+import frc.robot.commands.DriveCommands.LockPose;
+import frc.robot.commands.DriveCommands.QuickBrake;
+import frc.robot.commands.DriveCommands.ResetPose;
+import frc.robot.commands.DriveCommands.SelectDesiredAlignment;
+import frc.robot.commands.DriveCommands.SlowMode;
+import frc.robot.commands.DriveCommands.StraightDrive;
+import frc.robot.commands.DriveCommands.SwitchOrientation;
+import frc.robot.commands.DriveCommands.TeleopDrive;
+import frc.robot.commands.ElevatorCommands.ElevatorOverride;
+import frc.robot.commands.PieceAffectorsCommands.AlgaeCollect;
+import frc.robot.commands.PieceAffectorsCommands.AlgaeScore;
+import frc.robot.commands.PieceAffectorsCommands.CoralCollect;
+import frc.robot.commands.PieceAffectorsCommands.CoralScore;
+import frc.robot.commands.PieceAffectorsCommands.CoralWristOverride;
+import frc.robot.subsystems.AlgaeAffector;
+import frc.robot.subsystems.CoralAffector;
+import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.Elevator;
 
 /**
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -250,6 +284,13 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return RawDOLRed;
+    // Pathplanner
+    try {
+      PathPlannerPath path = PathPlannerPath.fromPathFile("Straght line");
+      return AutoBuilder.followPath(path);
+    } catch (Exception e) {
+      DriverStation.reportError("Big Opps " + e.getMessage(), e.getStackTrace());
+      return Commands.none();
+    }
   }
 }

@@ -7,19 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Copy of New Path"
+            "pathName": "TEST Step 1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "New Path"
+            "pathName": "Test Step 2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "New New Path"
+            "pathName": "Test Step 3"
           }
         }
       ]
